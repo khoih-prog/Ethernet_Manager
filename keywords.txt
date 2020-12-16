@@ -1,0 +1,32 @@
+#######################################
+# Data types (KEYWORD1)
+#######################################
+
+MenuItem  KEYWORD1
+Ethernet_Configuration KEYWORD1
+Ethernet_Manager KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin	KEYWORD2
+run	KEYWORD2
+
+getBoardName  KEYWORD2
+getFullConfigData KEYWORD2
+clearConfigData KEYWORD2
+resetFunc KEYWORD2
+
+#######################################
+# Literals (LITERAL1)
+#######################################
+
+ETM_HTML_HEAD LITERAL1
+ETM_FLDSET_START  LITERAL1
+ETM_FLDSET_END  LITERAL1
+ETM_HTML_PARAM  LITERAL1
+ETM_HTML_BUTTON LITERAL1
+ETM_HTML_SCRIPT LITERAL1
+ETM_HTML_SCRIPT_ITEM  LITERAL1
+ETM_HTML_SCRIPT_END LITERAL1
+ETM_HTML_END  LITERAL1

@@ -1,0 +1,55 @@
+{
+  "name": "Ethernet_Manager",
+  "version": "1.0.0",
+  "description": "Simple Ethernet Manager for Teensy, SAM DUE, SAMD21, SAMD51, nRF52, ESP32, ESP8266, etc. boards, with or without SSL, configuration data saved in ESP8266 LittleFS, SPIFFS, nRF52 LittleFS/InternalFS, EEPROM, DueFlashStorage or SAMD FlashStorage.",
+  "keywords": "communication, ethernet, data, esp8266, http, W5500, W5x00, ENC28J60, Teensy, SAM DUE, SAMD21, SAMD51, STM32, nRF52, Credentials, Manager, Config Portal, Double, Reset, Detector",
+  "authors":
+  {
+    "name":  "Khoi Hoang",
+    "url":   "https://github.com/khoih-prog",
+    "maintainer": true
+  },
+  "repository":
+  {
+    "type": "git",
+    "url": "//https://github.com/khoih-prog/Ethernet_Manager"
+  },
+  "homepage": "https://github.com/khoih-prog/Ethernet_Manager",
+  "export": {
+    "exclude": [
+      "linux",
+      "extras",
+      "tests"
+    ]
+  },
+  "dependencies": 
+  [
+    {
+      "owner": "khoih-prog",
+      "name": "EthernetWebServer",
+      "version": ">=1.2.0",
+      "platforms": ["*"]
+    },
+    {
+      "owner": "khoih-prog",
+      "name": "ESP_DoubleResetDetector",
+      "version": ">=1.0.3",
+      "platforms": ["espressif8266", "espressif32"]
+    },
+    {
+      "owner": "khoih-prog",
+      "name": "DoubleResetDetector_Generic",
+      "version": ">=1.0.2",
+      "platforms": ["*"]
+    },
+    {
+      "owner": "khoih-prog",
+      "name": "Functional-Vlpp",
+      "version": ">=1.0.1",
+      "platforms": ["*"]
+    }
+  ],
+  "frameworks": "*",
+  "platforms": "*",
+  "examples": "examples/*/*/*.ino"
+}
