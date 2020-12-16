@@ -84,7 +84,7 @@ The best way is to use `Arduino Library Manager`. Search for `Ethernet_Manager`,
 
 1. Install [VS Code](https://code.visualstudio.com/)
 2. Install [PlatformIO](https://platformio.org/platformio-ide)
-3. Install [**Ethernet_Manager** library](https://platformio.org/lib/show/xxxxx/Ethernet_Manager) by using [Library Manager](https://platformio.org/lib/show/xxxxx/Ethernet_Manager/installation). Search for Ethernet_Manager in [Platform.io Author's Libraries](https://platformio.org/lib/search?query=author:%22Khoi%20Hoang%22)
+3. Install [**Ethernet_Manager** library](https://platformio.org/lib/show/11568/Ethernet_Manager) by using [Library Manager](https://platformio.org/lib/show/11568/Ethernet_Manager/installation). Search for Ethernet_Manager in [Platform.io Author's Libraries](https://platformio.org/lib/search?query=author:%22Khoi%20Hoang%22)
 4. Use included [platformio.ini](platformio/platformio.ini) file from examples to ensure that all dependent libraries will installed automatically. Please visit documentation for the other options and examples at [Project Configuration File](https://docs.platformio.org/page/projectconf.html)
 
 
