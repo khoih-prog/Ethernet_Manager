@@ -47,7 +47,7 @@ Ethernet_Configuration defaultConfig =
   // Use dynamic DHCP IP
   "",
   //char board_name     [24];
-  "SAMD-Ethernet",
+  "Generic-Ethernet",
   // terminate the list
   //int  checkSum, dummy, not used
   0

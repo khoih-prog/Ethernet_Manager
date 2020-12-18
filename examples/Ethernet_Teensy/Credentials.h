@@ -8,11 +8,6 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
-  Version: 1.0.0
-
-  Version  Modified By   Date      Comments
-  -------  -----------  ---------- -----------
-  1.0.0     K Hoang     14/12/2020 Initial coding.
  *****************************************************************************************************************************/
 
 #ifndef Credentials_h

@@ -1,6 +1,6 @@
 /****************************************************************************************************************************
-  Ethernet_Teensy.ino
-  For W5x00, ENC28J60 and Teensy 4.1 NativeEthernet.
+  MQTT_ThingStream_Ethernet_SAMD.ino
+  For W5x00 and ENC28J60 Ethernet shields.
 
   Ethernet_Manager is a library for nRF52, Teensy, STM32, SAM DUE and SAMD boards, with Ethernet W5x00 or ENC28J60 shields,
   to enable easy configuration/reconfiguration of Credentials and autoconnect/autoreconnect of Ethernet.
@@ -14,9 +14,101 @@
 #include "Credentials.h"
 #include "dynamicParams.h"
 
+///////////// Start MQTT ThingStream ///////////////
+#include <PubSubClient.h>
+
+// GOT FROM ThingsStream!
+
+const char *MQTT_PREFIX_TOPIC   = "esp32-sniffer/";
+const char *MQTT_ANNOUNCE_TOPIC = "/status";
+const char *MQTT_CONTROL_TOPIC  = "/control";
+const char *MQTT_BLE_TOPIC      = "/ble";
+
+String topic    = MQTT_PREFIX_TOPIC + String("12345678") + MQTT_BLE_TOPIC;
+String subTopic = MQTT_PREFIX_TOPIC + String("12345678") + MQTT_BLE_TOPIC;
+
+//////////// End MQTT ThingStream ///////////////
+
 Ethernet_Manager ethernet_manager;
 
 IPAddress localEthernetIP;
+
+
+///////////// Start MQTT ThingStream ///////////////
+
+void mqtt_receive_callback(char* topic, byte* payload, unsigned int length);
+
+unsigned long lastMsg = 0;
+
+// Initialize the SSL client library
+// Arguments: EthernetClient, our trust anchors
+
+
+EthernetClient    ethClient;
+
+PubSubClient* client = NULL;
+
+/*
+   Called whenever a payload is received from a subscribed MQTT topic
+*/
+void mqtt_receive_callback(char* topic, byte* payload, unsigned int length) 
+{
+  Serial.print("\nMQTT Message receive [");
+  Serial.print(topic);
+  Serial.print("] ");
+  
+  for (int i = 0; i < length; i++) 
+  {
+    Serial.print((char)payload[i]);
+  }
+  
+  Serial.println();
+}
+
+void reconnect() 
+{
+  // Loop until we're reconnected
+  while (!client->connected()) 
+  {
+    Serial.print("Attempting MQTT connection to ");
+    Serial.println(MQTT_SERVER);
+
+    // Attempt to connect
+
+    int connect_status = client->connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS, topic.c_str(), 2, false, "");
+
+    if (connect_status)                                
+    {
+      Serial.println("...connected");
+      
+      // Once connected, publish an announcement...
+      String data = "Hello from MQTTClient_SSL on " + String(BOARD_NAME);
+
+      client->publish(topic.c_str(), data.c_str());
+
+      Serial.println("Published connection message successfully!");
+     
+      Serial.print("Subcribed to: ");
+      Serial.println(subTopic);
+      
+      // ... and resubscribe
+      client->subscribe(subTopic.c_str());
+      // for loopback testing
+      client->subscribe(topic.c_str());
+    } 
+    else 
+    {
+      Serial.print("failed, rc=");
+      Serial.print(client->state());
+      Serial.println(" try again in 5 seconds");
+      
+      // Wait 5 seconds before retrying
+      delay(5000);
+    }
+  }
+}
+
+///////////// End MQTT ThingStream ///////////////
 
 // Use to detect W5100 shield. The linkStatus() is not working with W5100 
 // in Ethernet and EthernetLarge libraries
@@ -81,14 +173,13 @@ void setup()
   Serial.begin(115200);
   while (!Serial);
 
-  Serial.println("\nStart Ethernet_Teensy on " + String(BOARD_NAME)); 
+  Serial.println("\nStart MQTT_ThingStream_Ethernet_SAMD on " + String(BOARD_NAME)); 
   Serial.println("Ethernet Shield type : " + String(SHIELD_TYPE));
   Serial.println(ETHERNET_MANAGER_VERSION);
 
   pinMode(SDCARD_CS, OUTPUT);
   digitalWrite(SDCARD_CS, HIGH); // Deselect the SD card
-
-
+  
 #if USE_ETHERNET_WRAPPER
 
   EthernetInit();
@@ -191,12 +282,16 @@ void setup()
     Serial.println(F("Ethernet not Connected! Please check."));
   }
 
-  // Detect W5100 only in Ethernet and EthernetLarge libraries
+// Detect W5100 only in Ethernet and EthernetLarge libraries
 #if ( USE_ETHERNET || USE_ETHERNET_LARGE)
   isW5500 = (Ethernet.hardwareStatus() == EthernetW5500);
   Serial.print(F("Ethernet type is "));
   Serial.println(isW5500 ? "W5500" : "W5100");
 #endif
+  
+  Serial.println("***************************************");
+  Serial.println(topic);
+  Serial.println("***************************************");
 }
 
 #if (USE_DYNAMIC_PARAMETERS)
@@ -233,13 +328,58 @@ void displayCredentialsOnce()
 }
 #endif
 
+#define MQTT_PUBLISH_INTERVAL_MS      20000L
+
+String data         = "Hello from MQTT_ThingStream on " + String(BOARD_NAME) + " with " + String(SHIELD_TYPE);
+const char *pubData = data.c_str();
+
 void loop()
 {
-  ethernet_manager.run();
-  
-  check_status();
+  static bool           inConfigMode = true;
+  static unsigned long  currentMillis;
 
-#if (USE_DYNAMIC_PARAMETERS)
-  displayCredentialsOnce();
-#endif  
+  
+  inConfigMode = ethernet_manager.run();
+
+  if (!inConfigMode)
+  {
+    if (!client)
+    {
+       client = new PubSubClient(MQTT_SERVER, atoi(MQTT_PORT), mqtt_receive_callback, ethClient);
+
+      // Note - the default maximum packet size is 256 bytes. If the
+      // combined length of clientId, username and password exceed this use the
+      // following to increase the buffer size:
+      //client->setBufferSize(256);
+    }
+    
+    if (!client->connected()) 
+    {
+      reconnect();
+    }
+  
+    // Sending Data
+    currentMillis = millis();
+    
+    if (currentMillis - lastMsg > MQTT_PUBLISH_INTERVAL_MS)
+    {
+      lastMsg = currentMillis;
+  
+      if (!client->publish(topic.c_str(), pubData))
+      {
+        Serial.println("Message failed to send.");
+      }
+  
+      Serial.print("\nMQTT Message Send : " + topic + " => ");
+      Serial.println(data);
+    }
+    
+    client->loop();
+    
+    check_status();
+  
+  #if (USE_DYNAMIC_PARAMETERS)
+    displayCredentialsOnce();
+  #endif
+  }
 }

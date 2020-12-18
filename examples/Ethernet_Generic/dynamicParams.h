@@ -8,11 +8,6 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
-  Version: 1.0.0
-
-  Version  Modified By   Date      Comments
-  -------  -----------  ---------- -----------
-  1.0.0     K Hoang     14/12/2020 Initial coding.
  *****************************************************************************************************************************/
 
 #ifndef dynamicParams_h
@@ -24,7 +19,6 @@
 
 /////////////// Start dynamic Credentials ///////////////
 
-//Defined in BlynkEthernet_WM.h, <BlynkEthernet_ESP8266_WM.h>, <BlynkEthernet_ESP32 or_WM.h>
 /**************************************
   #define MAX_ID_LEN                5
   #define MAX_DISPLAY_NAME_LEN      16

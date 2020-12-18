@@ -17,6 +17,12 @@ New recent features:
 
 ---
 
+### Releases v1.1.0
+
+1. Add support to ESP32 and ESP8266 using EEPROM, SPIFFS or LittleFS
+2. Add many complex MQTT Examples to demonstrate how to use the dynamic parameters, entered via Config Portal, to connect to **ThingStream MQTT Server** at `mqtt.thingstream.io`.
+
+
 ### Releases v1.0.0
 
 1. Initial coding to support SAMD21/SAMD51, nRF52, SAM DUE, Teensy.
@@ -425,13 +431,68 @@ then select the CS/SS pin (e.g. 22) to use as follows:
 #define USE_THIS_SS_PIN   22
 ```
 
-#### 3. How to use W5x00 with ESP8266
+#### 3. How to use W5x00/ENC28J60 with ESP32
+
+
+These pins are tested OK with ESP32 and W5x00/ENC28J60: 
+
+* MOSI:  GPIO23
+* MISO:  GPIO19
+* SCK:   GPIO18 
+* CS/SS: GPIO22
+
+```
+  #define PIN_D18           18        // Pin D18 mapped to pin GPIO18/VSPI_SCK of ESP32
+  #define PIN_D19           19        // Pin D19 mapped to pin GPIO19/VSPI_MISO of ESP32
+  #define PIN_D23           23        // Pin D23 mapped to pin GPIO23/VSPI_MOSI of ESP32
+   
+  // You can use Ethernet.init(pin) to configure the CS pin
+  //Ethernet.init(10);  // Most Arduino shields
+  //Ethernet.init(5);   // MKR ETH shield
+  //Ethernet.init(0);   // Teensy 2.0
+  //Ethernet.init(20);  // Teensy++ 2.0
+  //Ethernet.init(15);  // ESP8266 with Adafruit Featherwing Ethernet
+  //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
+
+  // Connection for ESP32
+  // MOSI: GPIO23, MISO: GPIO19, SCK: GPIO18, CS/SS: GPIO22
+  
+  #ifndef USE_THIS_SS_PIN
+    #define USING_M5STACK_W5500     false
+    #if USING_M5STACK_W5500
+      #warning Using M5Stack_Core_ESP32 with W5500 mudule
+      #define USE_THIS_SS_PIN   26    // For M5Stack_Core_ESP32 with W5500 mudule
+    #else
+      #define USE_THIS_SS_PIN   22    // For ESP32
+    #endif
+  #endif
+
+```
+
+#### 4. How to use W5x00/ENC28J60 with ESP8266
 
 To avoid using the default but not-working Ethernet library of ESP8266, rename the Ethernet.h/cpp to Ethernet_ESP8266.h/cpp to avoid library conflict if you're using the Arduino Ethernet library. The Ethernet2, Ethernet3, EthernetLarge library can be used without conflict.
 
-These pins are tested OK with ESP8266 and W5x00
+These pins are tested OK with ESP8266 and W5x00/ENC28J60
+
+* MOSI:   D7/GPIO13
+* MISO:   D6/GPIO12
+* SCK:    D5/GPIO14
+* CS/SS:  D2/GPIO4
 
 ```
+  #define PIN_D5            14        // Pin D5 mapped to pin GPIO14/HSCLK of ESP8266
+  #define PIN_D6            12        // Pin D6 mapped to pin GPIO12/HMISO of ESP8266
+  #define PIN_D7            13        // Pin D7 mapped to pin GPIO13/RXD2/HMOSI of ESP8266
+  
+  // Connection for ESP8266
+  // MOSI: D7/GPIO13, MISO: D6/GPIO12, SCK: D5/GPIO14, CS/SS: D2/GPIO4
+  
+  // For ESP8266, change for other boards if necessary
+  #ifndef USE_THIS_SS_PIN
+    #define USE_THIS_SS_PIN   D2    // For ESP8266
+  #endif
+  
   // For ESP8266
   // Pin                D0(GPIO16)    D1(GPIO5)    D2(GPIO4)    D3(GPIO0)    D4(GPIO2)    D8
   // Ethernet           0                 X            X            X            X        0
@@ -446,7 +507,7 @@ These pins are tested OK with ESP8266 and W5x00
 
 ```
 
-#### 4. How to increase W5x00 TX/RX buffer
+#### 5. How to increase W5x00 TX/RX buffer
 
 - For **Ethernet3** library only,  use as follows
 
@@ -633,7 +694,13 @@ Please be noted that the following **reserved names are already used in library*
  5. [Ethernet_SAMD](examples/Ethernet_SAMD)
  6. [Ethernet_SAM_DUE](examples/Ethernet_SAM_DUE)
  7. [Ethernet_Teensy](examples/Ethernet_Teensy)
+ 8. [**MQTT_ThingStream_Ethernet_Generic**](examples/MQTT_ThingStream_Ethernet_Generic). **New**
+ 9. [**MQTT_ThingStream_Ethernet_nRF52**](examples/MQTT_ThingStream_Ethernet_nRF52). **New**
+10. [**MQTT_ThingStream_Ethernet_SAMD**](examples/MQTT_ThingStream_Ethernet_SAMD). **New**
+11. [**MQTT_ThingStream_Ethernet_SAM_DUE**](examples/MQTT_ThingStream_Ethernet_SAM_DUE). **New**
+12. [**MQTT_ThingStream_Ethernet_Teensy**](examples/MQTT_ThingStream_Ethernet_Teensy). **New**
 
+---
 ---
 
 ## So, how it works?
@@ -641,7 +708,7 @@ Please be noted that the following **reserved names are already used in library*
 If no valid config data are stored in EEPROM, it will switch to `Configuration Mode`. Connect to access point at the IP address displayed on Terminal or Router's DHCP server as in the following picture:
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/ConfigPortal_DUE.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/ConfigPortal.png">
 </p>
 
 After you connected to, for example, `192.168.2.86`, the Browser will display the following picture:
@@ -1196,7 +1263,6 @@ Ethernet_Configuration defaultConfig;
 
 /////////////// Start dynamic Credentials ///////////////
 
-//Defined in BlynkEthernet_WM.h, <BlynkEthernet_ESP8266_WM.h>, <BlynkEthernet_ESP32 or_WM.h>
 /**************************************
   #define MAX_ID_LEN                5
   #define MAX_DISPLAY_NAME_LEN      16
@@ -1266,7 +1332,7 @@ Ethernet_Configuration defaultConfig;
 ```
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type W5x00 using Ethernet2 Library
-Ethernet_Manager v1.0.0
+Ethernet_Manager v1.1.0
 [ETHERNET_WEBSERVER] =========== USE_ETHERNET2 ===========
 [ETHERNET_WEBSERVER] Default SPI pinout:
 [ETHERNET_WEBSERVER] MOSI: 25
@@ -1357,7 +1423,7 @@ Pubs Topics = old-mqtt-PubTopic
 ```cpp
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.0.0
+Ethernet_Manager v1.1.0
 [ETHERNET_WEBSERVER] =========== USE_ETHERNET2 ===========
 [ETHERNET_WEBSERVER] Default SPI pinout:
 [ETHERNET_WEBSERVER] MOSI: 25
@@ -1536,7 +1602,7 @@ HHHHH HHHHHHH
 ```
 Start Ethernet_SAMD on SEEED_XIAO_M0
 Ethernet Shield type : W5x00 using Ethernet Library
-Ethernet_Manager v1.0.0
+Ethernet_Manager v1.1.0
 Flag read = 0xffffffff
 No doubleResetDetected
 SetFlag write = 0xd0d01234
@@ -1611,7 +1677,7 @@ ClearFlag write = 0xd0d04321
 
 Start Ethernet_SAM_DUE on SAM DUE
 Ethernet Shield type : W5x00 using EthernetLarge Library
-Ethernet_Manager v1.0.0
+Ethernet_Manager v1.1.0
 Flag read = 0xd0d01234
 doubleResetDetected
 ClearFlag write = 0xd0d04321
@@ -1646,7 +1712,7 @@ HHH[ETM] h:Updating EEPROM. Please wait for reset
 ⸮
 Start Ethernet_SAM_DUE on SAM DUE
 Ethernet Shield type : W5x00 using EthernetLarge Library
-Ethernet_Manager v1.0.0
+Ethernet_Manager v1.1.0
 Flag read = 0xd0d04321
 No doubleResetDetected
 SetFlag write = 0xd0d01234
@@ -1679,7 +1745,214 @@ HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHH
 ```
 
 ---
+
+4. This is the terminal output of ESP8266_NODEMCU board with W5x00 using Ethernet2 Library, running complex [MQTT_ThingStream_Ethernet_Generic](examples/MQTT_ThingStream_Ethernet_Generic) example to demonstrate how to use dynamic parameters, entered via Config Portal, to connect to [**ThingStream MQTT Server**](mqtt.thingstream.io).
+
+#### 1.Normal run without correct ThingStream MQTT Credentials
+
+If no valid config data are stored in EEPROM, it will switch to `Configuration Mode`. Connect to access point at the IP address displayed on Terminal or Router's DHCP server as in the following picture:
+
+<p align="center">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/MQTT_ConfigPortal_blank.png">
+</p>
+
+
+```
+Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
+Ethernet Shield type : W5x00 using Ethernet2 Library
+Ethernet_Manager v1.1.0
+=========================
+Currently Used SPI pinout:
+MOSI:13
+MISO:12
+SCK:14
+SS:15
+=========================
+LittleFS Flag read = 0xd0d04321
+No doubleResetDetected
+Saving config file...
+Saving config file OK
+[ETM] ======= Start Default Config Data =======
+[ETM] Header= Eth_NonSSL , BoardName= Generic-Ethernet
+[ETM] StaticIP= 
+[ETM] CCSum=0x 9a7 ,RCSum=0x 9a7
+[ETM] Invalid Stored Dynamic Data. Load default from Sketch
+[ETM] Header= ESP8266 , BoardName= Generic-Ethernet
+[ETM] StaticIP= 
+[ETM] Start connectEthernet using DHCP
+[ETM] MAC:FE-AB-CD-EF-ED-BA
+[ETM] IP: 192.168.2.62
+[ETM] begin:Stay in CfgPortal: No CfgDat
+[ETM] CfgIP= 192.168.2.62
+Connected! IP address: 192.168.2.62
+***************************************
+esp32-sniffer/12345678/ble
+***************************************
+Stop doubleResetDetecting
+Saving config file...
+Saving config file OK
+[ETM] h:Updating LittleFS: /etm_config.dat
+[ETM] h:Rst
+```
+
+
+#### 2. Got correct ThingStream MQTT Credentials from Config Portal
+
+Enter your credentials (Blynk Servers/Tokens and Port). If you prefer static IP, input it (for example `192.168.2.220`) in the corresponding field. Otherwise, just leave it `blank` or `nothing` to use auto IP assigned by DHCP server.
+
+<p align="center">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/MQTT_ConfigPortal_ESP8266.png">
+</p>
+
+```
+Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
+Ethernet Shield type : W5x00 using Ethernet2 Library
+Ethernet_Manager v1.1.0
+=========================
+Currently Used SPI pinout:
+MOSI:13
+MISO:12
+SCK:14
+SS:15
+=========================
+LittleFS Flag read = 0xd0d04321
+No doubleResetDetected
+Saving config file...
+Saving config file OK
+[ETM] ======= Start Default Config Data =======
+[ETM] Header= Eth_NonSSL , BoardName= Generic-Ethernet
+[ETM] StaticIP= 
+[ETM] CCSum=0x 975 ,RCSum=0x 975
+[ETM] ======= Start Stored Config Data =======
+[ETM] Header= ESP8266 , BoardName= ESP8266-Ethernet
+[ETM] StaticIP= 192.168.2.222
+[ETM] Start connectEthernet using Static IP = 192.168.2.222
+[ETM] MAC:FE-AB-CD-EF-ED-BA
+[ETM] IP: 192.168.2.222
+[ETM] begin:Ethernet Connected.
+Connected! IP address: 192.168.2.222
+***************************************
+esp32-sniffer/12345678/ble
+***************************************
+Attempting MQTT connection to mqtt.thingstream.io
+...connected
+Published connection message successfully!
+Subcribed to: esp32-sniffer/12345678/ble
+
+Your stored Credentials :
+MQTT Server = mqtt.thingstream.io
+Port = 1883
+MQTT UserName = user_name
+MQTT PWD = user_pwd
+Client ID = client_ID
+HStop doubleResetDetecting
+Saving config file...
+Saving config file OK
+
+MQTT Message Send : esp32-sniffer/12345678/ble => Hello from MQTT_ThingStream on ESP8266_NODEMCU with W5x00 using Ethernet2 Library
+H
+MQTT Message receive [esp32-sniffer/12345678/ble] Hello from MQTT_ThingStream on ESP8266_NODEMCU with W5x00 using Ethernet2 Library
+H
+```
+
 ---
+
+5. This is the terminal output of NRF52840_FEATHER board with ENC28J60 using EthernetENC Library, running complex [MQTT_ThingStream_Ethernet_Generic](examples/MQTT_ThingStream_Ethernet_Generic) example to demonstrate how to use dynamic parameters, entered via Config Portal, to connect to [**ThingStream MQTT Server**](mqtt.thingstream.io).
+
+#### 1.Normal run without correct ThingStream MQTT Credentials
+
+```
+Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
+Ethernet Shield type : ENC28J60 using EthernetENC Library
+Ethernet_Manager v1.1.0
+LittleFS Flag read = 0xd0d01234
+Flag read = 0xd0d01234
+doubleResetDetected
+Saving to DRD file : 0xd0d04321
+Saving DRD file OK
+LittleFS Flag read = 0xd0d04321
+ClearFlag write = 0xd0d04321
+[ETM] =====================
+[ETM] DRD. Run ConfigPortal
+[ETM] =====================
+[ETM] ======= Start Default Config Data =======
+[ETM] Header= Eth_NonSSL , BoardName= nRF52-Ethernet
+[ETM] StaticIP= 
+[ETM] CCSum=0x 7a6 ,RCSum=0x 7a6
+[ETM] ======= Start Stored Config Data =======
+[ETM] Header= nRF52 , BoardName= nRF52-Ethernet
+[ETM] StaticIP= 
+[ETM] Start connectEthernet using DHCP
+[ETM] MAC:FE-33-78-EF-ED-BA
+[ETM] IP: 192.168.2.89
+[ETM] begin:Stay in CfgPortal: DRD
+[ETM] CfgIP= 192.168.2.89
+Connected! IP address: 192.168.2.89
+***************************************
+esp32-sniffer/12345678/ble
+***************************************
+[ETM] h:Updating EEPROM. Please wait for reset
+[ETM] h:Rst
+
+```
+
+#### 2. Got correct ThingStream MQTT Credentials from Config Portal
+
+```
+Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
+Ethernet Shield type : ENC28J60 using EthernetENC Library
+Ethernet_Manager v1.1.0
+LittleFS Flag read = 0xd0d04321
+Flag read = 0xd0d04321
+No doubleResetDetected
+Saving DOUBLERESETDETECTOR_FLAG to DRD file : 0xd0d01234
+Saving DRD file OK
+SetFlag write = 0xd0d01234
+[ETM] ======= Start Default Config Data =======
+[ETM] Header= Eth_NonSSL , BoardName= nRF52-Ethernet
+[ETM] StaticIP= 
+[ETM] CCSum=0x 8d3 ,RCSum=0x 8d3
+[ETM] ======= Start Stored Config Data =======
+[ETM] Header= nRF52 , BoardName= nRF52-Ethernet
+[ETM] StaticIP= 192.168.2.222
+[ETM] Start connectEthernet using Static IP = 192.168.2.222
+[ETM] MAC:FE-33-78-EF-ED-BA
+[ETM] IP: 192.168.2.222
+[ETM] begin:Ethernet Connected.
+Connected! IP address: 192.168.2.222
+***************************************
+esp32-sniffer/12345678/ble
+***************************************
+Attempting MQTT connection to mqtt.thingstream.io
+...connected
+Published connection message successfully!
+Subcribed to: esp32-sniffer/12345678/ble
+
+Your stored Credentials :
+MQTT Server = mqtt.thingstream.io
+Port = 1883
+MQTT UserName = I7UPHZWCKHZASRDIOME9
+MQTT PWD = k8UJuIOtke4yXeF1lY9mXbbCxTovHAAgE3CViJ/4
+Client ID = device:352fc9a7-3211-4e46-8a9a-a390f2e4ca86
+HStop doubleResetDetecting
+Saving to DRD file : 0xd0d04321
+Saving DRD file OK
+LittleFS Flag read = 0xd0d04321
+ClearFlag write = 0xd0d04321
+
+MQTT Message Send : esp32-sniffer/12345678/ble => Hello from MQTT_ThingStream on NRF52840_FEATHER with ENC28J60 using EthernetENC Library
+H
+MQTT Message receive [esp32-sniffer/12345678/ble] Hello from MQTT_ThingStream on NRF52840_FEATHER with ENC28J60 using EthernetENC Library
+H
+```
+---
+---
+
+### Releases v1.1.0
+
+1. Add support to ESP32 and ESP8266 using EEPROM, SPIFFS or LittleFS
+2. Add many complex MQTT Examples to demonstrate how to use the dynamic parameters, entered via Config Portal, to connect to **ThingStream MQTT Server** at `mqtt.thingstream.io`.
+
 
 ### Releases v1.0.0
 
@@ -1753,7 +2026,6 @@ Submit issues to: [Ethernet_Manager issues](https://github.com/khoih-prog/Ethern
 2. Add SSL/TLS feature.
 3. Bug Searching and Killing
 4. Support more non-compatible Ethernet Libraries such as Ethernet_Shield_W5200, EtherCard, EtherSia.
-5. Support STM32 boards
 
 ### DONE
 
@@ -1776,7 +2048,7 @@ Default Credentials and dynamic parameters
 16. Add **LittleFS** support to ESP8266 as SPIFFS deprecated since **ESP8266 core 2.7.1.**
 17. Add support to new [**`EthernetENC library`**](https://github.com/jandrassy/EthernetENC) for ENC28J60.
 18. Add support to new [`NativeEthernet Library version stable111+`](https://github.com/vjmuzik/NativeEthernet) for Teensy 4.1.
-
+19. Add support ESP32/ESP8266 boards
 ---
 
 ### Contributions and Thanks

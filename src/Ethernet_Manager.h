@@ -8,17 +8,20 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
-  Version: 1.0.0
+  Version: 1.1.0
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
   1.0.0     K Hoang     14/12/2020 Initial coding.
+  1.1.0     K Hoang     17/12/2020 Add support to ESP32/ESP8266. Add MQTT related examples to demo dynamic parameter usage
  *****************************************************************************************************************************/
 
 #pragma once
 
 #ifndef Ethernet_Manager_h
 #define Ethernet_Manager_h
+
+#define ETHERNET_MANAGER_VERSION      "Ethernet_Manager v1.1.0"
 
 #if ( USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE || USE_ETHERNET_ESP8266 || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
   #ifdef USE_CUSTOM_ETHERNET

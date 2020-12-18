@@ -8,11 +8,6 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
-  Version: 1.0.0
-
-  Version  Modified By   Date      Comments
-  -------  -----------  ---------- -----------
-  1.0.0     K Hoang     14/12/2020 Initial coding.
  *****************************************************************************************************************************/
 
 #ifndef defines_h
@@ -30,6 +25,9 @@
 #define _ETHERNET_MANAGER_LOGLEVEL_         2
 
 #define DRD_GENERIC_DEBUG                   true
+
+// For ESP32/ESP8266
+#define DOUBLERESETDETECTOR_DEBUG           true
 
 #if ( defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_MKRWIFI1010) \
       || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_SAMD_MKRFox1200) || defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310) \
@@ -256,13 +254,13 @@
   #warning Use ESP8266 architecture
   #include <ESP8266mDNS.h>
   #define ETHERNET_USE_ESP8266
-  #define BOARD_TYPE      "ESP8266"
+  #define BOARD_TYPE      ARDUINO_BOARD           //"ESP8266"
 
 #elif ( defined(ESP32) )
   // For ESP32
   #warning Use ESP32 architecture
   #define ETHERNET_USE_ESP32
-  #define BOARD_TYPE      "ESP32"
+  #define BOARD_TYPE      ARDUINO_BOARD           //"ESP32"
   
   #define W5500_RST_PORT   21
 
@@ -303,9 +301,9 @@
   
   // Only one if the following to be true
   #define USE_ETHERNET          false
-  #define USE_ETHERNET2         false
+  #define USE_ETHERNET2         true
   #define USE_ETHERNET3         false
-  #define USE_ETHERNET_LARGE    true
+  #define USE_ETHERNET_LARGE    false
   #define USE_ETHERNET_ESP8266  false 
   #define USE_ETHERNET_ENC      false
   #define USE_CUSTOM_ETHERNET   false
@@ -342,10 +340,8 @@
     // From ESP8266 core 2.7.1, SPIFFS will be deprecated and to be replaced by LittleFS
     // Select USE_LITTLEFS (higher priority) or USE_SPIFFS
     
-    //#define USE_LITTLEFS                true
     #define USE_LITTLEFS                false
     #define USE_SPIFFS                  false
-    //#define USE_SPIFFS                  true
     
     #if USE_LITTLEFS
       //LittleFS has higher priority
@@ -361,9 +357,19 @@
   #else     //#if defined(ESP8266)
     // TODO, to add ESP32 LittleFS support
     // For ESP32
-    //#define USE_SPIFFS                    true
-    #define USE_SPIFFS                    false
-  
+    #define USE_LITTLEFS                false
+    #define USE_SPIFFS                  false
+
+    #if USE_LITTLEFS
+      //LittleFS has higher priority
+      #define CurrentFileFS     "LittleFS"
+      #ifdef USE_SPIFFS
+        #undef USE_SPIFFS
+      #endif
+      #define USE_SPIFFS                  false
+    #elif USE_SPIFFS
+      #define CurrentFileFS     "SPIFFS"
+    #endif
   #endif    //#if defined(ESP8266)
 
 #else   //#if ( defined(ESP32) || defined(ESP8266) )
@@ -398,6 +404,6 @@
 #define W5100_CS        10
 #define SDCARD_CS       4
 
-#define ETHERNET_HOST_NAME   "W5500-Master-Controller"
+#define ETHERNET_HOST_NAME   "Generic-Ethernet"
 
 #endif      //defines_h

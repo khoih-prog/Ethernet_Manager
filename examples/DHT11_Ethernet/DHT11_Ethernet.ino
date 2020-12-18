@@ -8,11 +8,6 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
-  Version: 1.0.0
-
-  Version  Modified By   Date      Comments
-  -------  -----------  ---------- -----------
-  1.0.0     K Hoang     14/12/2020 Initial coding.
  *****************************************************************************************************************************/
 
 #include "defines.h"
@@ -21,6 +16,9 @@
 
 #include <SPI.h>
 #include <DHT.h>
+
+#define DHT_PIN         5
+#define DHT_TYPE        DHT11
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
@@ -173,6 +171,14 @@ void setup()
   ET_LOGWARN(F("========================="));
 
 #if defined(ESP8266)
+
+  #define PIN_D5            14        // Pin D5 mapped to pin GPIO14/HSCLK of ESP8266
+  #define PIN_D6            12        // Pin D6 mapped to pin GPIO12/HMISO of ESP8266
+  #define PIN_D7            13        // Pin D7 mapped to pin GPIO13/RXD2/HMOSI of ESP8266
+  
+  // Connection for ESP8266
+  // MOSI: D7/GPIO13, MISO: D6/GPIO12, SCK: D5/GPIO14, CS/SS: D2/GPIO4
+  
   // For ESP8266, change for other boards if necessary
   #ifndef USE_THIS_SS_PIN
     #define USE_THIS_SS_PIN   D2    // For ESP8266
@@ -211,6 +217,10 @@ void setup()
 
 #elif defined(ESP32)
 
+  #define PIN_D18           18        // Pin D18 mapped to pin GPIO18/VSPI_SCK of ESP32
+  #define PIN_D19           19        // Pin D19 mapped to pin GPIO19/VSPI_MISO of ESP32
+  #define PIN_D23           23        // Pin D23 mapped to pin GPIO23/VSPI_MOSI of ESP32
+   
   // You can use Ethernet.init(pin) to configure the CS pin
   //Ethernet.init(10);  // Most Arduino shields
   //Ethernet.init(5);   // MKR ETH shield
@@ -219,8 +229,17 @@ void setup()
   //Ethernet.init(15);  // ESP8266 with Adafruit Featherwing Ethernet
   //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
 
+  // Connection for ESP32
+  // MOSI: GPIO23, MISOP: GPIO19, SCK: GPIO18, CS/SS: GPIO22
+  
   #ifndef USE_THIS_SS_PIN
-    #define USE_THIS_SS_PIN   22    // For ESP32
+    #define USING_M5STACK_W5500     false
+    #if USING_M5STACK_W5500
+      #warning Using M5Stack_Core_ESP32 with W5500 mudule
+      #define USE_THIS_SS_PIN   26    // For M5Stack_Core_ESP32 with W5500 mudule
+    #else
+      #define USE_THIS_SS_PIN   22    // For ESP32
+    #endif
   #endif
 
   ET_LOGWARN1(F("ESP32 setCsPin:"), USE_THIS_SS_PIN);
@@ -307,7 +326,7 @@ void setup()
   Serial.println(SPI_CS);
 #endif
   Serial.println(F("========================="));
-
+  
   ethernet_manager.begin();
 
   localEthernetIP = Ethernet.localIP();
