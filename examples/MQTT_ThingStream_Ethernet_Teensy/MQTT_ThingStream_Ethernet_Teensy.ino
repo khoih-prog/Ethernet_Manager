@@ -19,15 +19,6 @@
 
 // GOT FROM ThingsStream!
 
-#if 0
-const char *MQTT_SERVER     = "mqtt.thingstream.io";
-const char *MQTT_USER       = "MQTT_USER";
-const char *MQTT_PASS       = "MQTT_PASS";
-const char *MQTT_CLIENT_ID  = "MQTT_CLIENT_ID";
-
-const int   MQTT_PORT       = 1883; //if you use SSL //1883 no SSL
-#endif
-
 const char *MQTT_PREFIX_TOPIC   = "esp32-sniffer/";
 const char *MQTT_ANNOUNCE_TOPIC = "/status";
 const char *MQTT_CONTROL_TOPIC  = "/control";
@@ -55,7 +46,6 @@ unsigned long lastMsg = 0;
 
 EthernetClient    ethClient;
 
-//PubSubClient client(MQTT_SERVER, atoi(MQTT_PORT), mqtt_receive_callback, ethClient);
 PubSubClient* client = NULL;
 
 /*

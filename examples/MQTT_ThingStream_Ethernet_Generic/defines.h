@@ -340,7 +340,7 @@
     // From ESP8266 core 2.7.1, SPIFFS will be deprecated and to be replaced by LittleFS
     // Select USE_LITTLEFS (higher priority) or USE_SPIFFS
     
-    #define USE_LITTLEFS                false
+    #define USE_LITTLEFS                true
     #define USE_SPIFFS                  false
     
     #if USE_LITTLEFS
