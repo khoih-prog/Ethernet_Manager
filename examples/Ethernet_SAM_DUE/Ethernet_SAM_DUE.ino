@@ -29,7 +29,7 @@ void heartBeatPrint()
   
   localEthernetIP = Ethernet.localIP();
   
-#if (USE_ETHERNET2 || USE_ETHERNET3)
+#if ( (USE_ETHERNET2 || USE_ETHERNET3) && !(USE_NATIVE_ETHERNET) )
   // To modify Ethernet2 library
   linkStatus = Ethernet.link();
   ET_LOGINFO3("localEthernetIP = ", localEthernetIP, ", linkStatus = ", (linkStatus == 1) ? "LinkON" : "LinkOFF" );
@@ -84,6 +84,7 @@ void setup()
   Serial.println("\nStart Ethernet_SAM_DUE on " + String(BOARD_NAME)); 
   Serial.println("Ethernet Shield type : " + String(SHIELD_TYPE));
   Serial.println(ETHERNET_MANAGER_VERSION);
+  Serial.println(DOUBLERESETDETECTOR_GENERIC_VERSION);
 
   pinMode(SDCARD_CS, OUTPUT);
   digitalWrite(SDCARD_CS, HIGH); // Deselect the SD card
