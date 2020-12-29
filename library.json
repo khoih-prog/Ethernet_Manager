@@ -1,6 +1,6 @@
 {
   "name": "Ethernet_Manager",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Simple Ethernet Manager for Teensy, SAM DUE, SAMD21, SAMD51, nRF52, ESP32, ESP8266, etc. boards, with or without SSL, configuration data saved in ESP8266/ESP32 LittleFS, SPIFFS or EEPROM, nRF52 LittleFS/InternalFS, EEPROM, DueFlashStorage or SAMD FlashStorage.",
   "keywords": "communication, ethernet, data, esp8266, esp32, http, W5500, W5x00, ENC28J60, Teensy, SAM DUE, SAMD21, SAMD51, STM32, nRF52, Credentials, Manager, Config Portal, Double, Reset, Detector, MQTT, DynamicParameters",
   "authors":
@@ -27,19 +27,19 @@
     {
       "owner": "khoih-prog",
       "name": "EthernetWebServer",
-      "version": ">=1.2.0",
+      "version": ">=1.2.1",
       "platforms": ["*"]
     },
     {
-      "owner": "khoih-prog",
+      "owner": "khoih.prog",
       "name": "ESP_DoubleResetDetector",
-      "version": ">=1.1.0",
+      "version": ">=1.1.1",
       "platforms": ["espressif8266", "espressif32"]
     },
     {
-      "owner": "khoih-prog",
+      "owner": "khoih.prog",
       "name": "DoubleResetDetector_Generic",
-      "version": ">=1.0.2",
+      "version": ">=1.0.3",
       "platforms": ["*"]
     },
     {

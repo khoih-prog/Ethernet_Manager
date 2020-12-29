@@ -8,12 +8,13 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
-  Version: 1.1.0
+  Version: 1.1.1
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
   1.0.0     K Hoang     14/12/2020 Initial coding.
   1.1.0     K Hoang     17/12/2020 Add support to ESP32/ESP8266. Add MQTT related examples to demo dynamic parameter usage
+  1.1.1     K Hoang     28/12/2020 Suppress all possible compiler warnings
 *****************************************************************************************************************************/
 
 #pragma once
@@ -127,64 +128,6 @@ class Ethernet_Manager
 
   public:
   
-#if 0  
-    // DHCP with domain
-    void begin( const byte mac[] = NULL)
-    {
-      ETM_LOGWARN(F("GetIP:"));
-
-      if (!Ethernet.begin(SelectMacAddress(mac))) 
-      {
-        ETM_LOGERROR(F("DHCP 0"));
-      }
-      // give the Ethernet shield a second to initialize:
-      delay(1000);
-      
-      IPAddress myip = Ethernet.localIP();
-      
-      ETM_LOGWARN1(F("IP:"), myip);
-    }
-
-    // Static IP
-    void begin( IPAddress local, const byte mac[] = NULL)
-    {
-      ETM_LOGWARN(F("UseStatIP"));
-
-      Ethernet.begin(SelectMacAddress(mac), local);
-      // give the Ethernet shield a second to initialize:
-      delay(1000);
-      
-      IPAddress myip = Ethernet.localIP();
-      ETM_LOGWARN1(F("IP:"), myip);
-    }
-    
-    // Static IP with DNS
-    void begin( IPAddress local, IPAddress dns, const byte mac[] = NULL)
-    {
-      ETM_LOGWARN(F("UseStatIP"));
-
-      Ethernet.begin(SelectMacAddress(mac), local, dns);
-      // give the Ethernet shield a second to initialize:
-      delay(1000);
-      
-      IPAddress myip = Ethernet.localIP();
-      ETM_LOGWARN1(F("IP:"), myip);
-    }
-
-    // Static IP with DNS, GW, SN
-    void begin( IPAddress local, IPAddress dns, IPAddress gateway, IPAddress subnet, const byte mac[] = NULL)
-    {
-      ETM_LOGWARN(F("UseStatIP"));
-
-      Ethernet.begin(SelectMacAddress(mac), local, dns, gateway, subnet);
-      // give the Ethernet shield a second to initialize:
-      delay(1000);
-      
-      IPAddress myip = Ethernet.localIP();
-      ETM_LOGWARN1(F("IP:"), myip);
-    }
-#endif
-
 #ifndef LED_BUILTIN
 #define LED_BUILTIN       13
 #endif
@@ -258,7 +201,7 @@ class Ethernet_Manager
     // Return true if still in CP mode
     bool run()
     {
-      static int retryTimes = 0;
+      //static int retryTimes = 0;
       
       //// New DRD ////
       // Call the double reset detector loop method every so often,
@@ -340,7 +283,7 @@ class Ethernet_Manager
     {
       memset(&Ethernet_Manager_config, 0, sizeof(Ethernet_Manager_config));
       
-      for (int i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         // Actual size of pdata is [maxlen + 1]
         memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
@@ -364,6 +307,8 @@ class Ethernet_Manager
     EthernetWebServer *server;
 
     bool ethernetConnected = false;
+    
+    int  retryTimes         = 0;
 
     bool configuration_mode = false;
 
@@ -427,7 +372,7 @@ class Ethernet_Manager
                  F(", BoardName="),    configData.board_name);
       ETM_LOGWARN1(F("StaticIP="),      configData.static_IP);
                  
-      for (int i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         ETM_LOGINFO3("i=", i, ",id=", myMenuItems[i].id);
         ETM_LOGINFO1("data=", myMenuItems[i].pdata);
@@ -485,7 +430,7 @@ class Ethernet_Manager
       // We dont like to destroy myMenuItems[i].pdata with invalid data
       
       uint16_t maxBufferLength = 0;
-      for (int i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         if (myMenuItems[i].maxlen > maxBufferLength)
           maxBufferLength = myMenuItems[i].maxlen;
@@ -506,10 +451,15 @@ class Ethernet_Manager
           ETM_LOGINFO1(F("ChkCrR: Buffer allocated, Sz="), maxBufferLength + 1);
         }          
       }
+      else
+      {
+        ETM_LOGINFO(F("ChkCrR: Error maxBufferLength == 0."));
+        return false;
+      }   
      
       uint16_t offset = 0;
       
-      for (int i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         char* _pointer = readBuffer;
 
@@ -578,7 +528,7 @@ class Ethernet_Manager
      
       uint16_t offset = 0;
       
-      for (int i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         char* _pointer = myMenuItems[i].pdata;
         totalDataSize += myMenuItems[i].maxlen;
@@ -624,7 +574,7 @@ class Ethernet_Manager
 
       uint16_t offset = 0;
       
-      for (int i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         char* _pointer = myMenuItems[i].pdata;
      
@@ -668,7 +618,7 @@ class Ethernet_Manager
 
       offset = 0;
       
-      for (int i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         char* _pointer = myMenuItems[i].pdata;
     
@@ -871,7 +821,7 @@ class Ethernet_Manager
         {
           memset(&Ethernet_Manager_config, 0, sizeof(Ethernet_Manager_config));
 
-          for (int i = 0; i < NUM_MENU_ITEMS; i++)
+          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             // Actual size of pdata is [maxlen + 1]
             memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
@@ -880,7 +830,7 @@ class Ethernet_Manager
           strcpy(Ethernet_Manager_config.static_IP,   WM_NO_CONFIG);
           strcpy(Ethernet_Manager_config.board_name,  WM_NO_CONFIG);
           
-          for (int i = 0; i < NUM_MENU_ITEMS; i++)
+          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             strncpy(myMenuItems[i].pdata, WM_NO_CONFIG, myMenuItems[i].maxlen);
           }
@@ -888,7 +838,7 @@ class Ethernet_Manager
     
         strcpy(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE);
         
-        for (int i = 0; i < NUM_MENU_ITEMS; i++)
+        for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
         {
           ETM_LOGDEBUG3(F("g:myMenuItems["), i, F("]="), myMenuItems[i].pdata );
         }
@@ -919,7 +869,7 @@ class Ethernet_Manager
       {
         root_html_template += String(ETM_FLDSET_START);
            
-        for (int i = 0; i < NUM_MENU_ITEMS; i++)
+        for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
         {
           pitem = String(ETM_HTML_PARAM);
 
@@ -937,7 +887,7 @@ class Ethernet_Manager
            
       if (NUM_MENU_ITEMS > 0)
       {        
-        for (int i = 0; i < NUM_MENU_ITEMS; i++)
+        for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
         {
           pitem = String(ETM_HTML_SCRIPT_ITEM);
           
@@ -987,7 +937,7 @@ class Ethernet_Manager
           result.replace("[[ip]]",     Ethernet_Manager_config.static_IP);
           result.replace("[[nm]]",     Ethernet_Manager_config.board_name);
 
-          for (int i = 0; i < NUM_MENU_ITEMS; i++)
+          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             String toChange = String("[[") + myMenuItems[i].id + "]]";
             result.replace(toChange, myMenuItems[i].pdata);
@@ -1033,7 +983,7 @@ class Ethernet_Manager
 
         //ETM_LOGINFO(F("h:OK"));
 
-        for (int i = 0; i < NUM_MENU_ITEMS; i++)
+        for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
         {
           if (key == myMenuItems[i].id)
           {
@@ -1159,7 +1109,7 @@ class Ethernet_Manager
       int len = strlen(token);
       int mac_index = 1;
 
-      for (int i = 0; i < len; i++)
+      for (uint16_t i = 0; i < len; i++)
       {
         macAddress[mac_index] ^= token[i];
 

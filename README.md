@@ -9,6 +9,120 @@
 ---
 ---
 
+## Table of Contents
+
+
+* [Why do we need this Ethernet_Manager library](#why-do-we-need-this-ethernet_manager-library)
+  * [Features](#features)
+  * [Currently supported Boards](#currently-supported-boards)
+  * [Currently supported Ethernet shields/modules](#currently-supported-ethernet-shieldsmodules)
+* [Changelog](#changelog)
+  * [Releases v1.1.1](#releases-v111)
+  * [Releases v1.1.0](#releases-v110)
+  * [Releases v1.0.0](#releases-v100)
+* [Prerequisites](#prerequisites)
+* [Installation](#installation)
+  * [Use Arduino Library Manager](#use-arduino-library-manager)
+  * [Manual Install](#manual-install)
+  * [VS Code & PlatformIO](#vs-code--platformio)
+* [Packages' Patches](#packages-patches)
+  * [1. For Adafruit nRF52840 and nRF52832 boards](#1-for-adafruit-nRF52840-and-nRF52832-boards)
+  * [2. For Teensy boards](#2-for-teensy-boards)
+  * [3. For Arduino SAM DUE boards](#3-for-arduino-sam-due-boards)
+  * [4. For Arduino SAMD boards](#4-for-arduino-samd-boards)
+      * [For core version v1.8.10+](#for-core-version-v1810)
+      * [For core version v1.8.9-](#for-core-version-v189-)
+  * [5. For Adafruit SAMD boards](#5-for-adafruit-samd-boards)
+  * [6. For Seeeduino SAMD boards](#6-for-seeeduino-samd-boards)
+  * [7. For STM32 boards](#7-for-stm32-boards) 
+* [Libraries' Patches](#libraries-patches)
+  * [1. For application requiring 2K+ HTML page](#1-for-application-requiring-2k-html-page)
+  * [2. For Ethernet library](#2-for-ethernet-library)
+  * [3. For EthernetLarge library](#3-for-ethernetlarge-library)
+  * [4. For Etherne2 library](#4-for-ethernet2-library)
+  * [5. For Ethernet3 library](#5-for-ethernet3-library)
+  * [6. For UIPEthernet library](#6-for-uipethernet-library)
+  * [7. For fixing ESP32 compile error](#7-for-fixing-esp32-compile-error) 
+* [HOWTO Use analogRead() with ESP32 running WiFi and/or BlueTooth (BT/BLE)](#howto-use-analogread-with-esp32-running-wifi-andor-bluetooth-btble)
+  * [1. ESP32 has 2 ADCs, named ADC1 and ADC2](#1--esp32-has-2-adcs-named-adc1-and-adc2)
+  * [2. ESP32 ADCs functions](#2-esp32-adcs-functions)
+  * [3. ESP32 WiFi uses ADC2 for WiFi functions](#3-esp32-wifi-uses-adc2-for-wifi-functions)
+* [Important Notes](#important-notes)
+  * [1. Using hpp files](#1-using-hpp-files)
+  * [2. Note for Adafruit nRF52](#2-note-for-adafruit-nrf52)
+  * [3. Note for Adafruit SAMD21 and SAMD51](#3-note-for-adafruit-samd21-and-samd51)
+  * [4. Note for Arduino SAM DUE](#4-note-for-arduino-sam-due)
+* [Configuration Notes](#configuration-notes)
+  * [1. How to select which built-in Ethernet or shield to use](#1-how-to-select-which-built-in-ethernet-or-shield-to-use)
+  * [2. How to select another CS/SS pin to use](#2-how-to-select-another-csss-pin-to-use)
+  * [3. How to use W5x00/ENC28J60 with ESP32](#3-how-to-use-w5x00enc28j60-with-esp32)
+  * [4. How to use W5x00/ENC28J60 with ESP8266](#4-ow-to-use-w5x00enc28j60-with-esp8266)
+  * [5. How to increase W5x00 TX/RX buffer](#5-how-to-increase-w5x00-txrx-buffer)
+  * [Not supported Libraries](#not-supported-libraries)
+* [How to use default Credentials and have them pre-loaded onto Config Portal](#how-to-use-default-credentials-and-have-them-pre-loaded-onto-config-portal)
+* [How to add dynamic parameters from sketch](#how-to-add-dynamic-parameters-from-sketch)
+* [Important Notes for using Dynamic Parameters' ids](#important-notes-for-using-dynamic-parameters-ids)
+* [Examples](#examples)
+  * [ 1. AM2315_Ethernet](examples/AM2315_Ethernet)
+  * [ 2. DHT11_Ethernet](examples/DHT11_Ethernet)
+  * [ 3. Ethernet_Generic](examples/Ethernet_Generic)
+  * [ 4. Ethernet_nRF52](examples/Ethernet_nRF52)
+  * [ 5. Ethernet_SAMD](examples/Ethernet_SAMD)
+  * [ 6. Ethernet_SAM_DUE](examples/Ethernet_SAM_DUE)
+  * [ 7. Ethernet_Teensy](examples/Ethernet_Teensy)
+  * [ 8. **MQTT_ThingStream_Ethernet_Generic**](examples/MQTT_ThingStream_Ethernet_Generic)
+  * [ 9. **MQTT_ThingStream_Ethernet_nRF52**](examples/MQTT_ThingStream_Ethernet_nRF52)
+  * [10. **MQTT_ThingStream_Ethernet_SAMD**](examples/MQTT_ThingStream_Ethernet_SAMD)
+  * [11. **MQTT_ThingStream_Ethernet_SAM_DUE**](examples/MQTT_ThingStream_Ethernet_SAM_DUE)
+  * [12. **MQTT_ThingStream_Ethernet_Teensy**](examples/MQTT_ThingStream_Ethernet_Teensy)
+* [So, how it works?](#so-how-it-works)
+* [Example Ethernet_SAMD](#example-ethernet_samd)
+  * [1. File Ethernet_SAMD.ino](#1-file-ethernet_samdino)
+  * [2. File defines.h](#2-file-definesh) 
+  * [3. File Credentials.h](#3-file-credentialsh) 
+  * [4. File dynamicParams.h](#4-file-dynamicparamsh) 
+* [Debug Terminal Output Samples](##debug-terminal-output-samples)
+  * [1. Ethernet_nRF52 on NRF52840_FEATHER_EXPRESS with W5500 using Ethernet2 Library](#1-ethernet_nrf52-on-nrf52840_feather_express-with-w5500-using-ethernet2-library)
+    * [1.1 Normal run](#11-normal-run)
+    * [1.2. DoubleResetDetected](#12-doubleresetdetected) 
+    * [1.3. Config Portal started](#13-config-portal-started) 
+    * [1.4. Credentials entered and Saved](#14-credentials-entered-and-saved) 
+  * [2. Ethernet_SAMD on SeeedStudio SAMD21 SEEED_XIAO_M0 with W5500 using Ethernet2 Library](#2-ethernet_samd-on-seeedstudio-samd21-seeed_xiao_m0-with-w5500-using-ethernet2-library)
+  * [3. Ethernet_SAM_DUE on Arduino SAM DUE with W5100 using EthernetLarge Library](#3-ethernet_sam_due-on-arduino-sam-due-with-w5100-using-ethernetlarge-library)
+  * [4. MQTT_ThingStream_Ethernet_Generic on ESP8266_NODEMCU with W5x00 using Ethernet2 Library](#4-mqtt_thingstream_ethernet_generic-on-esp8266_nodemcu-with-w5x00-using-ethernet2-library)
+    * [4.1. Normal run without correct ThingStream MQTT Credentials](#41-normal-run-without-correct-thingstream-mqtt-credentials)
+    * [4.2. Got correct ThingStream MQTT Credentials from Config Portal](#42-got-correct-thingstream-mqtt-credentials-from-config-portal) 
+  * [5. MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER with ENC28J60 using EthernetENC Library](#5-mqtt_thingstream_ethernet_generic-on-nrf52840_feather-with-enc28j60-using-ethernetenc-library)
+    * [5.1. Normal run without correct ThingStream MQTT Credentials](#51-normal-run-without-correct-thingstream-mqtt-credentials)
+    * [5.2. Got correct ThingStream MQTT Credentials from Config Portal](#52-got-correct-thingstream-mqtt-credentials-from-config-portal) 
+* [Debug](#debug)
+* [Troubleshooting](#troubleshooting)
+* [Releases](#releases)
+* [Issues](#issues)
+* [TO DO](#to-do)
+* [DONE](#done)
+* [Contributions and Thanks](#contributions-and-thanks)
+* [Contributing](#contributing)
+* [License](#license)
+* [Copyright](#copyright)
+
+
+---
+---
+
+### Why do we need this [Ethernet_Manager library](https://github.com/khoih-prog/Ethernet_Manager)
+
+#### Features
+
+- This is the new library, adding to the current WiFiManager sets of libraries. It's designed to help you eliminate `hardcoding` your Credentials in **Teensy, SAM DUE, SAMD21, SAMD51, nRF52, etc. boards using Ethernet shields (W5100, W5200, W5500, ENC28J60, Teensy 4.1 NativeEthernet, etc)**. It's currently **not supporting SSL**. Will support soon.
+- It's not supporting UNO/Nano/Mega and other AVR boards for not enough memory.
+- You can update Credentials any time you need to change via Configure Portal. Data are saved in configurable locations in EEPROM, DueFlashStorage or FlashStorage
+- Teensy LC, 2.0++ and 2.0 not supported.
+- **DoubleDetectDetector** feature to force Config Portal when double reset is detected within predetermined time, default 10s.
+- Configurable **Config Portal Title** to be either BoardName or default undistinguishable names.
+- Examples are redesigned to separate Credentials / Defines / Dynamic Params / Code so that you can change Credentials / Dynamic Params quickly for each device
+
+
 New recent features:
 
 - **DoubleDetectDetector** feature to force Config Portal when double reset is detected within predetermined time, default 10s.
@@ -16,6 +130,48 @@ New recent features:
 - Examples are redesigned to separate Credentials / Defines / Dynamic Params / Code so that you can change Credentials / Dynamic Params quickly for each device
 
 ---
+
+#### Currently Supported Boards
+
+This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manager) currently supports these following boards:
+
+ 1. **nRF52 boards**, such as **AdaFruit Feather nRF52832, nRF52840 Express, BlueFruit Sense, Itsy-Bitsy nRF52840 Express, Metro nRF52840 Express, NINA_B302_ublox, NINA_B112_ublox, etc.**
+ 
+ 2. **SAM DUE**
+ 
+ 3. **SAMD21**
+  - Arduino SAMD21: ZERO, MKRs, NANO_33_IOT, etc.
+  - Adafruit SAMD21 (M0): ItsyBitsy M0, Feather M0, Feather M0 Express, Metro M0 Express, Circuit Playground Express, Trinket M0, PIRkey, Hallowing M0, Crickit M0, etc.
+  - Seeeduino:  LoRaWAN, Zero, Femto M0, XIAO M0, Wio GPS Board, etc.
+  
+ 4. **SAMD51**
+  - Adafruit SAMD51 (M4): Metro M4, Grand Central M4, ItsyBitsy M4, Feather M4 Express, Trellis M4, Metro M4 AirLift Lite, MONSTER M4SK Express, Hallowing M4, etc.
+  - Seeeduino: Wio Terminal, Grove UI Wireless
+  
+ 5. **Teensy (4.1, 4.0, 3.6, 3.5, 3,2, 3.1, 3.0, LC)**
+ 
+ 6. ESP32
+ 
+ 7. ESP8266
+ 
+ ---
+ 
+#### Currently Supported Ethernet shields/modules:
+
+1. W5x00 using [`Ethernet`](https://www.arduino.cc/en/Reference/Ethernet), [`EthernetLarge`](https://github.com/OPEnSLab-OSU/EthernetLarge), [`Ethernet2`](https://github.com/adafruit/Ethernet2) or [`Ethernet3`](https://github.com/sstaub/Ethernet3) library
+2. ENC28J60 using [`EthernetENC`](https://github.com/jandrassy/EthernetENC) or [`UIPEthernet`](https://github.com/UIPEthernet/UIPEthernet) library
+3. Teensy 4.1 NativeEthernet using [`NativeEthernet Library version stable111+`](https://github.com/vjmuzik/NativeEthernet).
+
+---
+---
+
+## Changelog
+
+### Releases v1.1.1
+
+1. Clean-up all compiler warnings possible.
+2. Add Table of Contents
+
 
 ### Releases v1.1.0
 
@@ -31,16 +187,6 @@ New recent features:
 
 
 ---
-
-- This is the new library, adding to the current WiFiManager sets of libraries. It's designed to help you eliminate `hardcoding` your Credentials in **Teensy, SAM DUE, SAMD21, SAMD51, nRF52, etc. boards using Ethernet shields (W5100, W5200, W5500, ENC28J60, Teensy 4.1 NativeEthernet, etc)**. It's currently **not supporting SSL**. Will support soon.
-- It's not supporting UNO/Nano/Mega and other AVR boards for not enough memory.
-- You can update Credentials any time you need to change via Configure Portal. Data are saved in configurable locations in EEPROM, DueFlashStorage or FlashStorage
-- Teensy LC, 2.0++ and 2.0 not supported.
-- **DoubleDetectDetector** feature to force Config Portal when double reset is detected within predetermined time, default 10s.
-- Configurable **Config Portal Title** to be either BoardName or default undistinguishable names.
-- Examples are redesigned to separate Credentials / Defines / Dynamic Params / Code so that you can change Credentials / Dynamic Params quickly for each device
-
----
 ---
 
 ## Prerequisites
@@ -48,7 +194,7 @@ New recent features:
  1. [`Arduino IDE 1.8.13+` for Arduino](https://www.arduino.cc/en/Main/Software)
  2. [`Teensy core v1.53+`](https://www.pjrc.com/teensy/td_download.html) for Teensy (4.1, 4.0, 3.6, 3.5, 3,2, 3.1, 3.0) boards.
  3. [`Arduino SAM DUE core v1.6.12+`](https://www.arduino.cc/en/Guide/ArduinoDue) for SAM DUE ARM Cortex-M3 boards.
- 4. [`Arduino SAMD core 1.8.10+`](https://www.arduino.cc/en/Guide/ArduinoM0) for SAMD ARM Cortex-M0+ boards  (Nano 33 IoT, etc.).
+ 4. [`Arduino SAMD core 1.8.11+`](https://www.arduino.cc/en/Guide/ArduinoM0) for SAMD ARM Cortex-M0+ boards  (Nano 33 IoT, etc.).
  5. [`Adafruit SAMD core 1.6.4+`](https://www.adafruit.com/) for SAMD ARM Cortex-M0+ and M4 boards (Itsy-Bitsy M4, etc.)
  6. [`Seeeduino SAMD core 1.8.1+`](https://www.seeedstudio.com/) for SAMD21/SAMD51 boards (XIAO M0, Wio Terminal, etc.) 
  7. [`Adafruit nRF52 v0.21.0+`](https://www.adafruit.com/) for nRF52 boards such as AdaFruit Feather nRF52840 Express, NINA_B302_ublox, NINA_B112_ublox, etc.
@@ -65,9 +211,9 @@ New recent features:
 11. Depending on which board you're using:
    - [`DueFlashStorage library`](https://github.com/sebnil/DueFlashStorage) for SAM DUE
    - [`FlashStorage_SAMD library v1.0.0+`](https://github.com/khoih-prog/FlashStorage_SAMD) for SAMD (DUE, ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit CIRCUITPLAYGROUND_EXPRESS, etc.)
-12. [`EthernetWebServer library v1.2.0+`](https://github.com/khoih-prog/EthernetWebServer). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/EthernetWebServer.svg?)](https://www.ardu-badge.com/EthernetWebServer).
-13. [`ESP_DoubleResetDetector library v1.1.0+`](https://github.com/khoih-prog/ESP_DoubleResetDetector) for ESP32 and ESP8266.  To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_DoubleResetDetector.svg?)](https://www.ardu-badge.com/ESP_DoubleResetDetector).
-14. [`DoubleResetDetector_Generic library v1.0.2+`](https://github.com/khoih-prog/DoubleResetDetector_Generic) for other boards (not ESP32 or ESP8266). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic).
+12. [`EthernetWebServer library v1.2.1+`](https://github.com/khoih-prog/EthernetWebServer). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/EthernetWebServer.svg?)](https://www.ardu-badge.com/EthernetWebServer).
+13. [`ESP_DoubleResetDetector library v1.1.1+`](https://github.com/khoih-prog/ESP_DoubleResetDetector) for ESP32 and ESP8266.  To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_DoubleResetDetector.svg?)](https://www.ardu-badge.com/ESP_DoubleResetDetector).
+14. [`DoubleResetDetector_Generic library v1.0.3+`](https://github.com/khoih-prog/DoubleResetDetector_Generic) for other boards (not ESP32 or ESP8266). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic).
 15. [`Functional-VLPP library v1.0.1+`](https://github.com/khoih-prog/functional-vlpp) to use server's lambda function. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/Functional-Vlpp.svg?)](https://www.ardu-badge.com/Functional-Vlpp)
 
 ---
@@ -99,7 +245,9 @@ The best way is to use `Arduino Library Manager`. Search for `Ethernet_Manager`,
 
 ### Packages' Patches
 
- 1. **To be able to compile, run and automatically detect and display BOARD_NAME on nRF52840/nRF52832 boards**, you have to copy the whole [nRF52 0.21.0](Packages_Patches/adafruit/hardware/nrf52/0.21.0) directory into Adafruit nRF52 directory (~/.arduino15/packages/adafruit/hardware/nrf52/0.21.0). 
+#### 1. For Adafruit nRF52840 and nRF52832 boards
+
+**To be able to compile, run and automatically detect and display BOARD_NAME on nRF52840/nRF52832 boards**, you have to copy the whole [nRF52 0.21.0](Packages_Patches/adafruit/hardware/nrf52/0.21.0) directory into Adafruit nRF52 directory (~/.arduino15/packages/adafruit/hardware/nrf52/0.21.0). 
 
 Supposing the Adafruit nRF52 version is 0.21.0. These files must be copied into the directory:
 - `~/.arduino15/packages/adafruit/hardware/nrf52/0.21.0/platform.txt`
@@ -121,22 +269,22 @@ These files must be copied into the directory:
 - `~/.arduino15/packages/adafruit/hardware/nrf52/x.yy.z/variants/NINA_B112_ublox/variant.cpp`
 - **`~/.arduino15/packages/adafruit/hardware/nrf52/x.yy.z/cores/nRF5/Udp.h`**
 
- 2. **To be able to compile and run on Teensy boards**, you have to copy the file [Teensy boards.txt](Packages_Patches/hardware/teensy/avr/boards.txt) into Teensy hardware directory (./arduino-1.8.13/hardware/teensy/avr/boards.txt). 
+#### 2. For Teensy boards
+ 
+ **To be able to compile and run on Teensy boards**, you have to copy the file [Teensy boards.txt](Packages_Patches/hardware/teensy/avr/boards.txt) into Teensy hardware directory (./arduino-1.8.12/hardware/teensy/avr/boards.txt). 
 
-Supposing the Arduino version is 1.8.13. These files must be copied into the directory:
+Supposing the Arduino version is 1.8.12. This file must be copied into the directory:
 
-- `./arduino-1.8.13/hardware/teensy/avr/boards.txt`
-- ***`./arduino-1.8.13/hardware/teensy/avr/cores/teensy4/Stream.h`***
-- ***`./arduino-1.8.13/hardware/teensy/avr/cores/teensy3/Stream.h`***
+- `./arduino-1.8.12/hardware/teensy/avr/boards.txt`
 
 Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz
-These files must be copied into the directory:
+This file must be copied into the directory:
 
 - `./arduino-x.yy.zz/hardware/teensy/avr/boards.txt`
-- ***`./arduino-x.yy.zz/hardware/teensy/avr/cores/teensy4/Stream.h`***
-- ***`./arduino-x.yy.zz/hardware/teensy/avr/cores/teensy3/Stream.h`***
 
- 3. **To be able to compile and run on SAM DUE boards**, you have to copy the whole [SAM DUE](Packages_Patches/arduino/hardware/sam/1.6.12) directory into Arduino sam directory (~/.arduino15/packages/arduino/hardware/sam/1.6.12). 
+#### 3. For Arduino SAM DUE boards
+ 
+ **To be able to compile and run on SAM DUE boards**, you have to copy the whole [SAM DUE](Packages_Patches/arduino/hardware/sam/1.6.12) directory into Arduino sam directory (~/.arduino15/packages/arduino/hardware/sam/1.6.12). 
 
 Supposing the Arduino SAM core version is 1.6.12. This file must be copied into the directory:
 
@@ -147,13 +295,15 @@ This file must be copied into the directory:
 
 - `~/.arduino15/packages/arduino/hardware/sam/x.yy.zz/platform.txt`
 
- 4. ***To be able to compile without error and automatically detect and display BOARD_NAME on Arduino SAMD (Nano-33-IoT, etc) boards***, you have to copy the whole [Arduino SAMD cores 1.8.10](Packages_Patches/arduino/hardware/samd/1.8.10) directory into Arduino SAMD directory (~/.arduino15/packages/arduino/hardware/samd/1.8.10).
+#### 4. For Arduino SAMD boards
+ 
+ ***To be able to compile without error and automatically detect and display BOARD_NAME on Arduino SAMD (Nano-33-IoT, etc) boards***, you have to copy the whole [Arduino SAMD cores 1.8.10](Packages_Patches/arduino/hardware/samd/1.8.10) directory into Arduino SAMD directory (~/.arduino15/packages/arduino/hardware/samd/1.8.10).
  
 #### For core version v1.8.10+
 
-Supposing the Arduino SAMD version is 1.8.10. Now only one file must be copied into the directory:
+Supposing the Arduino SAMD version is 1.8.11. Now only one file must be copied into the directory:
 
-- `~/.arduino15/packages/arduino/hardware/samd/1.8.10/platform.txt`
+- `~/.arduino15/packages/arduino/hardware/samd/1.8.11/platform.txt`
 
 Whenever a new version is installed, remember to copy this files into the new version directory. For example, new version is x.yy.zz
 
@@ -184,8 +334,9 @@ These files must be copied into the directory:
 
 Whenever the above-mentioned compiler error issue is fixed with the new Arduino SAMD release, you don't need to copy the `Arduino.h` file anymore.
 
-
- 5. ***To be able to automatically detect and display BOARD_NAME on Adafruit SAMD (Itsy-Bitsy M4, etc) boards***, you have to copy the file [Adafruit SAMD platform.txt](Packages_Patches/adafruit/hardware/samd/1.6.4) into Adafruit samd directory (~/.arduino15/packages/adafruit/hardware/samd/1.6.4). 
+#### 5. For Adafruit SAMD boards
+ 
+ ***To be able to automatically detect and display BOARD_NAME on Adafruit SAMD (Itsy-Bitsy M4, etc) boards***, you have to copy the file [Adafruit SAMD platform.txt](Packages_Patches/adafruit/hardware/samd/1.6.4) into Adafruit samd directory (~/.arduino15/packages/adafruit/hardware/samd/1.6.4). 
 
 Supposing the Adafruit SAMD core version is 1.6.4. This file must be copied into the directory:
 
@@ -196,7 +347,9 @@ This file must be copied into the directory:
 
 - `~/.arduino15/packages/adafruit/hardware/samd/x.yy.zz/platform.txt`
 
- 6. ***To be able to automatically detect and display BOARD_NAME on Seeeduino SAMD (XIAO M0, Wio Terminal, etc) boards***, you have to copy the file [Seeeduino SAMD platform.txt](Packages_Patches/Seeeduino/hardware/samd/1.8.1) into Adafruit samd directory (~/.arduino15/packages/Seeeduino/hardware/samd/1.8.1). 
+#### 6. For Seeeduino SAMD boards
+ 
+ ***To be able to automatically detect and display BOARD_NAME on Seeeduino SAMD (XIAO M0, Wio Terminal, etc) boards***, you have to copy the file [Seeeduino SAMD platform.txt](Packages_Patches/Seeeduino/hardware/samd/1.8.1) into Adafruit samd directory (~/.arduino15/packages/Seeeduino/hardware/samd/1.8.1). 
 
 Supposing the Seeeduino SAMD core version is 1.8.1. This file must be copied into the directory:
 
@@ -207,7 +360,9 @@ This file must be copied into the directory:
 
 - `~/.arduino15/packages/Seeeduino/hardware/samd/x.yy.zz/platform.txt`
 
-7. **To use Serial1 on some STM32 boards without Serial1 definition (Nucleo-144 NUCLEO_F767ZI, Nucleo-64 NUCLEO_L053R8, etc.) boards**, you have to copy the files [STM32 variant.h](Packages_Patches/STM32/hardware/stm32/1.9.0) into STM32 stm32 directory (~/.arduino15/packages/STM32/hardware/stm32/1.9.0). You have to modify the files corresponding to your boards, this is just an illustration how to do.
+#### 7. For STM32 boards
+
+**To use Serial1 on some STM32 boards without Serial1 definition (Nucleo-144 NUCLEO_F767ZI, Nucleo-64 NUCLEO_L053R8, etc.) boards**, you have to copy the files [STM32 variant.h](Packages_Patches/STM32/hardware/stm32/1.9.0) into STM32 stm32 directory (~/.arduino15/packages/STM32/hardware/stm32/1.9.0). You have to modify the files corresponding to your boards, this is just an illustration how to do.
 
 Supposing the STM32 stm32 core version is 1.9.0. These files must be copied into the directory:
 
@@ -224,44 +379,59 @@ theses files must be copied into the corresponding directory:
 
 ### Libraries' Patches
 
-1. If your application requires 2K+ HTML page, the current [`Ethernet library`](https://www.arduino.cc/en/Reference/Ethernet) must be modified if you are using W5200/W5500 Ethernet shields. W5100 is not supported for 2K+ buffer. If you use boards requiring different CS/SS pin for W5x00 Ethernet shield, for example ESP32, ESP8266, nRF52, etc., you also have to modify the following libraries to be able to specify the CS/SS pin correctly.
+#### 1. For application requiring 2K+ HTML page
 
-2. To fix [`Ethernet library`](https://www.arduino.cc/en/Reference/Ethernet), just copy these following files into the [`Ethernet library`](https://www.arduino.cc/en/Reference/Ethernet) directory to overwrite the old files:
+If your application requires 2K+ HTML page, the current [`Ethernet library`](https://www.arduino.cc/en/Reference/Ethernet) must be modified if you are using W5200/W5500 Ethernet shields. W5100 is not supported for 2K+ buffer. If you use boards requiring different CS/SS pin for W5x00 Ethernet shield, for example ESP32, ESP8266, nRF52, etc., you also have to modify the following libraries to be able to specify the CS/SS pin correctly.
+
+#### 2. For Ethernet library
+
+To fix [`Ethernet library`](https://www.arduino.cc/en/Reference/Ethernet), just copy these following files into the [`Ethernet library`](https://www.arduino.cc/en/Reference/Ethernet) directory to overwrite the old files:
 - [Ethernet.h](LibraryPatches/Ethernet/src/Ethernet.h)
 - [Ethernet.cpp](LibraryPatches/Ethernet/src/Ethernet.cpp)
 - [EthernetServer.cpp](LibraryPatches/Ethernet/src/EthernetServer.cpp)
 - [w5100.h](LibraryPatches/Ethernet/src/utility/w5100.h)
 - [w5100.cpp](LibraryPatches/Ethernet/src/utility/w5100.cpp)
 
-3. To fix [`EthernetLarge library`](https://github.com/OPEnSLab-OSU/EthernetLarge), just copy these following files into the [`EthernetLarge library`](https://github.com/OPEnSLab-OSU/EthernetLarge) directory to overwrite the old files:
+#### 3. For EthernetLarge library
+
+To fix [`EthernetLarge library`](https://github.com/OPEnSLab-OSU/EthernetLarge), just copy these following files into the [`EthernetLarge library`](https://github.com/OPEnSLab-OSU/EthernetLarge) directory to overwrite the old files:
 - [EthernetLarge.h](LibraryPatches/EthernetLarge/src/EthernetLarge.h)
 - [EthernetLarge.cpp](LibraryPatches/EthernetLarge/src/EthernetLarge.cpp)
 - [EthernetServer.cpp](LibraryPatches/EthernetLarge/src/EthernetServer.cpp)
 - [w5100.h](LibraryPatches/EthernetLarge/src/utility/w5100.h)
 - [w5100.cpp](LibraryPatches/EthernetLarge/src/utility/w5100.cpp)
 
-4. To fix [`Ethernet2 library`](https://github.com/khoih-prog/Ethernet2), just copy these following files into the [`Ethernet2 library`](https://github.com/khoih-prog/Ethernet2) directory to overwrite the old files:
+
+#### 4. For Ethernet2 library
+
+To fix [`Ethernet2 library`](https://github.com/khoih-prog/Ethernet2), just copy these following files into the [`Ethernet2 library`](https://github.com/khoih-prog/Ethernet2) directory to overwrite the old files:
 
 - [Ethernet2.h](LibraryPatches/Ethernet2/src/Ethernet2.h)
 - [Ethernet2.cpp](LibraryPatches/Ethernet2/src/Ethernet2.cpp)
 
-To add UDP Multicast support, necessary for this [**UPnP_Generic library**](https://github.com/khoih-prog/UPnP_Generic):
+To add UDP Multicast support, necessary for the [**UPnP_Generic library**](https://github.com/khoih-prog/UPnP_Generic):
 
 - [EthernetUdp2.h](LibraryPatches/Ethernet2/src/EthernetUdp2.h)
 - [EthernetUdp2.cpp](LibraryPatches/Ethernet2/src/EthernetUdp2.cpp)
+
+#### 5. For Ethernet3 library
 
 5. To fix [`Ethernet3 library`](https://github.com/sstaub/Ethernet3), just copy these following files into the [`Ethernet3 library`](https://github.com/sstaub/Ethernet3) directory to overwrite the old files:
 - [Ethernet3.h](LibraryPatches/Ethernet3/src/Ethernet3.h)
 - [Ethernet3.cpp](LibraryPatches/Ethernet3/src/Ethernet3.cpp)
 
-6. ***To be able to compile and run on nRF52 boards with ENC28J60 using UIPEthernet library***, you have to copy these following files into the UIPEthernet `utility` directory to overwrite the old files:
+#### 6. For UIPEthernet library
+
+***To be able to compile and run on nRF52 boards with ENC28J60 using UIPEthernet library***, you have to copy these following files into the UIPEthernet `utility` directory to overwrite the old files:
 
 - [UIPEthernet.h](LibraryPatches/UIPEthernet/UIPEthernet.h)
 - [UIPEthernet.cpp](LibraryPatches/UIPEthernet/UIPEthernet.cpp)
 - [Enc28J60Network.h](LibraryPatches/UIPEthernet/utility/Enc28J60Network.h)
 - [Enc28J60Network.cpp](LibraryPatches/UIPEthernet/utility/Enc28J60Network.cpp)
 
-7. To fix [`ESP32 compile error`](https://github.com/espressif/arduino-esp32), just copy the following file into the [`ESP32`](https://github.com/espressif/arduino-esp32) cores/esp32 directory (e.g. ./arduino-1.8.12/hardware/espressif/cores/esp32) to overwrite the old file:
+#### 7. For fixing ESP32 compile error
+
+To fix [`ESP32 compile error`](https://github.com/espressif/arduino-esp32), just copy the following file into the [`ESP32`](https://github.com/espressif/arduino-esp32) cores/esp32 directory (e.g. ./arduino-1.8.12/hardware/espressif/cores/esp32) to overwrite the old file:
 - [Server.h](LibraryPatches/esp32/cores/esp32/Server.h)
 
 ---
@@ -308,16 +478,22 @@ Look in file [**adc_common.c**](https://github.com/espressif/esp-idf/blob/master
 
 ### Important Notes
 
-1. Code is restructured to provide flexibility to make it easy to support many more **Ethernet** modules/shields in the future. Please delete the *.cpp files, replaced by *.hpp files, in the src directory, if *.cpp files still exist after installing new version.
+#### 1. Using hpp files
 
-2. For **Adafruit nRF52**, use the SPI's  pin as follows:
+Code is restructured to provide flexibility to make it easy to support many more **Ethernet** modules/shields in the future. Please delete the *.cpp files, replaced by *.hpp files, in the src directory, if *.cpp files still exist after installing new version.
+
+#### 2. Note for Adafruit nRF52
+
+For **Adafruit nRF52**, use the SPI's  pin as follows:
 
   - SS/CS     = 10
   - SPI_MOSI  = MO(SI)
   - SPI_MISO  = MI(SO)
   - SPI_SCK   = SCK
 
-3. For **Adafruit SAMD21/SAMD51**, use the SPI's CS/SS pin as follows:
+#### 3. Note for Adafruit SAMD21 and SAMD51
+
+For **Adafruit SAMD21/SAMD51**, use the SPI's CS/SS pin as follows:
 
   - Itsy-Bitsy M0/M4, Feather M0 (Express), Hallowing M0 Express, Zero, Metro M0 => use CS = 16 = pin A2
   - Feather M4 (SAMD51)   => use SS/CS = 9
@@ -328,6 +504,8 @@ Look in file [**adc_common.c**](https://github.com/espressif/esp-idf/blob/master
 To know the default CS/SS pins of not listed boards, check the related `variant.h` files in 
 
 `~/.arduino15/packages/adafruit/hardware/samd/x.y.zz/variants/board_name/variant.h`
+
+#### 4. Note for Arduino SAM DUE
 
 4. For **Arduino SAM DUE**, use the SPI's  pin as follows:
 
@@ -340,6 +518,7 @@ To know the default CS/SS pins of not listed boards, check the related `variant.
     <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/ICSP_connector.jpg">
 </p>
   
+---
 ---
 
 ### Configuration Notes
@@ -423,12 +602,6 @@ For example, Ethernet_XYZ library uses **Ethernet_XYZ.h**
 ```
 
 ---
-
-#### Important:
-
-- The **Ethernet_Shield_W5200, EtherCard, EtherSia  libraries are not supported**. Don't use unless you know how to modify those libraries.
-- Requests to support for any future custom Ethernet library will be ignored. **Use at your own risk**.
-
 
 #### 2. How to select another CS/SS pin to use
 
@@ -537,9 +710,9 @@ These pins are tested OK with ESP8266 and W5x00/ENC28J60
   Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
 ```
 
-#### Important:
+#### Not supported Libraries
 
-- The **Ethernet_Shield_W5200, EtherCard, EtherSia  libraries are not supported**. Don't use unless you know how to modify those libraries to make them compatible. Will do in the near future.
+- The **Ethernet_Shield_W5200, EtherCard, EtherSia  libraries are not supported**. Don't use unless you know how to modify those libraries.
 - Requests to support for any future custom Ethernet library will be ignored. **Use at your own risk**.
 
 ---
@@ -762,7 +935,7 @@ void loop()
 
 ### Example [Ethernet_SAMD](examples/Ethernet_SAMD)
 
-#### 1. File [W5500_Blynk](examples/Ethernet_SAMD/Ethernet_SAMD.ino)
+#### 1. File [Ethernet_SAMD.ino](examples/Ethernet_SAMD/Ethernet_SAMD.ino)
 
 ```
 #include "defines.h"
@@ -784,7 +957,7 @@ void heartBeatPrint()
   
   localEthernetIP = Ethernet.localIP();
   
-#if (USE_ETHERNET2 || USE_ETHERNET3)
+#if ( (USE_ETHERNET2 || USE_ETHERNET3) && !(USE_NATIVE_ETHERNET) )
   // To modify Ethernet2 library
   linkStatus = Ethernet.link();
   ET_LOGINFO3("localEthernetIP = ", localEthernetIP, ", linkStatus = ", (linkStatus == 1) ? "LinkON" : "LinkOFF" );
@@ -839,6 +1012,7 @@ void setup()
   Serial.println("\nStart Ethernet_SAMD on " + String(BOARD_NAME)); 
   Serial.println("Ethernet Shield type : " + String(SHIELD_TYPE));
   Serial.println(ETHERNET_MANAGER_VERSION);
+  Serial.println(DOUBLERESETDETECTOR_GENERIC_VERSION);
 
   pinMode(SDCARD_CS, OUTPUT);
   digitalWrite(SDCARD_CS, HIGH); // Deselect the SD card
@@ -999,6 +1173,8 @@ void loop()
 #endif  
 }
 ```
+
+---
 
 #### 2. File [defines.h](examples/Ethernet_SAMD/defines.h)
 
@@ -1162,18 +1338,71 @@ void loop()
   //#define USE_THIS_SS_PIN   22  //21  //5 //4 //2 //15
   
   // Only one if the following to be true
-  #define USE_ETHERNET          true
+  #define USE_ETHERNET          false
   #define USE_ETHERNET2         false
   #define USE_ETHERNET3         false
-  #define USE_ETHERNET_LARGE    false
+  #define USE_ETHERNET_LARGE    true
   #define USE_ETHERNET_ESP8266  false 
   #define USE_ETHERNET_ENC      false
   #define USE_CUSTOM_ETHERNET   false
   
-#elif USE_UIP_ETHERNET
+  #if !USE_ETHERNET_WRAPPER
+  
+    #if ( USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE || USE_ETHERNET_ESP8266 || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
+      #ifdef USE_CUSTOM_ETHERNET
+        #undef USE_CUSTOM_ETHERNET
+      #endif
+      #define USE_CUSTOM_ETHERNET   false
+    #endif
 
-  #warning Using UIPEthernet library
-  #define SHIELD_TYPE           "ENC28J60 using UIPEthernet Library"
+    #if USE_NATIVE_ETHERNET
+      #include "NativeEthernet.h"
+      #warning Using NativeEthernet lib for Teensy 4.1. Must also use Teensy Packages Patch or error
+      #define SHIELD_TYPE           "Custom Ethernet using Teensy 4.1 NativeEthernet Library"
+    #elif USE_ETHERNET3
+      #include "Ethernet3.h"
+      #warning Using Ethernet3 lib
+      #define SHIELD_TYPE           "W5x00 using Ethernet3 Library"
+    #elif USE_ETHERNET2
+      #include "Ethernet2.h"
+      #warning Using Ethernet2 lib
+      #define SHIELD_TYPE           "W5x00 using Ethernet2 Library"
+    #elif USE_ETHERNET_LARGE
+      #include "EthernetLarge.h"
+      #warning Using EthernetLarge lib
+      #define SHIELD_TYPE           "W5x00 using EthernetLarge Library"
+    #elif USE_ETHERNET_ESP8266
+      #include "Ethernet_ESP8266.h"
+      #warning Using Ethernet_ESP8266 lib 
+      #define SHIELD_TYPE           "W5x00 using Ethernet_ESP8266 Library" 
+    #elif USE_ETHERNET_ENC
+      #include "EthernetENC.h"
+      #warning Using EthernetENC lib
+      #define SHIELD_TYPE           "ENC28J60 using EthernetENC Library"
+    #elif USE_CUSTOM_ETHERNET
+      //#include "Ethernet_XYZ.h"
+      #include "EthernetENC.h"
+      #warning Using Custom Ethernet library. You must include a library and initialize.
+      #define SHIELD_TYPE           "Custom Ethernet using Ethernet_XYZ Library"
+    #else
+      #ifdef USE_ETHERNET
+        #undef USE_ETHERNET
+      #endif
+      #define USE_ETHERNET   true
+      #include "Ethernet.h"
+      #warning Using Ethernet lib
+      #define SHIELD_TYPE           "W5x00 using Ethernet Library"
+    #endif
+    
+    // Ethernet_Shield_W5200, EtherCard, EtherSia not supported
+    // Select just 1 of the following #include if uncomment #define USE_CUSTOM_ETHERNET
+    // Otherwise, standard Ethernet library will be used for W5x00
+  
+  #endif    //  USE_ETHERNET_WRAPPER
+#elif USE_UIP_ETHERNET
+    #include "UIPEthernet.h"
+    #warning Using UIPEthernet library
+    #define SHIELD_TYPE           "ENC28J60 using UIPEthernet Library"
 #endif      // #if !USE_UIP_ETHERNET
 
 //////////////////////////////////////////
@@ -1184,16 +1413,7 @@ void loop()
 
 //////////////////////////////////////////
 
-//#define USE_SSL   true
-#define USE_SSL   false
-
-#if USE_SSL
-  // Need ArduinoECCX08 and ArduinoBearSSL libraries
-  // Currently, error not enough memory for UNO, Mega2560. Don't use
-  #include <EthernetSSL_Manager.h>
-#else
-  #include <Ethernet_Manager.h>
-#endif
+#include <Ethernet_Manager.h>
 
 #ifndef SHIELD_TYPE
   #define SHIELD_TYPE     "Unknown Ethernet shield/library" 
@@ -1206,6 +1426,7 @@ void loop()
 
 #endif      //defines_h
 ```
+---
 
 #### 3. File [Credentials.h](examples/Ethernet_SAMD/Credentials.h)
 
@@ -1266,6 +1487,8 @@ Ethernet_Configuration defaultConfig;
 
 #endif    //Credentials_h
 ```
+
+---
 
 #### 4. File [dynamicParams.h](examples/Ethernet_SAMD/dynamicParams.h)
 
@@ -1339,16 +1562,19 @@ Ethernet_Configuration defaultConfig;
 ---
 ---
 
-### Debug Termimal Output Samples
+### Debug Terminal Output Samples
 
-1. This is the terminal output of an NRF52840_FEATHER board with W5500 Ethernet shield using Ethernet2 Library, running [Ethernet_nRF52](examples/Ethernet_nRF52) example when **no doubleResetDetected**.
+#### 1. Ethernet_nRF52 on NRF52840_FEATHER_EXPRESS with W5500 using Ethernet2 Library
 
-#### 1. Normal run
+This is the terminal output of an Adafruit NRF52840_FEATHER board with W5500 Ethernet shield using Ethernet2 Library, running [Ethernet_nRF52](examples/Ethernet_nRF52) example when **no doubleResetDetected**.
+
+#### 1.1 Normal run
 
 ```
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type W5x00 using Ethernet2 Library
-Ethernet_Manager v1.1.0
+Ethernet_Manager v1.1.1
+DoubleResetDetector_Generic Version v1.0.3
 [ETHERNET_WEBSERVER] =========== USE_ETHERNET2 ===========
 [ETHERNET_WEBSERVER] Default SPI pinout:
 [ETHERNET_WEBSERVER] MOSI: 25
@@ -1434,12 +1660,13 @@ Pubs Topics = old-mqtt-PubTopic
 ```
 
 
-#### 2. DoubleResetDetected
+#### 1.2. DoubleResetDetected
 
 ```cpp
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.1.0
+Ethernet_Manager v1.1.1
+DoubleResetDetector_Generic Version v1.0.3
 [ETHERNET_WEBSERVER] =========== USE_ETHERNET2 ===========
 [ETHERNET_WEBSERVER] Default SPI pinout:
 [ETHERNET_WEBSERVER] MOSI: 25
@@ -1544,7 +1771,9 @@ Subs Topics = old-mqtt-SubTopic
 Pubs Topics = old-mqtt-PubTopic
 HHHH
 ```
-#### 3. Config Portal started
+
+#### 1.3. Config Portal started
+
 
 ```
 [ETM] h:Repl: <!DOCTYPE html><html><head><title>Ethernet_NRF52_Manager</title><style>div,input{padding:2px;font-size:1em;}input{width:95%;}body{text-align: center;}button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.5rem;margin:0px;}</style></head><div style='text-align:left;display:inline-block;min-width:260px;'><fieldset><div><label>StaticIP</label><input value='[[ip]]'id='ip'><div></div></div></fieldset><fieldset><div><label>Board Name</label><input value='[[nm]]'id='nm'><div></div></div></fieldset><fieldset><div><label>MQTT Server</label><input value='[[mqtt]]'id='mqtt'><div></div></div><div><label>Port</label><input value='[[mqpt]]'id='mqpt'><div></div></div><div><label>MQTT UserName</label><input value='[[user]]'id='user'><div></div></div><div><label>MQTT PWD</label><input value='[[mqpw]]'id='mqpw'><div></div></div><div><label>Subs Topics</label><input value='[[subs]]'id='subs'><div></div></div><div><label>Pubs Topics</label><input value='[[pubs]]'id='pubs'><div></div></div></fieldset><button onclick="sv()">Save</button></div><script id="jsbin-javascript">function udVal(key,val){var request=new XMLHttpRequest();var url='/?key='+key+'&value='+encodeURIComponent(val);request.open('GET',url,false);request.send(null);}function sv(){udVal('ip',document.getElementById('ip').value);udVal('nm',document.getElementById('nm').value);udVal('mqtt',document.getElementById('mqtt').value);udVal('mqpt',document.getElementById('mqpt').value);udVal('user',document.getElementById('user').value);udVal('mqpw',document.getElementById('mqpw').value);udVal('subs',document.getElementById('subs').value);udVal('pubs',document.getElementById('pubs').value);alert('Updated');}</script></html>
@@ -1557,7 +1786,7 @@ HHHH
 HHHHH HHHHHHH
 ```
 
-#### 4. Credentials entered and Saved
+#### 1.4. Credentials entered and Saved
 
 ```
 [ETM] h:items updated = 0
@@ -1613,12 +1842,15 @@ HHHHH HHHHHHH
 
 ---
 
-2. This is the terminal output of an SeeedStudio SAMD21 SEEED_XIAO_M0 board with W5500 Ethernet shield using Ethernet2 Library, running [Ethernet_SAMD](examples/Ethernet_SAMD) example when **no doubleResetDetected**.
+#### 2. Ethernet_SAMD on SeeedStudio SAMD21 SEEED_XIAO_M0 with W5500 using Ethernet2 Library
+
+This is the terminal output of an SeeedStudio SAMD21 SEEED_XIAO_M0 board with W5500 Ethernet shield using Ethernet2 Library, running [Ethernet_SAMD](examples/Ethernet_SAMD) example when **no doubleResetDetected**.
 
 ```
 Start Ethernet_SAMD on SEEED_XIAO_M0
 Ethernet Shield type : W5x00 using Ethernet Library
-Ethernet_Manager v1.1.0
+Ethernet_Manager v1.1.1
+DoubleResetDetector_Generic Version v1.0.3
 Flag read = 0xffffffff
 No doubleResetDetected
 SetFlag write = 0xd0d01234
@@ -1687,13 +1919,16 @@ ClearFlag write = 0xd0d04321
 
 ---
 
-3. This is the terminal output of an Arduino SAM DUE board with W5100 Ethernet shield using EthernetLarge Library, running [Ethernet_SAM_DUE](examples/Ethernet_SAM_DUE) example when **no doubleResetDetected**.
+#### 3. Ethernet_SAM_DUE on Arduino SAM DUE with W5100 using EthernetLarge Library
+
+This is the terminal output of an Arduino SAM DUE board with W5100 Ethernet shield using EthernetLarge Library, running [Ethernet_SAM_DUE](examples/Ethernet_SAM_DUE) example when **no doubleResetDetected**.
 
 ```
 
 Start Ethernet_SAM_DUE on SAM DUE
 Ethernet Shield type : W5x00 using EthernetLarge Library
-Ethernet_Manager v1.1.0
+Ethernet_Manager v1.1.1
+DoubleResetDetector_Generic Version v1.0.3
 Flag read = 0xd0d01234
 doubleResetDetected
 ClearFlag write = 0xd0d04321
@@ -1762,9 +1997,11 @@ HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHH
 
 ---
 
-4. This is the terminal output of ESP8266_NODEMCU board with W5x00 using Ethernet2 Library, running complex [MQTT_ThingStream_Ethernet_Generic](examples/MQTT_ThingStream_Ethernet_Generic) example to demonstrate how to use dynamic parameters, entered via Config Portal, to connect to [**ThingStream MQTT Server**](mqtt.thingstream.io).
+#### 4. MQTT_ThingStream_Ethernet_Generic on ESP8266_NODEMCU with W5x00 using Ethernet2 Library
 
-#### 1.Normal run without correct ThingStream MQTT Credentials
+This is the terminal output of ESP8266_NODEMCU board with W5x00 using Ethernet2 Library, running complex [MQTT_ThingStream_Ethernet_Generic](examples/MQTT_ThingStream_Ethernet_Generic) example to demonstrate how to use dynamic parameters, entered via Config Portal, to connect to [**ThingStream MQTT Server**](mqtt.thingstream.io).
+
+#### 4.1. Normal run without correct ThingStream MQTT Credentials
 
 If no valid config data are stored in EEPROM, it will switch to `Configuration Mode`. Connect to access point at the IP address displayed on Terminal or Router's DHCP server as in the following picture:
 
@@ -1776,7 +2013,8 @@ If no valid config data are stored in EEPROM, it will switch to `Configuration M
 ```
 Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.1.0
+Ethernet_Manager v1.1.1
+ESP_DoubleResetDetector Version v1.1.1
 =========================
 Currently Used SPI pinout:
 MOSI:13
@@ -1812,7 +2050,7 @@ Saving config file OK
 ```
 
 
-#### 2. Got correct ThingStream MQTT Credentials from Config Portal
+#### 4.2. Got correct ThingStream MQTT Credentials from Config Portal
 
 Enter your credentials (Blynk Servers/Tokens and Port). If you prefer static IP, input it (for example `192.168.2.220`) in the corresponding field. Otherwise, just leave it `blank` or `nothing` to use auto IP assigned by DHCP server.
 
@@ -1823,7 +2061,8 @@ Enter your credentials (Blynk Servers/Tokens and Port). If you prefer static IP,
 ```
 Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.1.0
+Ethernet_Manager v1.1.1
+ESP_DoubleResetDetector Version v1.1.1
 =========================
 Currently Used SPI pinout:
 MOSI:13
@@ -1873,14 +2112,17 @@ H
 
 ---
 
-5. This is the terminal output of NRF52840_FEATHER board with ENC28J60 using EthernetENC Library, running complex [MQTT_ThingStream_Ethernet_Generic](examples/MQTT_ThingStream_Ethernet_Generic) example to demonstrate how to use dynamic parameters, entered via Config Portal, to connect to [**ThingStream MQTT Server**](mqtt.thingstream.io).
+#### 5. MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER with ENC28J60 using EthernetENC Library
 
-#### 1.Normal run without correct ThingStream MQTT Credentials
+This is the terminal output of NRF52840_FEATHER board with ENC28J60 using EthernetENC Library, running complex [MQTT_ThingStream_Ethernet_Generic](examples/MQTT_ThingStream_Ethernet_Generic) example to demonstrate how to use dynamic parameters, entered via Config Portal, to connect to [**ThingStream MQTT Server**](mqtt.thingstream.io).
+
+#### 5.1. Normal run without correct ThingStream MQTT Credentials
 
 ```
 Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
 Ethernet Shield type : ENC28J60 using EthernetENC Library
-Ethernet_Manager v1.1.0
+Ethernet_Manager v1.1.1
+DoubleResetDetector_Generic Version v1.0.3
 LittleFS Flag read = 0xd0d01234
 Flag read = 0xd0d01234
 doubleResetDetected
@@ -1912,12 +2154,13 @@ esp32-sniffer/12345678/ble
 
 ```
 
-#### 2. Got correct ThingStream MQTT Credentials from Config Portal
+#### 5.2. Got correct ThingStream MQTT Credentials from Config Portal
 
 ```
 Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
 Ethernet Shield type : ENC28J60 using EthernetENC Library
-Ethernet_Manager v1.1.0
+Ethernet_Manager v1.1.1
+DoubleResetDetector_Generic Version v1.0.3
 LittleFS Flag read = 0xd0d04321
 Flag read = 0xd0d04321
 No doubleResetDetected
@@ -1964,48 +2207,6 @@ H
 ---
 ---
 
-### Releases v1.1.0
-
-1. Add support to ESP32 and ESP8266 using EEPROM, SPIFFS or LittleFS
-2. Add many complex MQTT Examples to demonstrate how to use the dynamic parameters, entered via Config Portal, to connect to **ThingStream MQTT Server** at `mqtt.thingstream.io`.
-
-
-### Releases v1.0.0
-
-1. Initial coding to support SAMD21/SAMD51, nRF52, SAM DUE, Teensy.
-2. Provide support to W5x00, ENC28J60 and Teensy 4.1 NativeEthernet.
-3. Supporting Ethernet, EthernetLarge, Ethernet2, Ethernet3, EthernetENC, UIPEthernet and Teensy NativeEthernet Libraries
-
----
-
-#### Supporting Boards
-
-This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manager) currently supports these following boards:
-
- 1. **nRF52 boards**, such as **AdaFruit Feather nRF52832, nRF52840 Express, BlueFruit Sense, Itsy-Bitsy nRF52840 Express, Metro nRF52840 Express, NINA_B302_ublox, NINA_B112_ublox, etc.**
- 2. **SAM DUE**
- 3. **SAMD21**
-  - Arduino SAMD21: ZERO, MKRs, NANO_33_IOT, etc.
-  - Adafruit SAMD21 (M0): ItsyBitsy M0, Feather M0, Feather M0 Express, Metro M0 Express, Circuit Playground Express, Trinket M0, PIRkey, Hallowing M0, Crickit M0, etc.
-  - Seeeduino:  LoRaWAN, Zero, Femto M0, XIAO M0, Wio GPS Board, etc.
-  
- 4. **SAMD51**
-  - Adafruit SAMD51 (M4): Metro M4, Grand Central M4, ItsyBitsy M4, Feather M4 Express, Trellis M4, Metro M4 AirLift Lite, MONSTER M4SK Express, Hallowing M4, etc.
-  - Seeeduino: Wio Terminal, Grove UI Wireless
-  
- 5. **Teensy (4.1, 4.0, 3.6, 3.5, 3,2, 3.1, 3.0, LC)**
- 6. ESP32
- 7. ESP8266
- 
-#### Supporting Ethernet shields/modules:
-
-1. W5x00 using [`Ethernet`](https://www.arduino.cc/en/Reference/Ethernet), [`EthernetLarge`](https://github.com/OPEnSLab-OSU/EthernetLarge), [`Ethernet2`](https://github.com/adafruit/Ethernet2) or [`Ethernet3`](https://github.com/sstaub/Ethernet3) library
-2. ENC28J60 using [`EthernetENC`](https://github.com/jandrassy/EthernetENC) or [`UIPEthernet`](https://github.com/UIPEthernet/UIPEthernet) library
-3. Teensy 4.1 NativeEthernet using [`NativeEthernet Library version stable111+`](https://github.com/vjmuzik/NativeEthernet).
-
----
----
-
 ### Debug
 
 Debug is enabled by default on Serial.
@@ -2028,6 +2229,58 @@ You can also change the debugging level from 0 to 4
 If you get compilation errors, more often than not, you may need to install a newer version of the core for Arduino boards.
 
 Sometimes, the library will only work if you update the board core to the latest version because I am using newly added functions.
+
+---
+---
+
+## Releases
+
+### Releases v1.1.1
+
+1. Clean-up all compiler warnings possible.
+2. Add Table of Contents
+
+### Releases v1.1.0
+
+1. Add support to ESP32 and ESP8266 using EEPROM, SPIFFS or LittleFS
+2. Add many complex MQTT Examples to demonstrate how to use the dynamic parameters, entered via Config Portal, to connect to **ThingStream MQTT Server** at `mqtt.thingstream.io`.
+
+
+### Releases v1.0.0
+
+1. Initial coding to support SAMD21/SAMD51, nRF52, SAM DUE, Teensy.
+2. Provide support to W5x00, ENC28J60 and Teensy 4.1 NativeEthernet.
+3. Supporting Ethernet, EthernetLarge, Ethernet2, Ethernet3, EthernetENC, UIPEthernet and Teensy NativeEthernet Libraries
+
+---
+
+#### Supported Boards
+
+This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manager) currently supports these following boards:
+
+ 1. **nRF52 boards**, such as **AdaFruit Feather nRF52832, nRF52840 Express, BlueFruit Sense, Itsy-Bitsy nRF52840 Express, Metro nRF52840 Express, NINA_B302_ublox, NINA_B112_ublox, etc.**
+ 2. **SAM DUE**
+ 3. **SAMD21**
+  - Arduino SAMD21: ZERO, MKRs, NANO_33_IOT, etc.
+  - Adafruit SAMD21 (M0): ItsyBitsy M0, Feather M0, Feather M0 Express, Metro M0 Express, Circuit Playground Express, Trinket M0, PIRkey, Hallowing M0, Crickit M0, etc.
+  - Seeeduino:  LoRaWAN, Zero, Femto M0, XIAO M0, Wio GPS Board, etc.
+  
+ 4. **SAMD51**
+  - Adafruit SAMD51 (M4): Metro M4, Grand Central M4, ItsyBitsy M4, Feather M4 Express, Trellis M4, Metro M4 AirLift Lite, MONSTER M4SK Express, Hallowing M4, etc.
+  - Seeeduino: Wio Terminal, Grove UI Wireless
+  
+ 5. **Teensy (4.1, 4.0, 3.6, 3.5, 3,2, 3.1, 3.0, LC)**
+ 6. ESP32
+ 7. ESP8266
+ 
+#### Supported Ethernet shields/modules:
+
+1. W5x00 using [`Ethernet`](https://www.arduino.cc/en/Reference/Ethernet), [`EthernetLarge`](https://github.com/OPEnSLab-OSU/EthernetLarge), [`Ethernet2`](https://github.com/adafruit/Ethernet2) or [`Ethernet3`](https://github.com/sstaub/Ethernet3) library
+2. ENC28J60 using [`EthernetENC`](https://github.com/jandrassy/EthernetENC) or [`UIPEthernet`](https://github.com/UIPEthernet/UIPEthernet) library
+3. Teensy 4.1 NativeEthernet using [`NativeEthernet Library version stable111+`](https://github.com/vjmuzik/NativeEthernet).
+
+---
+---
 
 
 ### Issues ###

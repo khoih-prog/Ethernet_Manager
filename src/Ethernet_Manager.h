@@ -8,12 +8,13 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
-  Version: 1.1.0
+  Version: 1.1.1
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
   1.0.0     K Hoang     14/12/2020 Initial coding.
   1.1.0     K Hoang     17/12/2020 Add support to ESP32/ESP8266. Add MQTT related examples to demo dynamic parameter usage
+  1.1.1     K Hoang     28/12/2020 Suppress all possible compiler warnings
  *****************************************************************************************************************************/
 
 #pragma once
@@ -21,7 +22,7 @@
 #ifndef Ethernet_Manager_h
 #define Ethernet_Manager_h
 
-#define ETHERNET_MANAGER_VERSION      "Ethernet_Manager v1.1.0"
+#define ETHERNET_MANAGER_VERSION      "Ethernet_Manager v1.1.1"
 
 #if ( USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE || USE_ETHERNET_ESP8266 || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
   #ifdef USE_CUSTOM_ETHERNET
@@ -37,15 +38,21 @@
   #if USE_NATIVE_ETHERNET
     #include "NativeEthernet.h"
     #warning Using NativeEthernet lib for Teensy 4.1. Must also use Teensy Packages Patch or error
-    #define SHIELD_TYPE           "Custom Ethernet using Teensy 4.1 NativeEthernet Library"
+    #ifndef SHIELD_TYPE
+      #define SHIELD_TYPE           "Custom Ethernet using Teensy 4.1 NativeEthernet Library"
+    #endif  
   #elif USE_ETHERNET3
     #include "Ethernet3.h"
     #warning Using Ethernet3 lib from Ethernet_Manager.h
-    #define SHIELD_TYPE           "W5x00 using Ethernet3 Library"
+    #ifndef SHIELD_TYPE
+      #define SHIELD_TYPE           "W5x00 using Ethernet3 Library"
+    #endif
   #elif USE_ETHERNET2
     #include "Ethernet2.h"
     #warning Using Ethernet2 lib from Ethernet_Manager.h
+      #ifndef SHIELD_TYPE
     #define SHIELD_TYPE           "W5x00 using Ethernet2 Library"
+    #endif
   #elif USE_ETHERNET_LARGE
     #include "EthernetLarge.h"
     #warning Using EthernetLarge lib from Ethernet_Manager.h
@@ -53,7 +60,9 @@
   #elif USE_ETHERNET_ESP8266
     #include "Ethernet_ESP8266.h"
     #warning Using Ethernet_ESP8266 lib from Ethernet_Manager.h
-    #define SHIELD_TYPE           "W5x00 using Ethernet_ESP8266 Library" 
+      #ifndef SHIELD_TYPE
+    #define SHIELD_TYPE           "W5x00 using Ethernet_ESP8266 Library"
+    #endif
   #elif USE_ETHERNET_ENC
     #include "EthernetENC.h"
     #warning Using EthernetENC lib from Ethernet_Manager.h
@@ -62,7 +71,9 @@
     //#include "Ethernet_XYZ.h"
     #include "EthernetENC.h"
     #warning Using Custom Ethernet library from Ethernet_Manager.h. You must include a library and initialize.
-    #define SHIELD_TYPE           "Custom Ethernet using Ethernet_XYZ Library"
+    #ifndef SHIELD_TYPE
+      #define SHIELD_TYPE           "Custom Ethernet using Ethernet_XYZ Library"
+    #endif
   #else
     #ifdef USE_ETHERNET
       #undef USE_ETHERNET
@@ -70,7 +81,9 @@
     #define USE_ETHERNET   true
     #include "Ethernet.h"
     #warning Using Ethernet lib from Ethernet_Manager.h
-    #define SHIELD_TYPE           "W5x00 using Ethernet Library"
+    #ifndef SHIELD_TYPE
+      #define SHIELD_TYPE           "W5x00 using Ethernet Library"
+    #endif
   #endif
 
 #else
