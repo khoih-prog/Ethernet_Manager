@@ -27,7 +27,7 @@ typedef struct Configuration
 } Ethernet_Configuration;
 */
 
-#define TO_LOAD_DEFAULT_CONFIG_DATA      true
+#define TO_LOAD_DEFAULT_CONFIG_DATA      false
 
 #if TO_LOAD_DEFAULT_CONFIG_DATA
 

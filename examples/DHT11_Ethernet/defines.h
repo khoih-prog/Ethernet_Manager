@@ -440,7 +440,22 @@
   #define EEPROM_START   0
 #endif
 
+/////////////////////////////////////////////
+
+// Add customs headers from v1.2.0
+#define USING_CUSTOMS_STYLE                 true
+#define USING_CUSTOMS_HEAD_ELEMENT          true
+#define USING_CORS_FEATURE                  true
+
+/////////////////////////////////////////////
+
+// Config Timeout 120s (default 60s)
+#define CONFIG_TIMEOUT                      120000L
+
+#define USE_DYNAMIC_PARAMETERS              true
+
 //////////////////////////////////////////
+
 
 #include <Ethernet_Manager.h>
 

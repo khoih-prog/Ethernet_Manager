@@ -8,6 +8,16 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
+
+  Version: 1.2.0
+
+  Version  Modified By   Date      Comments
+  -------  -----------  ---------- -----------
+  1.0.0     K Hoang     14/12/2020 Initial coding.
+  1.1.0     K Hoang     17/12/2020 Add support to ESP32/ESP8266. Add MQTT related examples to demo dynamic parameter usage
+  1.1.1     K Hoang     28/12/2020 Suppress all possible compiler warnings
+  1.2.0     K Hoang     22/02/2021 Optimize code and use better FlashStorage_SAMD and FlashStorage_STM32. 
+                                   Add customs HTML header feature. Fix bug.
  *****************************************************************************************************************************/
 
 #include "defines.h"
@@ -74,6 +84,11 @@ void check_status()
     checkstatus_timeout = millis() + STATUS_CHECK_INTERVAL;
   }
 }
+
+#if USING_CUSTOMS_STYLE
+const char NewCustomsStyle[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}\
+button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
+#endif
 
 void setup()
 {
@@ -173,7 +188,23 @@ void setup()
 #endif
   ET_LOGWARN(F("========================="));
   
+  //////////////////////////////////////////////
+  
+#if USING_CUSTOMS_STYLE
+  ethernet_manager.setCustomsStyle(NewCustomsStyle);
+#endif
+
+#if USING_CUSTOMS_HEAD_ELEMENT
+  ethernet_manager.setCustomsHeadElement("<style>html{filter: invert(10%);}</style>");
+#endif
+
+#if USING_CORS_FEATURE  
+  ethernet_manager.setCORSHeader("Your Access-Control-Allow-Origin");
+#endif
+
   ethernet_manager.begin();
+
+  //////////////////////////////////////////////
 
   localEthernetIP = Ethernet.localIP();
 
