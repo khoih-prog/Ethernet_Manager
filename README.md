@@ -83,7 +83,7 @@
   * [4. To open Config Portal](#4-to-open-config-portal)
   * [5. To use custom HTML Style](#5-to-use-custom-html-style)
   * [6. To use custom Head Elements](#6-to-use-custom-head-elements)
-  * 7. To use CORS Header](#7-to-use-cors-header)
+  * [7. To use CORS Header](#7-to-use-cors-header)
 * [Important Notes for using Dynamic Parameters' ids](#important-notes-for-using-dynamic-parameters-ids)
 * [Examples](#examples)
   * [ 1. AM2315_Ethernet](examples/AM2315_Ethernet)
@@ -194,7 +194,7 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
 
 1. Configurable **Customs HTML Headers**, including Customs Style, Customs Head Elements, CORS Header.
 2. Add functions to control Config Portal from software or Virtual Switches. Check [How to trigger a Config Portal from code #25](https://github.com/khoih-prog/Blynk_WM/issues/25)
-3. Use more efficient [FlashStorage_SAMD v1.1.0](https://github.com/khoih-prog/FlashStorage_SAMD) and [FlashStorage_STM32 v1.0.0](https://github.com/khoih-prog/FlashStorage_STM32)
+3. Use more efficient [FlashStorage_SAMD v1.1.0](https://github.com/khoih-prog/FlashStorage_SAMD)
 4. Add support to **ESP32-S2 (ESP32-S2 Saola and AI-Thinker ESP-12K)**
 5. Add [**Instructions to install ESP32-S2 core**](https://github.com/khoih-prog/Ethernet_Manager#howto-install-esp32-s2-core-for-esp32-s2-saola-ai-thinker-esp-12k-boards-into-arduino-ide)
 6. Fix Config Portal Bug. 
@@ -508,7 +508,7 @@ Download [**esp32-s2 core**](https://github.com/espressif/arduino-esp32/tree/esp
 #### 2.2 Unzip
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/ESPAsync_WiFiManager_Lite/blob/main/pics/esp32_s2_Core_Unzipped.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/esp32_s2_Core_Unzipped.png">
 </p>
 
 #### 2.3 Update esp32-s2 core directories
@@ -528,7 +528,7 @@ For example `xtensa-esp32s2-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz`, then un
 
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/ESPAsync_WiFiManager_Lite/blob/main/pics/esp32_s2_Toolchain.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/esp32_s2_Toolchain.png">
 </p>
 
 #### 3.2 Download esptool
@@ -541,7 +541,7 @@ Download [esptool](https://github.com/espressif/esptool/releases) int the `zip` 
 #### 3.3 Unzip
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/ESPAsync_WiFiManager_Lite/blob/main/pics/esp32_s2_esptool.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/esp32_s2_esptool.png">
 </p>
 
 ---
@@ -562,7 +562,7 @@ Copy whole `esptool` directory into `/home/your_account/.arduino15/packages/esp3
 
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/ESPAsync_WiFiManager_Lite/blob/main/pics/esp32_s2_tools.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/esp32_s2_tools.png">
 </p>
 
 
@@ -2821,7 +2821,7 @@ Sometimes, the library will only work if you update the board core to the latest
 
 1. Configurable **Customs HTML Headers**, including Customs Style, Customs Head Elements, CORS Header.
 2. Add functions to control Config Portal from software or Virtual Switches. Check [How to trigger a Config Portal from code #25](https://github.com/khoih-prog/Blynk_WM/issues/25)
-3. Use more efficient [FlashStorage_SAMD v1.1.0](https://github.com/khoih-prog/FlashStorage_SAMD) and [FlashStorage_STM32 v1.0.0](https://github.com/khoih-prog/FlashStorage_STM32)
+3. Use more efficient [FlashStorage_SAMD v1.1.0](https://github.com/khoih-prog/FlashStorage_SAMD)
 4. Add support to **ESP32-S2 (ESP32-S2 Saola and AI-Thinker ESP-12K)**
 5. Add [**Instructions to install ESP32-S2 core**](https://github.com/khoih-prog/Ethernet_Manager#howto-install-esp32-s2-core-for-esp32-s2-saola-ai-thinker-esp-12k-boards-into-arduino-ide)
 6. Fix Config Portal Bug. 
