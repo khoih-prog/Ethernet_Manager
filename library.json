@@ -1,8 +1,8 @@
 {
   "name": "Ethernet_Manager",
-  "version": "1.1.1",
-  "description": "Simple Ethernet Manager for Teensy, SAM DUE, SAMD21, SAMD51, nRF52, ESP32, ESP8266, etc. boards, with or without SSL, configuration data saved in ESP8266/ESP32 LittleFS, SPIFFS or EEPROM, nRF52 LittleFS/InternalFS, EEPROM, DueFlashStorage or SAMD FlashStorage.",
-  "keywords": "communication, ethernet, data, esp8266, esp32, http, W5500, W5x00, ENC28J60, Teensy, SAM DUE, SAMD21, SAMD51, STM32, nRF52, Credentials, Manager, Config Portal, Double, Reset, Detector, MQTT, DynamicParameters",
+  "version": "1.2.0",
+  "description": "Simple Ethernet Manager for Teensy, SAM DUE, SAMD21, SAMD51, nRF52, ESP32 (including ESP32-S2), ESP8266, etc. boards, with or without SSL, configuration data saved in ESP8266/ESP32 LittleFS, SPIFFS or EEPROM, nRF52 LittleFS/InternalFS, EEPROM, DueFlashStorage or SAMD FlashStorage. Library for configuring/auto(re)connecting Ethernet W5100/W5200/W5500, ENC28J60 and Teensy 4.1 NativeEthernet at runtime. Use much less memory compared to full-fledge WiFiManager. Config Portal will be auto-adjusted to match the number of dynamic custom parameters. Optional default Credentials to be autoloaded into Config Portal to use or change instead of manually input. Credentials are saved in LittleFS/InternalFS, (emulated-)EEPROM, FlashStorage_SAMD or DueFlashStorage. New powerful-yet-simple-to-use feature to enable adding dynamic custom parameters from sketch and input using the same Config Portal. DoubleDetectDetector as well as Virtual Switches feature permits entering Config Portal as requested. Configurable Customs HTML Headers, including Customs Style, Customs Head Elements, CORS Header.",
+  "keywords": "communication, ethernet, data, esp8266, esp32, esp32-s2, http, W5500, W5x00, ENC28J60, Teensy, SAM DUE, SAMD21, SAMD51, STM32, nRF52, Credentials, Manager, Config Portal, config-portal, Double, Reset, Detector, MQTT, DynamicParameters, dynamic-params, dynamic, customs-header",
   "authors":
   {
     "name":  "Khoi Hoang",
@@ -27,7 +27,7 @@
     {
       "owner": "khoih-prog",
       "name": "EthernetWebServer",
-      "version": ">=1.2.1",
+      "version": ">=1.3.0",
       "platforms": ["*"]
     },
     {
@@ -45,8 +45,26 @@
     {
       "owner": "khoih-prog",
       "name": "Functional-Vlpp",
-      "version": ">=1.0.1",
+      "version": ">=1.0.2",
       "platforms": ["*"]
+    },
+    {
+      "owner": "khoih.prog",
+      "name": "FlashStorage_SAMD",
+      "version": "^1.1.0",
+      "platforms": ["*"]
+    },
+    {
+      "owner": "sebnil",
+      "name": "DueFlashStorage",
+      "version": "^1.0.0",
+      "platforms": ["*"]
+    },
+    {
+      "owner": "lorol",
+      "name": "LittleFS_esp32",
+      "version": ">=1.0.5",
+      "platforms": ["espressif32"]
     }
   ],
   "frameworks": "*",

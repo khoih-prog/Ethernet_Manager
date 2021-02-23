@@ -17,6 +17,7 @@
   * [Currently supported Boards](#currently-supported-boards)
   * [Currently supported Ethernet shields/modules](#currently-supported-ethernet-shieldsmodules)
 * [Changelog](#changelog)
+  * [Major Releases v1.2.0](#major-releases-v120)
   * [Releases v1.1.1](#releases-v111)
   * [Releases v1.1.0](#releases-v110)
   * [Releases v1.0.0](#releases-v100)
@@ -43,6 +44,21 @@
   * [5. For Ethernet3 library](#5-for-ethernet3-library)
   * [6. For UIPEthernet library](#6-for-uipethernet-library)
   * [7. For fixing ESP32 compile error](#7-for-fixing-esp32-compile-error) 
+* [HOWTO Install esp32-s2 core for ESP32-S2 (Saola, AI-Thinker ESP-12K) boards into Arduino IDE)](#howto-install-esp32-s2-core-for-esp32-s2-saola-ai-thinker-esp-12k-boards-into-arduino-ide)
+  * [1. Save the original esp32 core](#1-save-the-original-esp32-core)
+  * [2. Download esp32-s2 core](#2-download-esp32-s2-core)
+    * [2.1 Download zip](#21-download-zip)
+    * [2.2 Unzip](#22-unzip)
+    * [2.3 Update esp32-s2 core directories](#23-update-esp32-s2-core-directories)
+  * [3. Download tools](#3-download-tools) 
+    * [3.1 Download Toolchain for Xtensa (ESP32-S2) based on GCC](#31-download-toolchain-for-xtensa-esp32-s2-based-on-gcc)
+    * [3.2 Download esptool](#32-download-esptool)
+    * [3.3 Unzip](#33-unzip)
+  * [4. Update tools](#4-update-tools)
+    * [4.1 Update Toolchain](#41-update-toolchain)
+    * [4.2 Update esptool](#42-update-esptool)
+  * [5. esp32-s2 WebServer Library Patch](#5-esp32-s2-webserver-library-patch)
+* [Note for Platform IO using ESP32 LittleFS](#note-for-platform-io-using-esp32-littlefs) 
 * [HOWTO Use analogRead() with ESP32 running WiFi and/or BlueTooth (BT/BLE)](#howto-use-analogread-with-esp32-running-wifi-andor-bluetooth-btble)
   * [1. ESP32 has 2 ADCs, named ADC1 and ADC2](#1--esp32-has-2-adcs-named-adc1-and-adc2)
   * [2. ESP32 ADCs functions](#2-esp32-adcs-functions)
@@ -60,7 +76,14 @@
   * [5. How to increase W5x00 TX/RX buffer](#5-how-to-increase-w5x00-txrx-buffer)
   * [Not supported Libraries](#not-supported-libraries)
 * [How to use default Credentials and have them pre-loaded onto Config Portal](#how-to-use-default-credentials-and-have-them-pre-loaded-onto-config-portal)
-* [How to add dynamic parameters from sketch](#how-to-add-dynamic-parameters-from-sketch)
+* [How to use](#how-to-use)
+  * [1. Basic usage](#1-basic-usage)
+  * [2. Add custom parameters](#2-add-custom-parameters)
+  * [3. Not using custom parameters](#3-not-using-custom-parameters)
+  * [4. To open Config Portal](#4-to-open-config-portal)
+  * [5. To use custom HTML Style](#5-to-use-custom-html-style)
+  * [6. To use custom Head Elements](#6-to-use-custom-head-elements)
+  * 7. To use CORS Header](#7-to-use-cors-header)
 * [Important Notes for using Dynamic Parameters' ids](#important-notes-for-using-dynamic-parameters-ids)
 * [Examples](#examples)
   * [ 1. AM2315_Ethernet](examples/AM2315_Ethernet)
@@ -76,8 +99,8 @@
   * [11. **MQTT_ThingStream_Ethernet_SAM_DUE**](examples/MQTT_ThingStream_Ethernet_SAM_DUE)
   * [12. **MQTT_ThingStream_Ethernet_Teensy**](examples/MQTT_ThingStream_Ethernet_Teensy)
 * [So, how it works?](#so-how-it-works)
-* [Example Ethernet_SAMD](#example-ethernet_samd)
-  * [1. File Ethernet_SAMD.ino](#1-file-ethernet_samdino)
+* [Example Ethernet_Generic](#example-ethernet_generic)
+  * [1. File Ethernet_Generic.ino](#1-file-ethernet_genericino)
   * [2. File defines.h](#2-file-definesh) 
   * [3. File Credentials.h](#3-file-credentialsh) 
   * [4. File dynamicParams.h](#4-file-dynamicparamsh) 
@@ -150,9 +173,9 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
   
  5. **Teensy (4.1, 4.0, 3.6, 3.5, 3,2, 3.1, 3.0, LC)**
  
- 6. ESP32
+ 6. **ESP32 including ESP32-S2 (ESP32-S2 Saola, AI-Thinker ESP-12K, etc.)**
  
- 7. ESP8266
+ 7. **ESP8266**
  
  ---
  
@@ -166,6 +189,16 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
 ---
 
 ## Changelog
+
+### Major Releases v1.2.0
+
+1. Configurable **Customs HTML Headers**, including Customs Style, Customs Head Elements, CORS Header.
+2. Add functions to control Config Portal from software or Virtual Switches. Check [How to trigger a Config Portal from code #25](https://github.com/khoih-prog/Blynk_WM/issues/25)
+3. Use more efficient [FlashStorage_SAMD v1.1.0](https://github.com/khoih-prog/FlashStorage_SAMD) and [FlashStorage_STM32 v1.0.0](https://github.com/khoih-prog/FlashStorage_STM32)
+4. Add support to **ESP32-S2 (ESP32-S2 Saola and AI-Thinker ESP-12K)**
+5. Add [**Instructions to install ESP32-S2 core**](https://github.com/khoih-prog/Ethernet_Manager#howto-install-esp32-s2-core-for-esp32-s2-saola-ai-thinker-esp-12k-boards-into-arduino-ide)
+6. Fix Config Portal Bug. 
+7. Update examples
 
 ### Releases v1.1.1
 
@@ -192,15 +225,16 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
 ## Prerequisites
 
  1. [`Arduino IDE 1.8.13+` for Arduino](https://www.arduino.cc/en/Main/Software)
- 2. [`Teensy core v1.53+`](https://www.pjrc.com/teensy/td_download.html) for Teensy (4.1, 4.0, 3.6, 3.5, 3,2, 3.1, 3.0) boards.
+ 2. [`Teensy core v1.51`](https://www.pjrc.com/teensy/td_download.html) for Teensy (4.0, 3.6, 3.5, 3,2, 3.1, 3.0) boards and [`Teensy core v1.53+`](https://www.pjrc.com/teensy/td_download.html) for Teensy 4.1 boards using NativeEthernet.
  3. [`Arduino SAM DUE core v1.6.12+`](https://www.arduino.cc/en/Guide/ArduinoDue) for SAM DUE ARM Cortex-M3 boards.
- 4. [`Arduino SAMD core 1.8.11+`](https://www.arduino.cc/en/Guide/ArduinoM0) for SAMD ARM Cortex-M0+ boards  (Nano 33 IoT, etc.).
- 5. [`Adafruit SAMD core 1.6.4+`](https://www.adafruit.com/) for SAMD ARM Cortex-M0+ and M4 boards (Itsy-Bitsy M4, etc.)
- 6. [`Seeeduino SAMD core 1.8.1+`](https://www.seeedstudio.com/) for SAMD21/SAMD51 boards (XIAO M0, Wio Terminal, etc.) 
- 7. [`Adafruit nRF52 v0.21.0+`](https://www.adafruit.com/) for nRF52 boards such as AdaFruit Feather nRF52840 Express, NINA_B302_ublox, NINA_B112_ublox, etc.
- 8. [`ESP32 core 1.0.4+`](https://github.com/espressif/arduino-esp32/releases) for ESP32 boards
- 9. [`ESP8266 core 2.7.4+`](https://github.com/esp8266/Arduino#installing-with-boards-manager) for ESP8266 boards. To use ESP8266 core 2.7.1+ for LittleFS. 
-10. Depending on which Ethernet card you're using:
+ 4. [`Arduino SAMD core 1.8.11+`](https://www.arduino.cc/en/Guide/ArduinoM0) for SAMD ARM Cortex-M0+ boards. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-samd.svg)](https://github.com/arduino/ArduinoCore-samd/releases/latest)
+ 5. [`Adafruit SAMD core 1.6.5+`](https://www.adafruit.com/) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
+ 6. [`Seeeduino SAMD core 1.8.1+`](https://github.com/Seeed-Studio/ArduinoCore-samd) for SAMD21/SAMD51 boards (XIAO M0, Wio Terminal, etc.). [![Latest release](https://img.shields.io/github/release/Seeed-Studio/ArduinoCore-samd.svg)](https://github.com/Seeed-Studio/ArduinoCore-samd/releases/latest/)
+ 7. [`Adafruit nRF52 v0.21.0+`](https://www.adafruit.com) for nRF52 boards such as Adafruit NRF52840_FEATHER, NRF52832_FEATHER, NRF52840_FEATHER_SENSE, NRF52840_ITSYBITSY, NRF52840_CIRCUITPLAY, NRF52840_CLUE, NRF52840_METRO, NRF52840_PCA10056, PARTICLE_XENON, **NINA_B302_ublox**, etc. [![GitHub release](https://img.shields.io/github/release/adafruit/Adafruit_nRF52_Arduino.svg)](https://github.com/adafruit/Adafruit_nRF52_Arduino/releases/latest)
+ 8. [`ESP8266 Core 2.7.4+`](https://github.com/esp8266/Arduino) for ESP8266-based boards. [![Latest release](https://img.shields.io/github/release/esp8266/Arduino.svg)](https://github.com/esp8266/Arduino/releases/latest/). To use ESP8266 core 2.7.1+ for LittleFS. 
+ 9. [`ESP32 Core 1.0.4+`](https://github.com/espressif/arduino-esp32) for ESP32-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/)
+10. [`ESP32S2 Core 1.0.4+`](https://github.com/espressif/arduino-esp32/tree/esp32s2) for ESP32S2-based boards.
+11. Depending on which Ethernet card you're using:
    - [`Ethernet library v2.0.0+`](https://www.arduino.cc/en/Reference/Ethernet) for W5100, W5200 and W5500.
    - [`EthernetLarge library v2.0.0+`](https://github.com/OPEnSLab-OSU/EthernetLarge) for W5100, W5200 and W5500.
    - [`Ethernet2 library v1.0.4+`](https://github.com/khoih-prog/Ethernet2) for W5500.
@@ -208,13 +242,15 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
    - [`EthernetENC library v2.0.0+`](https://github.com/jandrassy/EthernetENC) for ENC28J60. **New and Better**
    - [`UIPEthernet library v2.0.9+`](https://github.com/UIPEthernet/UIPEthernet) for ENC28J60
    - [`NativeEthernet Library version stable111+`](https://github.com/vjmuzik/NativeEthernet) for Teensy 4.1 built-in NativeEthernet
-11. Depending on which board you're using:
-   - [`DueFlashStorage library`](https://github.com/sebnil/DueFlashStorage) for SAM DUE
-   - [`FlashStorage_SAMD library v1.0.0+`](https://github.com/khoih-prog/FlashStorage_SAMD) for SAMD (DUE, ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit CIRCUITPLAYGROUND_EXPRESS, etc.)
-12. [`EthernetWebServer library v1.2.1+`](https://github.com/khoih-prog/EthernetWebServer). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/EthernetWebServer.svg?)](https://www.ardu-badge.com/EthernetWebServer).
-13. [`ESP_DoubleResetDetector library v1.1.1+`](https://github.com/khoih-prog/ESP_DoubleResetDetector) for ESP32 and ESP8266.  To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_DoubleResetDetector.svg?)](https://www.ardu-badge.com/ESP_DoubleResetDetector).
-14. [`DoubleResetDetector_Generic library v1.0.3+`](https://github.com/khoih-prog/DoubleResetDetector_Generic) for other boards (not ESP32 or ESP8266). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic).
-15. [`Functional-VLPP library v1.0.1+`](https://github.com/khoih-prog/functional-vlpp) to use server's lambda function. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/Functional-Vlpp.svg?)](https://www.ardu-badge.com/Functional-Vlpp)
+12. Depending on which board you're using:
+   - [`DueFlashStorage library v1.0+`](https://github.com/sebnil/DueFlashStorage) for SAM DUE. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/DueFlashStorage.svg?)](https://www.ardu-badge.com/DueFlashStorage)
+   - [`FlashStorage_SAMD library v1.1.0+`](https://github.com/khoih-prog/FlashStorage_SAMD) for SAMD21 and SAMD51 boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit Itsy-Bitsy M4, etc.). [![GitHub release](https://img.shields.io/github/release/khoih-prog/FlashStorage_SAMD.svg)](https://github.com/khoih-prog/FlashStorage_SAMD/releases/latest)
+   - [`Adafruit's LittleFS/InternalFS`](www.adafruit.com) for nRF52
+13. [`EthernetWebServer library v1.3.0+`](https://github.com/khoih-prog/EthernetWebServer). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/EthernetWebServer.svg?)](https://www.ardu-badge.com/EthernetWebServer).
+14. [`ESP_DoubleResetDetector library v1.1.1+`](https://github.com/khoih-prog/ESP_DoubleResetDetector) for ESP32 and ESP8266.  To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_DoubleResetDetector.svg?)](https://www.ardu-badge.com/ESP_DoubleResetDetector).
+15. [`DoubleResetDetector_Generic library v1.0.3+`](https://github.com/khoih-prog/DoubleResetDetector_Generic) for other boards (not ESP32 or ESP8266). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic).
+16. [`Functional-VLPP library v1.0.2+`](https://github.com/khoih-prog/functional-vlpp) to use server's lambda function. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/Functional-Vlpp.svg?)](https://www.ardu-badge.com/Functional-Vlpp)
+17. [`LittleFS_esp32 v1.0.5+`](https://github.com/lorol/LITTLEFS) for ESP32-based boards using LittleFS. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/LittleFS_esp32.svg?)](https://www.ardu-badge.com/LittleFS_esp32).
 
 ---
 
@@ -271,16 +307,22 @@ These files must be copied into the directory:
 
 #### 2. For Teensy boards
  
- **To be able to compile and run on Teensy boards**, you have to copy the file [Teensy boards.txt](Packages_Patches/hardware/teensy/avr/boards.txt) into Teensy hardware directory (./arduino-1.8.12/hardware/teensy/avr/boards.txt). 
+ **To be able to compile and run on Teensy boards**, you have to copy the files in [**Packages_Patches for Teensy directory**](Packages_Patches/hardware/teensy/avr) into Teensy hardware directory (./arduino-1.8.13/hardware/teensy/avr/boards.txt). 
 
-Supposing the Arduino version is 1.8.12. This file must be copied into the directory:
+Supposing the Arduino version is 1.8.13. These files must be copied into the directory:
 
-- `./arduino-1.8.12/hardware/teensy/avr/boards.txt`
+- `./arduino-1.8.13/hardware/teensy/avr/boards.txt`
+- `./arduino-1.8.13/hardware/teensy/avr/cores/teensy/Stream.h`
+- `./arduino-1.8.13/hardware/teensy/avr/cores/teensy3/Stream.h`
+- `./arduino-1.8.13/hardware/teensy/avr/cores/teensy4/Stream.h`
 
 Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz
-This file must be copied into the directory:
+These files must be copied into the directory:
 
 - `./arduino-x.yy.zz/hardware/teensy/avr/boards.txt`
+- `./arduino-x.yy.zz/hardware/teensy/avr/cores/teensy/Stream.h`
+- `./arduino-x.yy.zz/hardware/teensy/avr/cores/teensy3/Stream.h`
+- `./arduino-x.yy.zz/hardware/teensy/avr/cores/teensy4/Stream.h`
 
 #### 3. For Arduino SAM DUE boards
  
@@ -433,6 +475,136 @@ To add UDP Multicast support, necessary for the [**UPnP_Generic library**](https
 
 To fix [`ESP32 compile error`](https://github.com/espressif/arduino-esp32), just copy the following file into the [`ESP32`](https://github.com/espressif/arduino-esp32) cores/esp32 directory (e.g. ./arduino-1.8.12/hardware/espressif/cores/esp32) to overwrite the old file:
 - [Server.h](LibraryPatches/esp32/cores/esp32/Server.h)
+
+---
+---
+
+## HOWTO Install esp32-s2 core for ESP32-S2 (Saola, AI-Thinker ESP-12K) boards into Arduino IDE
+
+
+These are instructions demonstrating the steps to install esp32-s2 core on Ubuntu machines. For Windows or other OS'es, just follow the the similar principles and steps.
+
+Assuming you already installed Arduino IDE ESP32 core and the installed directory is
+
+`/home/your_account/.arduino15/packages/esp32`
+
+
+### 1. Save the original esp32 core
+
+First, copy the whole original esp32 core to another safe place. Then delete all the sub-directories of
+
+`/home/your_account/.arduino15/packages/esp32/hardware/esp32/1.0.4`
+
+---
+
+### 2. Download esp32-s2 core
+
+#### 2.1 Download zip
+
+Download [**esp32-s2 core**](https://github.com/espressif/arduino-esp32/tree/esp32s2) in the `zip` format: 
+
+`arduino-esp32-esp32s2.zip`
+
+#### 2.2 Unzip
+
+<p align="center">
+    <img src="https://github.com/khoih-prog/ESPAsync_WiFiManager_Lite/blob/main/pics/esp32_s2_Core_Unzipped.png">
+</p>
+
+#### 2.3 Update esp32-s2 core directories
+
+Copy all subdirectories of esp32-s2 core into `/home/your_account/.arduino15/packages/esp32/hardware/esp32/1.0.4`
+
+---
+
+### 3 Download tools
+
+
+#### 3.1 Download Toolchain for Xtensa (ESP32-S2) based on GCC
+
+Download [**esp32-s2 Toolchain**](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/api-guides/tools/idf-tools.html#xtensa-esp32s2-elf) corresponding to your environment (linux-amd64, win64, etc.).
+
+For example `xtensa-esp32s2-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz`, then un-archive.
+
+
+<p align="center">
+    <img src="https://github.com/khoih-prog/ESPAsync_WiFiManager_Lite/blob/main/pics/esp32_s2_Toolchain.png">
+</p>
+
+#### 3.2 Download esptool
+
+
+Download [esptool](https://github.com/espressif/esptool/releases) int the `zip` format:
+
+`esptool-3.0.zip`
+
+#### 3.3 Unzip
+
+<p align="center">
+    <img src="https://github.com/khoih-prog/ESPAsync_WiFiManager_Lite/blob/main/pics/esp32_s2_esptool.png">
+</p>
+
+---
+
+### 4. Update tools
+
+#### 4.1 Update Toolchain
+
+Copy whole `xtensa-esp32s2-elf` directory into `/home/your_account/.arduino15/packages/esp32/hardware/esp32/1.0.4/tools`
+
+
+#### 4.2 Update esptool
+
+Rename `esptool-3.0` directory to `esptool`
+
+
+Copy whole `esptool` directory into `/home/your_account/.arduino15/packages/esp32/hardware/esp32/1.0.4/tools`
+
+
+<p align="center">
+    <img src="https://github.com/khoih-prog/ESPAsync_WiFiManager_Lite/blob/main/pics/esp32_s2_tools.png">
+</p>
+
+
+### 5. esp32-s2 WebServer Library Patch
+
+If you haven't installed a new version with [WebServer.handleClient delay PR #4350](https://github.com/espressif/arduino-esp32/pull/4350) or haven't applied the above mentioned PR, you have to use the following patch.
+
+
+**To be able to run Config Portal on ESP32-S2 boards**, you have to copy the files in [esp32-s2 WebServer Patch](esp32s2_WebServer_Patch/) directory into esp32-s2 WebServer library directory (~/.arduino15/packages/esp32/hardware/esp32/1.0.4/libraries/WebServer).
+
+Supposing the esp32-s2 version is 1.0.4, these files `WebServer.h/cpp` must be copied into the directory to replace:
+
+- `~/.arduino15/packages/esp32/hardware/esp32/1.0.4/libraries/WebServer/src/WebServer.h`
+- `~/.arduino15/packages/esp32/hardware/esp32/1.0.4/libraries/WebServer/src/WebServer.cpp`
+
+
+---
+
+That's it. You're now ready to compile and test for ESP32-S2 now
+
+---
+---
+
+### Note for Platform IO using ESP32 LittleFS
+
+In Platform IO, to fix the error when using [`LittleFS_esp32 v1.0`](https://github.com/lorol/LITTLEFS) for ESP32-based boards with ESP32 core v1.0.4- (ESP-IDF v3.2-), uncomment the following line
+
+from
+
+```
+//#define CONFIG_LITTLEFS_FOR_IDF_3_2   /* For old IDF - like in release 1.0.4 */
+```
+
+to
+
+```
+#define CONFIG_LITTLEFS_FOR_IDF_3_2   /* For old IDF - like in release 1.0.4 */
+```
+
+It's advisable to use the latest [`LittleFS_esp32 v1.0.5+`](https://github.com/lorol/LITTLEFS) to avoid the issue.
+
+Thanks to [Roshan](https://github.com/solroshan) to report the issue in [Error esp_littlefs.c 'utime_p'](https://github.com/khoih-prog/ESPAsync_WiFiManager/issues/28) 
 
 ---
 ---
@@ -786,17 +958,35 @@ Ethernet_Configuration defaultConfig;
 ```
 
 ---
+---
 
-### How to add dynamic parameters from sketch
+### How to use
 
-- To add custom parameters, just modify from the example below
+#### 1. Basic usage
+
+- Include in your sketch
+
+```cpp
+// Must be before #include <Ethernet_Manager.h>
+#include <Ethernet_Manager.h>
+
+Ethernet_Manager ethernet_manager;
+```
+
+#### 2. Add custom parameters
+
+- To add custom parameters, just add
 
 ```
-#define USE_DYNAMIC_PARAMETERS      true
+#ifndef dynamicParams_h
+#define dynamicParams_h
+
+#include "defines.h"
+
+// USE_DYNAMIC_PARAMETERS defined in defined.h
 
 /////////////// Start dynamic Credentials ///////////////
 
-//Defined in BlynkEthernet_WM.h, <BlynkEthernet_ESP8266_WM.h>, <BlynkEthernet_ESP32 or_WM.h>
 /**************************************
   #define MAX_ID_LEN                5
   #define MAX_DISPLAY_NAME_LEN      16
@@ -851,13 +1041,57 @@ Ethernet_Configuration defaultConfig;
 
 /////// // End dynamic Credentials ///////////
 
+#endif      //dynamicParams_h
+
 ```
+
+#### 3. Not using custom parameters
+
 - If you don't need to add dynamic parameters, use the following in sketch
 
 ```
-#define USE_DYNAMIC_PARAMETERS     false
+#define USE_DYNAMIC_PARAMETERS      false
 ```
 
+#### 4. To open Config Portal
+
+- When you want to open a config portal, just add
+
+```cpp
+ethernet_manager.begin();
+```
+
+#### 5. To use custom HTML Style
+
+```
+const char NewCustomsStyle[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}\
+button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
+
+...
+
+ethernet_manager.setCustomsStyle(NewCustomsStyle);
+```
+
+#### 6. To use custom Head Elements
+
+
+```
+ethernet_manager.setCustomsHeadElement("<style>html{filter: invert(10%);}</style>");
+```
+
+#### 7. To use CORS Header
+
+```
+ethernet_manager.setCORSHeader("Your Access-Control-Allow-Origin");
+```
+
+
+While in AP mode, connect to it using its `SSID` (ESP_XXXXXX) / `Password` ("MyESP_XXXXXX"), then open a browser to the Portal AP IP, default `192.168.4.1`, configure wifi then click **Save**. The Credentials / WiFi connection information will be saved in non-volatile memory. It will then autoconnect.
+
+
+Once Credentials / WiFi network information is saved in the host non-volatile memory, it will try to autoconnect to WiFi every time it is started, without requiring any function calls in the sketch.
+
+---
 ---
 
 ### Important Notes for using Dynamic Parameters' ids
@@ -933,9 +1167,9 @@ void loop()
 ---
 ---
 
-### Example [Ethernet_SAMD](examples/Ethernet_SAMD)
+### Example [Ethernet_Generic](examples/Ethernet_Generic)
 
-#### 1. File [Ethernet_SAMD.ino](examples/Ethernet_SAMD/Ethernet_SAMD.ino)
+#### 1. File [Ethernet_Generic.ino](examples/Ethernet_Generic/Ethernet_Generic.ino)
 
 ```
 #include "defines.h"
@@ -946,8 +1180,8 @@ Ethernet_Manager ethernet_manager;
 
 IPAddress localEthernetIP;
 
-// Use to detect W5100 shield. The linkStatus() is not working with W5100 
-// in Ethernet and EthernetLarge libraries
+// Use to detect W5100 shield. The linkStatus() is not working with W5100, only W5200 and W5500
+// To check if W5100 using Ethernet and EthernetLarge libraries
 bool isW5500 = true;
 
 void heartBeatPrint()
@@ -978,7 +1212,7 @@ void heartBeatPrint()
   else
     Serial.print(F("F"));  
 
-  if (num == 80)
+  if (num == 40)
   {
     Serial.println();
     num = 1;
@@ -1003,16 +1237,33 @@ void check_status()
   }
 }
 
+#if USING_CUSTOMS_STYLE
+const char NewCustomsStyle[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}\
+button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
+#endif
+
 void setup()
 {
   // Debug console
   Serial.begin(115200);
   while (!Serial);
 
-  Serial.println("\nStart Ethernet_SAMD on " + String(BOARD_NAME)); 
+  delay(200);
+
+#if ( USE_LITTLEFS || USE_SPIFFS )
+  Serial.println("\nStart Ethernet_Generic using " + String(CurrentFileFS) + " on " + String(BOARD_NAME));
+#else
+  Serial.println("\nStart Ethernet_Generic on " + String(BOARD_NAME));
+#endif
+
   Serial.println("Ethernet Shield type : " + String(SHIELD_TYPE));
   Serial.println(ETHERNET_MANAGER_VERSION);
+  
+#if (ESP32 || ESP8266)
+  Serial.println(ESP_DOUBLE_RESET_DETECTOR_VERSION);
+#else  
   Serial.println(DOUBLERESETDETECTOR_GENERIC_VERSION);
+#endif
 
   pinMode(SDCARD_CS, OUTPUT);
   digitalWrite(SDCARD_CS, HIGH); // Deselect the SD card
@@ -1024,45 +1275,145 @@ void setup()
 
 #else
 
-  #if ( defined(USE_UIP_ETHERNET) && USE_UIP_ETHERNET )
-    ET_LOGWARN(F("======== USE_UIP_ETHERNET ========"));
-  #elif USE_NATIVE_ETHERNET
-    ET_LOGWARN(F("======== USE_NATIVE_ETHERNET ========"));
-  #elif USE_ETHERNET
-    ET_LOGWARN(F("=========== USE_ETHERNET ==========="));
-  #elif USE_ETHERNET2
-    ET_LOGWARN(F("=========== USE_ETHERNET2 ==========="));
-  #elif USE_ETHERNET3
-    ET_LOGWARN(F("=========== USE_ETHERNET3 ==========="));
-  #elif USE_ETHERNET_LARGE
-    ET_LOGWARN(F("=========== USE_ETHERNET_LARGE ==========="));
-  #elif USE_ETHERNET_ESP8266
-    ET_LOGWARN(F("=========== USE_ETHERNET_ESP8266 ==========="));
-  #elif USE_ETHERNET_ENC
-    ET_LOGWARN(F("=========== USE_ETHERNET_ENC ==========="));  
-  #else
-    ET_LOGWARN(F("========================="));
-  #endif
-  
+#if ( defined(USE_UIP_ETHERNET) && USE_UIP_ETHERNET )
+  ET_LOGWARN(F("======== USE_UIP_ETHERNET ========"));
+#elif USE_NATIVE_ETHERNET
+  ET_LOGWARN(F("======== USE_NATIVE_ETHERNET ========"));
+#elif USE_ETHERNET
+  ET_LOGWARN(F("=========== USE_ETHERNET ==========="));
+#elif USE_ETHERNET2
+  ET_LOGWARN(F("=========== USE_ETHERNET2 ==========="));
+#elif USE_ETHERNET3
+  ET_LOGWARN(F("=========== USE_ETHERNET3 ==========="));
+#elif USE_ETHERNET_LARGE
+  ET_LOGWARN(F("=========== USE_ETHERNET_LARGE ==========="));
+#elif USE_ETHERNET_ESP8266
+  ET_LOGWARN(F("=========== USE_ETHERNET_ESP8266 ==========="));
+#elif USE_ETHERNET_ENC
+  ET_LOGWARN(F("=========== USE_ETHERNET_ENC ==========="));  
+#else
+  ET_LOGWARN(F("========================="));
+#endif
+
   ET_LOGWARN(F("Default SPI pinout:"));
   ET_LOGWARN1(F("MOSI:"), MOSI);
   ET_LOGWARN1(F("MISO:"), MISO);
   ET_LOGWARN1(F("SCK:"),  SCK);
   ET_LOGWARN1(F("SS:"),   SS);
   ET_LOGWARN(F("========================="));
+
+#if defined(ESP8266)
+
+  #define PIN_D5            14        // Pin D5 mapped to pin GPIO14/HSCLK of ESP8266
+  #define PIN_D6            12        // Pin D6 mapped to pin GPIO12/HMISO of ESP8266
+  #define PIN_D7            13        // Pin D7 mapped to pin GPIO13/RXD2/HMOSI of ESP8266
   
+  // Connection for ESP8266
+  // MOSI: D7/GPIO13, MISO: D6/GPIO12, SCK: D5/GPIO14, CS/SS: D2/GPIO4
   
+  // For ESP8266, change for other boards if necessary
+  #ifndef USE_THIS_SS_PIN
+    #define USE_THIS_SS_PIN   D2    // For ESP8266
+  #endif
+
+  ET_LOGWARN1(F("ESP8266 setCsPin:"), USE_THIS_SS_PIN);
+
+  #if ( USE_ETHERNET || USE_ETHERNET_LARGE || USE_ETHERNET2 || USE_ETHERNET_ENC )
+    // For ESP8266
+    // Pin                D0(GPIO16)    D1(GPIO5)    D2(GPIO4)    D3(GPIO0)    D4(GPIO2)    D8
+    // Ethernet           0                 X            X            X            X        0
+    // Ethernet2          X                 X            X            X            X        0
+    // Ethernet3          X                 X            X            X            X        0
+    // EthernetLarge      X                 X            X            X            X        0
+    // Ethernet_ESP8266   0                 0            0            0            0        0
+    // D2 is safe to used for Ethernet, Ethernet2, Ethernet3, EthernetLarge libs
+    // Must use library patch for Ethernet, EthernetLarge libraries
+    Ethernet.init (USE_THIS_SS_PIN);
+
+  #elif USE_ETHERNET3
+    // Use  MAX_SOCK_NUM = 4 for 4K, 2 for 8K, 1 for 16K RX/TX buffer
+    #ifndef ETHERNET3_MAX_SOCK_NUM
+      #define ETHERNET3_MAX_SOCK_NUM      4
+    #endif
+  
+    Ethernet.setCsPin (USE_THIS_SS_PIN);
+    Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
+
+  #elif USE_CUSTOM_ETHERNET
+  
+    // You have to add initialization for your Custom Ethernet here
+    // This is just an example to setCSPin to USE_THIS_SS_PIN, and can be not correct and enough
+    Ethernet.init(USE_THIS_SS_PIN);
+  
+  #endif  //( USE_ETHERNET || USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE )
+
+#elif defined(ESP32)
+
+  #define PIN_D18           18        // Pin D18 mapped to pin GPIO18/VSPI_SCK of ESP32
+  #define PIN_D19           19        // Pin D19 mapped to pin GPIO19/VSPI_MISO of ESP32
+  #define PIN_D23           23        // Pin D23 mapped to pin GPIO23/VSPI_MOSI of ESP32
+   
+  // You can use Ethernet.init(pin) to configure the CS pin
+  //Ethernet.init(10);  // Most Arduino shields
+  //Ethernet.init(5);   // MKR ETH shield
+  //Ethernet.init(0);   // Teensy 2.0
+  //Ethernet.init(20);  // Teensy++ 2.0
+  //Ethernet.init(15);  // ESP8266 with Adafruit Featherwing Ethernet
+  //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
+
+  // Connection for ESP32
+  // MOSI: GPIO23, MISOP: GPIO19, SCK: GPIO18, CS/SS: GPIO22
+  
+  #ifndef USE_THIS_SS_PIN
+    #define USING_M5STACK_W5500     false
+    #if USING_M5STACK_W5500
+      #warning Using M5Stack_Core_ESP32 with W5500 mudule
+      #define USE_THIS_SS_PIN   26    // For M5Stack_Core_ESP32 with W5500 mudule
+    #else
+      #define USE_THIS_SS_PIN   22    // For ESP32
+    #endif
+  #endif
+
+  ET_LOGWARN1(F("ESP32 setCsPin:"), USE_THIS_SS_PIN);
+
+  // For other boards, to change if necessary
+  #if ( USE_ETHERNET || USE_ETHERNET_LARGE || USE_ETHERNET2 || USE_ETHERNET_ENC )
+    // Must use library patch for Ethernet, EthernetLarge libraries
+    // ESP32 => GPIO2,4,5,13,15,21,22 OK with Ethernet, Ethernet2, EthernetLarge
+    // ESP32 => GPIO2,4,5,15,21,22 OK with Ethernet3
+  
+    //Ethernet.setCsPin (USE_THIS_SS_PIN);
+    Ethernet.init (USE_THIS_SS_PIN);
+  
+  #elif USE_ETHERNET3
+    // Use  MAX_SOCK_NUM = 4 for 4K, 2 for 8K, 1 for 16K RX/TX buffer
+    #ifndef ETHERNET3_MAX_SOCK_NUM
+      #define ETHERNET3_MAX_SOCK_NUM      4
+    #endif
+  
+    Ethernet.setCsPin (USE_THIS_SS_PIN);
+    Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
+
+  #elif USE_CUSTOM_ETHERNET
+  
+    // You have to add initialization for your Custom Ethernet here
+    // This is just an example to setCSPin to USE_THIS_SS_PIN, and can be not correct and enough
+    Ethernet.init(USE_THIS_SS_PIN); 
+  
+  #endif  //( USE_ETHERNET || USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE )
+
+#else   //defined(ESP8266)
   // unknown board, do nothing, use default SS = 10
   #ifndef USE_THIS_SS_PIN
     #define USE_THIS_SS_PIN   10    // For other boards
   #endif
-  
+
   #if defined(BOARD_NAME)
     ET_LOGWARN3(F("Board :"), BOARD_NAME, F(", setCsPin:"), USE_THIS_SS_PIN);
   #else
     ET_LOGWARN1(F("Unknown board setCsPin:"), USE_THIS_SS_PIN);
   #endif
-  
+
   // For other boards, to change if necessary
   #if ( USE_ETHERNET || USE_ETHERNET_LARGE || USE_ETHERNET2  || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
     // Must use library patch for Ethernet, Ethernet2, EthernetLarge libraries
@@ -1077,7 +1428,7 @@ void setup()
   
     Ethernet.setCsPin (USE_THIS_SS_PIN);
     Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
-  
+
   #elif USE_CUSTOM_ETHERNET
   
     // You have to add initialization for your Custom Ethernet here
@@ -1085,23 +1436,46 @@ void setup()
     Ethernet.init(USE_THIS_SS_PIN);
     
   #endif  //( USE_ETHERNET || USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE )
-  
+
+#endif    //defined(ESP8266)
+
+
 #endif  //USE_ETHERNET_WRAPPER
 
   // Just info to know how to connect correctly
-  ET_LOGWARN(F("========================="));
-  ET_LOGWARN(F("Currently Used SPI pinout:"));
-  ET_LOGWARN1(F("MOSI:"), MOSI);
-  ET_LOGWARN1(F("MISO:"), MISO);
-  ET_LOGWARN1(F("SCK:"), SCK);
-  ET_LOGWARN1(F("SS:"), SS);
-  
+  Serial.println(F("========================="));
+  Serial.println(F("Currently Used SPI pinout:"));
+  Serial.print(F("MOSI:"));
+  Serial.println(MOSI);
+  Serial.print(F("MISO:"));
+  Serial.println(MISO);
+  Serial.print(F("SCK:"));
+  Serial.println(SCK);
+  Serial.print(F("SS:"));
+  Serial.println(SS);
 #if USE_ETHERNET3
-  ET_LOGWARN1(F("SPI_CS:"), SPI_CS);
+  Serial.print(F("SPI_CS:"));
+  Serial.println(SPI_CS);
 #endif
-  ET_LOGWARN(F("========================="));
- 
+  Serial.println(F("========================="));
+  
+  //////////////////////////////////////////////
+  
+#if USING_CUSTOMS_STYLE
+  ethernet_manager.setCustomsStyle(NewCustomsStyle);
+#endif
+
+#if USING_CUSTOMS_HEAD_ELEMENT
+  ethernet_manager.setCustomsHeadElement("<style>html{filter: invert(10%);}</style>");
+#endif
+
+#if USING_CORS_FEATURE  
+  ethernet_manager.setCORSHeader("Your Access-Control-Allow-Origin");
+#endif
+
   ethernet_manager.begin();
+
+  //////////////////////////////////////////////
 
   localEthernetIP = Ethernet.localIP();
 
@@ -1176,24 +1550,14 @@ void loop()
 
 ---
 
-#### 2. File [defines.h](examples/Ethernet_SAMD/defines.h)
+#### 2. File [defines.h](examples/Ethernet_Generic/defines.h)
 
 ```
 #ifndef defines_h
 #define defines_h
 
-#if ( defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_MKRWIFI1010) \
-      || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_SAMD_MKRFox1200) || defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310) \
-      || defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRNB1500) || defined(ARDUINO_SAMD_MKRVIDOR4000) || defined(__SAMD21G18A__) \
-      || defined(ARDUINO_SAMD_CIRCUITPLAYGROUND_EXPRESS) || defined(__SAMD21E18A__) || defined(__SAMD51__) || defined(__SAMD51J20A__) || defined(__SAMD51J19A__) \
-      || defined(__SAMD51G19A__) || defined(__SAMD51P19A__) || defined(__SAMD21G18A__) )
-  #if defined(ETHERNET_USE_SAMD)
-    #undef ETHERNET_USE_SAMD
-  #endif
-  #define ETHERNET_USE_SAMD           true
-  #define USE_DYNAMIC_PARAMETERS      true
-#else
-  #error This code is designed to run on SAMD21/SAMD51 platform! Please check your Tools->Board setting.    
+#if ( defined(ARDUINO_AVR_ADK) || defined(ARDUINO_AVR_MEGA) || defined(ARDUINO_AVR_MEGA2560) )
+  #error This code is designed to run on SAMD, SAM-DUE, Teensy platform, ESP8266, ESP32 not AVR Mega! Please check your Tools->Board setting.
 #endif
 
 /* Comment this out to disable prints and save space */
@@ -1205,112 +1569,253 @@ void loop()
 
 #define DRD_GENERIC_DEBUG                   true
 
-// For SAMD
-// Default pin 10 to SS/CS
-#define USE_THIS_SS_PIN       10
+// For ESP32/ESP8266
+#define DOUBLERESETDETECTOR_DEBUG           true
 
-#if ( defined(ARDUINO_SAMD_ZERO) && !defined(SEEED_XIAO_M0) )
-  #define BOARD_TYPE      "SAMD Zero"
-#elif defined(ARDUINO_SAMD_MKR1000)
-  #define BOARD_TYPE      "SAMD MKR1000"
-#elif defined(ARDUINO_SAMD_MKRWIFI1010)
-  #define BOARD_TYPE      "SAMD MKRWIFI1010"
-#elif defined(ARDUINO_SAMD_NANO_33_IOT)
-  #define BOARD_TYPE      "SAMD NANO_33_IOT"
-#elif defined(ARDUINO_SAMD_MKRFox1200)
-  #define BOARD_TYPE      "SAMD MKRFox1200"
-#elif ( defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310) )
-  #define BOARD_TYPE      "SAMD MKRWAN13X0"
-#elif defined(ARDUINO_SAMD_MKRGSM1400)
-  #define BOARD_TYPE      "SAMD MKRGSM1400"
-#elif defined(ARDUINO_SAMD_MKRNB1500)
-  #define BOARD_TYPE      "SAMD MKRNB1500"
-#elif defined(ARDUINO_SAMD_MKRVIDOR4000)
-  #define BOARD_TYPE      "SAMD MKRVIDOR4000"
-#elif defined(ARDUINO_SAMD_CIRCUITPLAYGROUND_EXPRESS)
-  #define BOARD_TYPE      "SAMD ARDUINO_SAMD_CIRCUITPLAYGROUND_EXPRESS"
-#elif defined(ADAFRUIT_FEATHER_M0_EXPRESS)
-  #define BOARD_TYPE      "SAMD21 ADAFRUIT_FEATHER_M0_EXPRESS"
-#elif defined(ADAFRUIT_METRO_M0_EXPRESS)
-  #define BOARD_TYPE      "SAMD21 ADAFRUIT_METRO_M0_EXPRESS"
-#elif defined(ADAFRUIT_CIRCUITPLAYGROUND_M0)
-  #define BOARD_TYPE      "SAMD21 ADAFRUIT_CIRCUITPLAYGROUND_M0"
-#elif defined(ADAFRUIT_GEMMA_M0)
-  #define BOARD_TYPE      "SAMD21 ADAFRUIT_GEMMA_M0"
-#elif defined(ADAFRUIT_TRINKET_M0)
-  #define BOARD_TYPE      "SAMD21 ADAFRUIT_TRINKET_M0"
-#elif defined(ADAFRUIT_ITSYBITSY_M0)
-  #define BOARD_TYPE      "SAMD21 ADAFRUIT_ITSYBITSY_M0"
-#elif defined(ARDUINO_SAMD_HALLOWING_M0)
-  #define BOARD_TYPE      "SAMD21 ARDUINO_SAMD_HALLOWING_M0"
-#elif defined(ADAFRUIT_METRO_M4_EXPRESS)
-  #define BOARD_TYPE      "SAMD51 ADAFRUIT_METRO_M4_EXPRESS"
-#elif defined(ADAFRUIT_GRAND_CENTRAL_M4)
-  #define BOARD_TYPE      "SAMD51 ADAFRUIT_GRAND_CENTRAL_M4"
-#elif defined(ADAFRUIT_FEATHER_M4_EXPRESS)
-  #define BOARD_TYPE      "SAMD51 ADAFRUIT_FEATHER_M4_EXPRESS"
-#elif defined(ADAFRUIT_ITSYBITSY_M4_EXPRESS)
-  #define BOARD_TYPE      "SAMD51 ADAFRUIT_ITSYBITSY_M4_EXPRESS"
-  #define USE_THIS_SS_PIN       10
-#elif defined(ADAFRUIT_TRELLIS_M4_EXPRESS)
-  #define BOARD_TYPE      "SAMD51 ADAFRUIT_TRELLIS_M4_EXPRESS"
-#elif defined(ADAFRUIT_PYPORTAL)
-  #define BOARD_TYPE      "SAMD51 ADAFRUIT_PYPORTAL"
-#elif defined(ADAFRUIT_PYPORTAL_M4_TITANO)
-  #define BOARD_TYPE      "SAMD51 ADAFRUIT_PYPORTAL_M4_TITANO"
-#elif defined(ADAFRUIT_PYBADGE_M4_EXPRESS)
-  #define BOARD_TYPE      "SAMD51 ADAFRUIT_PYBADGE_M4_EXPRESS"
-#elif defined(ADAFRUIT_METRO_M4_AIRLIFT_LITE)
-  #define BOARD_TYPE      "SAMD51 ADAFRUIT_METRO_M4_AIRLIFT_LITE"
-#elif defined(ADAFRUIT_PYGAMER_M4_EXPRESS)
-  #define BOARD_TYPE      "SAMD51 ADAFRUIT_PYGAMER_M4_EXPRESS"
-#elif defined(ADAFRUIT_PYGAMER_ADVANCE_M4_EXPRESS)
-  #define BOARD_TYPE      "SAMD51 ADAFRUIT_PYGAMER_ADVANCE_M4_EXPRESS"
-#elif defined(ADAFRUIT_PYBADGE_AIRLIFT_M4)
-  #define BOARD_TYPE      "SAMD51 ADAFRUIT_PYBADGE_AIRLIFT_M4"
-#elif defined(ADAFRUIT_MONSTER_M4SK_EXPRESS)
-  #define BOARD_TYPE      "SAMD51 ADAFRUIT_MONSTER_M4SK_EXPRESS"
-#elif defined(ADAFRUIT_HALLOWING_M4_EXPRESS)
-  #define BOARD_TYPE      "SAMD51 ADAFRUIT_HALLOWING_M4_EXPRESS"
-#elif defined(SEEED_WIO_TERMINAL)
-  #define BOARD_TYPE      "SAMD SEEED_WIO_TERMINAL"
-#elif defined(SEEED_FEMTO_M0)
-  #define BOARD_TYPE      "SAMD SEEED_FEMTO_M0"
-#elif defined(SEEED_XIAO_M0)
-  #define BOARD_TYPE      "SAMD SEEED_XIAO_M0"
-  #ifdef USE_THIS_SS_PIN
-    #undef USE_THIS_SS_PIN
+#if ( defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_MKRWIFI1010) \
+      || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_SAMD_MKRFox1200) || defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310) \
+      || defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRNB1500) || defined(ARDUINO_SAMD_MKRVIDOR4000) || defined(__SAMD21G18A__) \
+      || defined(ARDUINO_SAMD_CIRCUITPLAYGROUND_EXPRESS) || defined(__SAMD21E18A__) || defined(__SAMD51__) || defined(__SAMD51J20A__) || defined(__SAMD51J19A__) \
+      || defined(__SAMD51G19A__) || defined(__SAMD51P19A__) || defined(__SAMD21G18A__) )
+  #if defined(ETHERNET_USE_SAMD)
+    #undef ETHERNET_USE_SAMD
   #endif
-  #define USE_THIS_SS_PIN       A1
-  #warning define SEEED_XIAO_M0 USE_THIS_SS_PIN == A1
-#elif defined(Wio_Lite_MG126)
-  #define BOARD_TYPE      "SAMD SEEED Wio_Lite_MG126"
-#elif defined(WIO_GPS_BOARD)
-  #define BOARD_TYPE      "SAMD SEEED WIO_GPS_BOARD"
-#elif defined(SEEEDUINO_ZERO)
-  #define BOARD_TYPE      "SAMD SEEEDUINO_ZERO"
-#elif defined(SEEEDUINO_LORAWAN)
-  #define BOARD_TYPE      "SAMD SEEEDUINO_LORAWAN"
-#elif defined(SEEED_GROVE_UI_WIRELESS)
-  #define BOARD_TYPE      "SAMD SEEED_GROVE_UI_WIRELESS"
-#elif defined(__SAMD21E18A__)
-  #define BOARD_TYPE      "SAMD21E18A"
-#elif defined(__SAMD21G18A__)
-  #define BOARD_TYPE      "SAMD21G18A"
-#elif defined(__SAMD51G19A__)
-  #define BOARD_TYPE      "SAMD51G19A"
-#elif defined(__SAMD51J19A__)
-  #define BOARD_TYPE      "SAMD51J19A"
-#elif defined(__SAMD51J20A__)
-  #define BOARD_TYPE      "SAMD51J20A"
-#elif defined(__SAM3X8E__)
-  #define BOARD_TYPE      "SAM3X8E"
-#elif defined(__CPU_ARC__)
-  #define BOARD_TYPE      "CPU_ARC"
-#elif defined(__SAMD51__)
-  #define BOARD_TYPE      "SAMD51"
+  #define ETHERNET_USE_SAMD           true
+  #define USE_DYNAMIC_PARAMETERS      true
+#endif
+
+#if ( defined(NRF52840_FEATHER) || defined(NRF52832_FEATHER) || defined(NRF52_SERIES) || defined(ARDUINO_NRF52_ADAFRUIT) || \
+        defined(NRF52840_FEATHER_SENSE) || defined(NRF52840_ITSYBITSY) || defined(NRF52840_CIRCUITPLAY) || defined(NRF52840_CLUE) || \
+        defined(NRF52840_METRO) || defined(NRF52840_PCA10056) || defined(PARTICLE_XENON) || defined(NINA_B302_ublox) || defined(NINA_B112_ublox) )
+  #if defined(ETHERNET_USE_NRF52)
+    #undef ETHERNET_USE_NRF528XX
+  #endif
+  #define ETHERNET_USE_NRF528XX         true
+  #define USE_DYNAMIC_PARAMETERS        true
+#endif
+
+#if ( defined(ARDUINO_SAM_DUE) || defined(__SAM3X8E__) )
+  #if defined(ETHERNET_USE_SAM_DUE)
+    #undef ETHERNET_USE_SAM_DUE
+  #endif
+  #define ETHERNET_USE_SAM_DUE        true
+  #define USE_DYNAMIC_PARAMETERS      true
+#endif
+
+#if ( defined(CORE_TEENSY) && !( defined(__MKL26Z64__) || defined(__AVR_AT90USB1286__) || defined(__AVR_ATmega32U4__) ) )
+  // Don't support Teensy 2.x, LC
+  #if defined(ETHERNET_USE_TEENSY)
+    #undef ETHERNET_USE_TEENSY
+  #endif
+  #define ETHERNET_USE_TEENSY         true
+  #define USE_DYNAMIC_PARAMETERS      true
+#endif
+
+#if defined(ETHERNET_USE_SAMD)
+  // For SAMD
+  // Default pin 10 to SS/CS
+  #define USE_THIS_SS_PIN       10
+  
+  #if ( defined(ARDUINO_SAMD_ZERO) && !defined(SEEED_XIAO_M0) )
+    #define BOARD_TYPE      "SAMD Zero"
+  #elif defined(ARDUINO_SAMD_MKR1000)
+    #define BOARD_TYPE      "SAMD MKR1000"
+  #elif defined(ARDUINO_SAMD_MKRWIFI1010)
+    #define BOARD_TYPE      "SAMD MKRWIFI1010"
+  #elif defined(ARDUINO_SAMD_NANO_33_IOT)
+    #define BOARD_TYPE      "SAMD NANO_33_IOT"
+  #elif defined(ARDUINO_SAMD_MKRFox1200)
+    #define BOARD_TYPE      "SAMD MKRFox1200"
+  #elif ( defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310) )
+    #define BOARD_TYPE      "SAMD MKRWAN13X0"
+  #elif defined(ARDUINO_SAMD_MKRGSM1400)
+    #define BOARD_TYPE      "SAMD MKRGSM1400"
+  #elif defined(ARDUINO_SAMD_MKRNB1500)
+    #define BOARD_TYPE      "SAMD MKRNB1500"
+  #elif defined(ARDUINO_SAMD_MKRVIDOR4000)
+    #define BOARD_TYPE      "SAMD MKRVIDOR4000"
+  #elif defined(ARDUINO_SAMD_CIRCUITPLAYGROUND_EXPRESS)
+    #define BOARD_TYPE      "SAMD ARDUINO_SAMD_CIRCUITPLAYGROUND_EXPRESS"
+  #elif defined(ADAFRUIT_FEATHER_M0_EXPRESS)
+    #define BOARD_TYPE      "SAMD21 ADAFRUIT_FEATHER_M0_EXPRESS"
+  #elif defined(ADAFRUIT_METRO_M0_EXPRESS)
+    #define BOARD_TYPE      "SAMD21 ADAFRUIT_METRO_M0_EXPRESS"
+  #elif defined(ADAFRUIT_CIRCUITPLAYGROUND_M0)
+    #define BOARD_TYPE      "SAMD21 ADAFRUIT_CIRCUITPLAYGROUND_M0"
+  #elif defined(ADAFRUIT_GEMMA_M0)
+    #define BOARD_TYPE      "SAMD21 ADAFRUIT_GEMMA_M0"
+  #elif defined(ADAFRUIT_TRINKET_M0)
+    #define BOARD_TYPE      "SAMD21 ADAFRUIT_TRINKET_M0"
+  #elif defined(ADAFRUIT_ITSYBITSY_M0)
+    #define BOARD_TYPE      "SAMD21 ADAFRUIT_ITSYBITSY_M0"
+  #elif defined(ARDUINO_SAMD_HALLOWING_M0)
+    #define BOARD_TYPE      "SAMD21 ARDUINO_SAMD_HALLOWING_M0"
+  #elif defined(ADAFRUIT_METRO_M4_EXPRESS)
+    #define BOARD_TYPE      "SAMD51 ADAFRUIT_METRO_M4_EXPRESS"
+  #elif defined(ADAFRUIT_GRAND_CENTRAL_M4)
+    #define BOARD_TYPE      "SAMD51 ADAFRUIT_GRAND_CENTRAL_M4"
+  #elif defined(ADAFRUIT_FEATHER_M4_EXPRESS)
+    #define BOARD_TYPE      "SAMD51 ADAFRUIT_FEATHER_M4_EXPRESS"
+  #elif defined(ADAFRUIT_ITSYBITSY_M4_EXPRESS)
+    #define BOARD_TYPE      "SAMD51 ADAFRUIT_ITSYBITSY_M4_EXPRESS"
+    #define USE_THIS_SS_PIN       10
+  #elif defined(ADAFRUIT_TRELLIS_M4_EXPRESS)
+    #define BOARD_TYPE      "SAMD51 ADAFRUIT_TRELLIS_M4_EXPRESS"
+  #elif defined(ADAFRUIT_PYPORTAL)
+    #define BOARD_TYPE      "SAMD51 ADAFRUIT_PYPORTAL"
+  #elif defined(ADAFRUIT_PYPORTAL_M4_TITANO)
+    #define BOARD_TYPE      "SAMD51 ADAFRUIT_PYPORTAL_M4_TITANO"
+  #elif defined(ADAFRUIT_PYBADGE_M4_EXPRESS)
+    #define BOARD_TYPE      "SAMD51 ADAFRUIT_PYBADGE_M4_EXPRESS"
+  #elif defined(ADAFRUIT_METRO_M4_AIRLIFT_LITE)
+    #define BOARD_TYPE      "SAMD51 ADAFRUIT_METRO_M4_AIRLIFT_LITE"
+  #elif defined(ADAFRUIT_PYGAMER_M4_EXPRESS)
+    #define BOARD_TYPE      "SAMD51 ADAFRUIT_PYGAMER_M4_EXPRESS"
+  #elif defined(ADAFRUIT_PYGAMER_ADVANCE_M4_EXPRESS)
+    #define BOARD_TYPE      "SAMD51 ADAFRUIT_PYGAMER_ADVANCE_M4_EXPRESS"
+  #elif defined(ADAFRUIT_PYBADGE_AIRLIFT_M4)
+    #define BOARD_TYPE      "SAMD51 ADAFRUIT_PYBADGE_AIRLIFT_M4"
+  #elif defined(ADAFRUIT_MONSTER_M4SK_EXPRESS)
+    #define BOARD_TYPE      "SAMD51 ADAFRUIT_MONSTER_M4SK_EXPRESS"
+  #elif defined(ADAFRUIT_HALLOWING_M4_EXPRESS)
+    #define BOARD_TYPE      "SAMD51 ADAFRUIT_HALLOWING_M4_EXPRESS"
+  #elif defined(SEEED_WIO_TERMINAL)
+    #define BOARD_TYPE      "SAMD SEEED_WIO_TERMINAL"
+  #elif defined(SEEED_FEMTO_M0)
+    #define BOARD_TYPE      "SAMD SEEED_FEMTO_M0"
+  #elif defined(SEEED_XIAO_M0)
+    #define BOARD_TYPE      "SAMD SEEED_XIAO_M0"
+    #ifdef USE_THIS_SS_PIN
+      #undef USE_THIS_SS_PIN
+    #endif
+    #define USE_THIS_SS_PIN       A1
+    #warning define SEEED_XIAO_M0 USE_THIS_SS_PIN == A1
+  #elif defined(Wio_Lite_MG126)
+    #define BOARD_TYPE      "SAMD SEEED Wio_Lite_MG126"
+  #elif defined(WIO_GPS_BOARD)
+    #define BOARD_TYPE      "SAMD SEEED WIO_GPS_BOARD"
+  #elif defined(SEEEDUINO_ZERO)
+    #define BOARD_TYPE      "SAMD SEEEDUINO_ZERO"
+  #elif defined(SEEEDUINO_LORAWAN)
+    #define BOARD_TYPE      "SAMD SEEEDUINO_LORAWAN"
+  #elif defined(SEEED_GROVE_UI_WIRELESS)
+    #define BOARD_TYPE      "SAMD SEEED_GROVE_UI_WIRELESS"
+  #elif defined(__SAMD21E18A__)
+    #define BOARD_TYPE      "SAMD21E18A"
+  #elif defined(__SAMD21G18A__)
+    #define BOARD_TYPE      "SAMD21G18A"
+  #elif defined(__SAMD51G19A__)
+    #define BOARD_TYPE      "SAMD51G19A"
+  #elif defined(__SAMD51J19A__)
+    #define BOARD_TYPE      "SAMD51J19A"
+  #elif defined(__SAMD51J20A__)
+    #define BOARD_TYPE      "SAMD51J20A"
+  #elif defined(__SAM3X8E__)
+    #define BOARD_TYPE      "SAM3X8E"
+  #elif defined(__CPU_ARC__)
+    #define BOARD_TYPE      "CPU_ARC"
+  #elif defined(__SAMD51__)
+    #define BOARD_TYPE      "SAMD51"
+  #else
+    #define BOARD_TYPE      "SAMD Unknown"
+  #endif
+
+#elif (ETHERNET_USE_SAM_DUE)
+  // Default pin 10 to SS/CS
+  #define USE_THIS_SS_PIN       10
+  #define BOARD_TYPE      "SAM DUE"
+
+#elif (ETHERNET_USE_NRF528XX)
+  // Default pin 10 to SS/CS
+  #define USE_THIS_SS_PIN       10
+
+  #if defined(NRF52840_FEATHER)
+    #define BOARD_TYPE      "NRF52840_FEATHER"
+  #elif defined(NRF52832_FEATHER)
+    #define BOARD_TYPE      "NRF52832_FEATHER"
+  #elif defined(NRF52840_FEATHER_SENSE)
+    #define BOARD_TYPE      "NRF52840_FEATHER_SENSE"
+  #elif defined(NRF52840_ITSYBITSY)
+    #define BOARD_TYPE      "NRF52840_ITSYBITSY"
+    #define USE_THIS_SS_PIN   10    // For other boards
+  #elif defined(NRF52840_CIRCUITPLAY)
+    #define BOARD_TYPE      "NRF52840_CIRCUITPLAY"
+  #elif defined(NRF52840_CLUE)
+    #define BOARD_TYPE      "NRF52840_CLUE"
+  #elif defined(NRF52840_METRO)
+    #define BOARD_TYPE      "NRF52840_METRO"
+  #elif defined(NRF52840_PCA10056)
+    #define BOARD_TYPE      "NRF52840_PCA10056"
+  #elif defined(NINA_B302_ublox)
+    #define BOARD_TYPE      "NINA_B302_ublox"
+  #elif defined(NINA_B112_ublox)
+    #define BOARD_TYPE      "NINA_B112_ublox"
+  #elif defined(PARTICLE_XENON)
+    #define BOARD_TYPE      "PARTICLE_XENON"
+  #elif defined(ARDUINO_NRF52_ADAFRUIT)
+    #define BOARD_TYPE      "ARDUINO_NRF52_ADAFRUIT"
+  #else
+    #define BOARD_TYPE      "nRF52 Unknown"
+  #endif
+
+#elif ( defined(CORE_TEENSY) )
+  // Default pin 10 to SS/CS
+  #define USE_THIS_SS_PIN       10
+  
+  #if defined(__IMXRT1062__)
+    // For Teensy 4.1/4.0
+    #if defined(ARDUINO_TEENSY41)
+      #define BOARD_TYPE      "TEENSY 4.1"
+      // Use true for NativeEthernet Library, false if using other Ethernet libraries
+      #define USE_NATIVE_ETHERNET     true
+    #elif defined(ARDUINO_TEENSY40)
+      #define BOARD_TYPE      "TEENSY 4.0"
+    #else
+      #define BOARD_TYPE      "TEENSY 4.x"
+    #endif      
+  #elif defined(__MK66FX1M0__)
+    #define BOARD_TYPE "Teensy 3.6"
+  #elif defined(__MK64FX512__)
+    #define BOARD_TYPE "Teensy 3.5"
+  #elif defined(__MKL26Z64__)
+    #define BOARD_TYPE "Teensy LC"
+  #elif defined(__MK20DX256__)
+    #define BOARD_TYPE "Teensy 3.2" // and Teensy 3.1 (obsolete)
+  #elif defined(__MK20DX128__)
+    #define BOARD_TYPE "Teensy 3.0"
+  #elif defined(__AVR_AT90USB1286__)
+    #error Teensy 2.0++ not supported yet
+  #elif defined(__AVR_ATmega32U4__)
+    #error Teensy 2.0 not supported yet
+  #else
+    // For Other Boards
+    #define BOARD_TYPE      "Unknown Teensy Board"
+  #endif
+
+#elif ( defined(ESP8266) )
+  // For ESP8266
+  #warning Use ESP8266 architecture
+  #include <ESP8266mDNS.h>
+  #define ETHERNET_USE_ESP8266
+  #define BOARD_TYPE      ARDUINO_BOARD           //"ESP8266"
+
+#elif ( defined(ESP32) )
+  // For ESP32
+  #warning Use ESP32 architecture
+  #define ETHERNET_USE_ESP32
+  #define BOARD_TYPE      ARDUINO_BOARD           //"ESP32"
+  
+  #define W5500_RST_PORT   21
+
 #else
-  #define BOARD_TYPE      "SAMD Unknown"
+  // For Mega
+  // Default pin 10 to SS/CS
+  #define USE_THIS_SS_PIN       10
+
+  // Reduce size for Mega
+  #define SENDCONTENT_P_BUFFER_SZ     512
+  
+  #define BOARD_TYPE            "AVR Mega"
 #endif
 
 #ifndef BOARD_NAME
@@ -1405,30 +1910,108 @@ void loop()
     #define SHIELD_TYPE           "ENC28J60 using UIPEthernet Library"
 #endif      // #if !USE_UIP_ETHERNET
 
-//////////////////////////////////////////
-
-#define EEPROM_SIZE    (2 * 1024)
-// EEPROM_START + CONFIG_DATA_SIZE must be <= EEPROM_SIZE
-#define EEPROM_START   0
-
-//////////////////////////////////////////
-
-#include <Ethernet_Manager.h>
-
 #ifndef SHIELD_TYPE
   #define SHIELD_TYPE     "Unknown Ethernet shield/library" 
 #endif
 
+//////////////////////////////////////////
+
+// Not use #define USE_SPIFFS  => using EEPROM for configuration data in Ethernet_Manager
+// #define USE_SPIFFS    false => using EEPROM for configuration data in Ethernet_Manager
+// #define USE_SPIFFS    true  => using SPIFFS for configuration data in Ethernet_Manager
+// Be sure to define USE_SPIFFS before #include <Ethernet_Manager.h>
+
+// Start location in EEPROM to store config data. Default 0
+// Config data Size currently is 128 bytes w/o chksum, 132 with chksum)
+//#define EEPROM_START     1024
+
+#if ( defined(ESP32) || defined(ESP8266) )
+
+  #if defined(ESP8266)
+  
+    // #define USE_SPIFFS and USE_LITTLEFS   false        => using EEPROM for configuration data in WiFiManager
+    // #define USE_LITTLEFS    true                       => using LITTLEFS for configuration data in WiFiManager
+    // #define USE_LITTLEFS    false and USE_SPIFFS true  => using SPIFFS for configuration data in WiFiManager
+    // Be sure to define USE_LITTLEFS and USE_SPIFFS before #include <BlynkSimpleEsp8266_WM.h>
+    // From ESP8266 core 2.7.1, SPIFFS will be deprecated and to be replaced by LittleFS
+    // Select USE_LITTLEFS (higher priority) or USE_SPIFFS
+    
+    #define USE_LITTLEFS                false
+    #define USE_SPIFFS                  false
+    
+    #if USE_LITTLEFS
+      //LittleFS has higher priority
+      #define CurrentFileFS     "LittleFS"
+      #ifdef USE_SPIFFS
+        #undef USE_SPIFFS
+      #endif
+      #define USE_SPIFFS                  false
+    #elif USE_SPIFFS
+      #define CurrentFileFS     "SPIFFS"
+    #endif
+
+  #else     //#if defined(ESP8266)
+    // TODO, to add ESP32 LittleFS support
+    // For ESP32
+    #define USE_LITTLEFS                false
+    #define USE_SPIFFS                  false
+
+    #if USE_LITTLEFS
+      //LittleFS has higher priority
+      #define CurrentFileFS     "LittleFS"
+      #ifdef USE_SPIFFS
+        #undef USE_SPIFFS
+      #endif
+      #define USE_SPIFFS                  false
+    #elif USE_SPIFFS
+      #define CurrentFileFS     "SPIFFS"
+    #endif
+  #endif    //#if defined(ESP8266)
+
+#else   //#if ( defined(ESP32) || defined(ESP8266) )
+  #define USE_SPIFFS                    false
+#endif  //#if ( defined(ESP32) || defined(ESP8266) )
+
+#if !( USE_LITTLEFS || USE_SPIFFS)
+
+  #if !( defined(ARDUINO_SAM_DUE) || defined(__SAM3X8E__) )
+    // EEPROM_SIZE must be <= 2048 and >= CONFIG_DATA_SIZE (currently 172 bytes)
+    #define EEPROM_SIZE    (2 * 1024)
+  #endif
+  
+  // EEPROM_START + CONFIG_DATA_SIZE must be <= EEPROM_SIZE
+  #define EEPROM_START   0
+#endif
+
+/////////////////////////////////////////////
+
+// Add customs headers from v1.2.0
+#define USING_CUSTOMS_STYLE                 true
+#define USING_CUSTOMS_HEAD_ELEMENT          true
+#define USING_CORS_FEATURE                  true
+
+/////////////////////////////////////////////
+
+// Config Timeout 120s (default 60s)
+#define CONFIG_TIMEOUT                      120000L
+
+#define USE_DYNAMIC_PARAMETERS              true
+
+//////////////////////////////////////////
+
+
+#include <Ethernet_Manager.h>
+
 #define W5100_CS        10
 #define SDCARD_CS       4
 
-#define ETHERNET_HOST_NAME   "SAMD-Ethernet"
+#define ETHERNET_HOST_NAME   "Generic-Ethernet"
 
 #endif      //defines_h
 ```
 ---
 
-#### 3. File [Credentials.h](examples/Ethernet_SAMD/Credentials.h)
+#### 3. File [Credentials.h](examples/Ethernet_Generic/Credentials.h)
 
 ```
 #ifndef Credentials_h
@@ -1468,7 +2051,7 @@ Ethernet_Configuration defaultConfig =
   // Use dynamic DHCP IP
   "",
   //char board_name     [24];
-  "SAMD-Ethernet",
+  "Air-Control",
   // terminate the list
   //int  checkSum, dummy, not used
   0
@@ -1490,7 +2073,7 @@ Ethernet_Configuration defaultConfig;
 
 ---
 
-#### 4. File [dynamicParams.h](examples/Ethernet_SAMD/dynamicParams.h)
+#### 4. File [dynamicParams.h](examples/Ethernet_Generic/dynamicParams.h)
 
 ```
 #ifndef dynamicParams_h
@@ -1498,7 +2081,7 @@ Ethernet_Configuration defaultConfig;
 
 #include "defines.h"
 
-#define USE_DYNAMIC_PARAMETERS      true
+// USE_DYNAMIC_PARAMETERS defined in defined.h
 
 /////////////// Start dynamic Credentials ///////////////
 
@@ -1573,7 +2156,7 @@ This is the terminal output of an Adafruit NRF52840_FEATHER board with W5500 Eth
 ```
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type W5x00 using Ethernet2 Library
-Ethernet_Manager v1.1.1
+Ethernet_Manager v1.2.0
 DoubleResetDetector_Generic Version v1.0.3
 [ETHERNET_WEBSERVER] =========== USE_ETHERNET2 ===========
 [ETHERNET_WEBSERVER] Default SPI pinout:
@@ -1665,7 +2248,7 @@ Pubs Topics = old-mqtt-PubTopic
 ```cpp
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.1.1
+Ethernet_Manager v1.2.0
 DoubleResetDetector_Generic Version v1.0.3
 [ETHERNET_WEBSERVER] =========== USE_ETHERNET2 ===========
 [ETHERNET_WEBSERVER] Default SPI pinout:
@@ -1776,7 +2359,6 @@ HHHH
 
 
 ```
-[ETM] h:Repl: <!DOCTYPE html><html><head><title>Ethernet_NRF52_Manager</title><style>div,input{padding:2px;font-size:1em;}input{width:95%;}body{text-align: center;}button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.5rem;margin:0px;}</style></head><div style='text-align:left;display:inline-block;min-width:260px;'><fieldset><div><label>StaticIP</label><input value='[[ip]]'id='ip'><div></div></div></fieldset><fieldset><div><label>Board Name</label><input value='[[nm]]'id='nm'><div></div></div></fieldset><fieldset><div><label>MQTT Server</label><input value='[[mqtt]]'id='mqtt'><div></div></div><div><label>Port</label><input value='[[mqpt]]'id='mqpt'><div></div></div><div><label>MQTT UserName</label><input value='[[user]]'id='user'><div></div></div><div><label>MQTT PWD</label><input value='[[mqpw]]'id='mqpw'><div></div></div><div><label>Subs Topics</label><input value='[[subs]]'id='subs'><div></div></div><div><label>Pubs Topics</label><input value='[[pubs]]'id='pubs'><div></div></div></fieldset><button onclick="sv()">Save</button></div><script id="jsbin-javascript">function udVal(key,val){var request=new XMLHttpRequest();var url='/?key='+key+'&value='+encodeURIComponent(val);request.open('GET',url,false);request.send(null);}function sv(){udVal('ip',document.getElementById('ip').value);udVal('nm',document.getElementById('nm').value);udVal('mqtt',document.getElementById('mqtt').value);udVal('mqpt',document.getElementById('mqpt').value);udVal('user',document.getElementById('user').value);udVal('mqpw',document.getElementById('mqpw').value);udVal('subs',document.getElementById('subs').value);udVal('pubs',document.getElementById('pubs').value);alert('Updated');}</script></html>
 [ETM] h1:myMenuItems[ 0 ]= new-mqtt-server
 [ETM] h1:myMenuItems[ 1 ]= 1883
 [ETM] h1:myMenuItems[ 2 ]= new-mqtt-username
@@ -1849,7 +2431,7 @@ This is the terminal output of an SeeedStudio SAMD21 SEEED_XIAO_M0 board with W5
 ```
 Start Ethernet_SAMD on SEEED_XIAO_M0
 Ethernet Shield type : W5x00 using Ethernet Library
-Ethernet_Manager v1.1.1
+Ethernet_Manager v1.2.0
 DoubleResetDetector_Generic Version v1.0.3
 Flag read = 0xffffffff
 No doubleResetDetected
@@ -1927,7 +2509,7 @@ This is the terminal output of an Arduino SAM DUE board with W5100 Ethernet shie
 
 Start Ethernet_SAM_DUE on SAM DUE
 Ethernet Shield type : W5x00 using EthernetLarge Library
-Ethernet_Manager v1.1.1
+Ethernet_Manager v1.2.0
 DoubleResetDetector_Generic Version v1.0.3
 Flag read = 0xd0d01234
 doubleResetDetected
@@ -2013,7 +2595,7 @@ If no valid config data are stored in EEPROM, it will switch to `Configuration M
 ```
 Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.1.1
+Ethernet_Manager v1.2.0
 ESP_DoubleResetDetector Version v1.1.1
 =========================
 Currently Used SPI pinout:
@@ -2061,7 +2643,7 @@ Enter your credentials (Blynk Servers/Tokens and Port). If you prefer static IP,
 ```
 Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.1.1
+Ethernet_Manager v1.2.0
 ESP_DoubleResetDetector Version v1.1.1
 =========================
 Currently Used SPI pinout:
@@ -2121,7 +2703,7 @@ This is the terminal output of NRF52840_FEATHER board with ENC28J60 using Ethern
 ```
 Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
 Ethernet Shield type : ENC28J60 using EthernetENC Library
-Ethernet_Manager v1.1.1
+Ethernet_Manager v1.2.0
 DoubleResetDetector_Generic Version v1.0.3
 LittleFS Flag read = 0xd0d01234
 Flag read = 0xd0d01234
@@ -2159,7 +2741,7 @@ esp32-sniffer/12345678/ble
 ```
 Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
 Ethernet Shield type : ENC28J60 using EthernetENC Library
-Ethernet_Manager v1.1.1
+Ethernet_Manager v1.2.0
 DoubleResetDetector_Generic Version v1.0.3
 LittleFS Flag read = 0xd0d04321
 Flag read = 0xd0d04321
@@ -2235,6 +2817,16 @@ Sometimes, the library will only work if you update the board core to the latest
 
 ## Releases
 
+### Major Releases v1.2.0
+
+1. Configurable **Customs HTML Headers**, including Customs Style, Customs Head Elements, CORS Header.
+2. Add functions to control Config Portal from software or Virtual Switches. Check [How to trigger a Config Portal from code #25](https://github.com/khoih-prog/Blynk_WM/issues/25)
+3. Use more efficient [FlashStorage_SAMD v1.1.0](https://github.com/khoih-prog/FlashStorage_SAMD) and [FlashStorage_STM32 v1.0.0](https://github.com/khoih-prog/FlashStorage_STM32)
+4. Add support to **ESP32-S2 (ESP32-S2 Saola and AI-Thinker ESP-12K)**
+5. Add [**Instructions to install ESP32-S2 core**](https://github.com/khoih-prog/Ethernet_Manager#howto-install-esp32-s2-core-for-esp32-s2-saola-ai-thinker-esp-12k-boards-into-arduino-ide)
+6. Fix Config Portal Bug. 
+7. Update examples
+
 ### Releases v1.1.1
 
 1. Clean-up all compiler warnings possible.
@@ -2270,8 +2862,8 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
   - Seeeduino: Wio Terminal, Grove UI Wireless
   
  5. **Teensy (4.1, 4.0, 3.6, 3.5, 3,2, 3.1, 3.0, LC)**
- 6. ESP32
- 7. ESP8266
+ 6. **ESP32 including ESP32-S2 (ESP32-S2 Saola, AI-Thinker ESP-12K, etc.)**
+ 7. **ESP8266**
  
 #### Supported Ethernet shields/modules:
 
@@ -2318,6 +2910,12 @@ Default Credentials and dynamic parameters
 17. Add support to new [**`EthernetENC library`**](https://github.com/jandrassy/EthernetENC) for ENC28J60.
 18. Add support to new [`NativeEthernet Library version stable111+`](https://github.com/vjmuzik/NativeEthernet) for Teensy 4.1.
 19. Add support ESP32/ESP8266 boards
+20. Add Table of Contents and Version String
+21. Configurable **Customs HTML Headers**, including Customs Style, Customs Head Elements, CORS Header
+22. Add support to **ESP32-S2 (ESP32-S2 Saola, AI-Thinker ESP-12K, etc.)**
+
+
+---
 ---
 
 ### Contributions and Thanks

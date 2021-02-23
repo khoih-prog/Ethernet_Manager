@@ -8,13 +8,15 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
-  Version: 1.1.1
+  Version: 1.2.0
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
   1.0.0     K Hoang     14/12/2020 Initial coding.
   1.1.0     K Hoang     17/12/2020 Add support to ESP32/ESP8266. Add MQTT related examples to demo dynamic parameter usage
   1.1.1     K Hoang     28/12/2020 Suppress all possible compiler warnings
+  1.2.0     K Hoang     22/02/2021 Optimize code and use better FlashStorage_SAMD and FlashStorage_STM32. 
+                                   Add customs HTML header feature. Fix bug.
 *****************************************************************************************************************************/
 
 #pragma once
@@ -52,6 +54,20 @@
   #define FileFS        SPIFFS
 #else
   #include <EEPROM.h>
+#endif
+
+//////////////////////////////////////////
+
+#ifndef USING_CUSTOMS_STYLE
+  #define USING_CUSTOMS_STYLE     false
+#endif
+
+#ifndef USING_CUSTOMS_HEAD_ELEMENT
+  #define USING_CUSTOMS_HEAD_ELEMENT     false
+#endif
+
+#ifndef USING_CORS_FEATURE
+  #define USING_CORS_FEATURE     false
 #endif
 
 ///////// NEW for DRD /////////////
@@ -110,31 +126,44 @@ typedef struct
 } MenuItem;
 //
 
-///NEW
-extern uint16_t NUM_MENU_ITEMS;
-extern MenuItem myMenuItems [];
+#if USE_DYNAMIC_PARAMETERS
+  #warning Using Dynamic Parameters
+  ///NEW
+  extern uint16_t NUM_MENU_ITEMS;
+  extern MenuItem myMenuItems [];
+  bool *menuItemUpdated = NULL;
+#else
+  #warning Not using Dynamic Parameters
+#endif
 
 // Configurable items besides fixed Header
 #define NUM_CONFIGURABLE_ITEMS    ( 2 )
 
+#define HEADER_MAX_LEN            16
+#define STATIC_IP_MAX_LEN         16
+#define BOARD_NAME_MAX_LEN        24
+
 typedef struct Configuration
 {
-  char header         [16];
-  char static_IP      [16];
-  char board_name     [24];
+  char header         [HEADER_MAX_LEN];
+  char static_IP      [STATIC_IP_MAX_LEN];
+  char board_name     [BOARD_NAME_MAX_LEN];
   int  checkSum;
 } Ethernet_Configuration;
 
-// Currently CONFIG_DATA_SIZE  =  ( 64 )
+// Currently CONFIG_DATA_SIZE  =  ( 60 )
 uint16_t CONFIG_DATA_SIZE = sizeof(Ethernet_Configuration);
 
-///New from v1.0.13
 extern bool LOAD_DEFAULT_CONFIG_DATA;
 extern Ethernet_Configuration defaultConfig;
 
-const char ETM_HTML_HEAD[]     /*PROGMEM*/ = "<!DOCTYPE html><html><head><title>Ethernet_ESP32_Manager</title><style>div,input{padding:2px;font-size:1em;}input{width:95%;}\
-body{text-align: center;}button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.5rem;margin:0px;}\
-</style></head><div style='text-align:left;display:inline-block;min-width:260px;'>\
+// -- HTML page fragments
+
+const char ETM_HTML_HEAD_START[] /*PROGMEM*/ = "<!DOCTYPE html><html><head><title>Ethernet_ESP32_Manager</title>";
+
+const char ETM_HTML_HEAD_STYLE[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
+
+const char ETM_HTML_HEAD_END[]   /*PROGMEM*/ = "</head><div style='text-align:left;display:inline-block;min-width:260px;'>\
 <fieldset><div><label>StaticIP</label><input value='[[ip]]'id='ip'><div></div></div></fieldset>\
 <fieldset><div><label>Board Name</label><input value='[[nm]]'id='nm'><div></div></div></fieldset>";
 
@@ -150,8 +179,25 @@ udVal('nm',document.getElementById('nm').value);";
 const char ETM_HTML_SCRIPT_ITEM[]  /*PROGMEM*/ = "udVal('{d}',document.getElementById('{d}').value);";
 const char ETM_HTML_SCRIPT_END[]   /*PROGMEM*/ = "alert('Updated');}</script>";
 const char ETM_HTML_END[]          /*PROGMEM*/ = "</html>";
-///
 
+//////////////////////////////////////////
+
+//KH Add repeatedly used const
+//KH, from v1.1.0
+const char WM_HTTP_HEAD_CL[]         PROGMEM = "Content-Length";
+const char WM_HTTP_HEAD_TEXT_HTML[]  PROGMEM = "text/html";
+const char WM_HTTP_HEAD_TEXT_PLAIN[] PROGMEM = "text/plain";
+
+const char WM_HTTP_CACHE_CONTROL[]   PROGMEM = "Cache-Control";
+const char WM_HTTP_NO_STORE[]        PROGMEM = "no-cache, no-store, must-revalidate";
+const char WM_HTTP_PRAGMA[]          PROGMEM = "Pragma";
+const char WM_HTTP_NO_CACHE[]        PROGMEM = "no-cache";
+const char WM_HTTP_EXPIRES[]         PROGMEM = "Expires";
+
+const char WM_HTTP_CORS[]            PROGMEM = "Access-Control-Allow-Origin";
+const char WM_HTTP_CORS_ALLOW_ALL[]  PROGMEM = "*";
+
+//////////////////////////////////////////
 
 class Ethernet_Manager
 {
@@ -185,16 +231,22 @@ class Ethernet_Manager
       }
       
       //// New DRD ////
-      ETM_LOGWARN(F("======= Start Default Config Data ======="));
-      displayConfigData(defaultConfig);
+      
+      if (LOAD_DEFAULT_CONFIG_DATA)
+      {
+        ETM_LOGERROR(F("======= Start Default Config Data ======="));
+        displayConfigData(defaultConfig);
+      }
 
       hadConfigData = getConfigData();
 
       connectEthernet();
+      
+      isForcedConfigPortal = isForcedCP();
 
       //// New DRD ////
-      //  noConfigPortal when getConfigData() OK and no DRD'ed
-      if (hadConfigData && noConfigPortal)     
+      //  noConfigPortal when getConfigData() OK and no MRD/DRD'ed
+      if (hadConfigData && noConfigPortal && (!isForcedConfigPortal) )   
       //// New DRD //// 
       {
         hadConfigData = true;
@@ -215,19 +267,34 @@ class Ethernet_Manager
         {
           // Can't do anything here
           ETM_LOGWARN(F("begin:Ethernet not Connected"));
-          // failed to connect to Blynk server, will start configuration mode
+          // failed to connect to Ethernet, will start configuration mode
           //startConfigurationMode();
         }
       }
       else
-      {
-        ETM_LOGWARN1(F("begin:Stay in CfgPortal:"), noConfigPortal ? F("No CfgDat") : F("DRD"));
+      {      
+        ETM_LOGERROR(isForcedConfigPortal? F("bg: isForcedConfigPortal = true") : F("bg: isForcedConfigPortal = false"));
+                     
+        // If not persistent => clear the flag so that after reset. no more CP, even CP not entered and saved
+        if (persForcedConfigPortal)
+        {
+          ETM_LOGERROR1(F("bg:Stay forever in CP:"), isForcedConfigPortal ? F("Forced-Persistent") : (noConfigPortal ? F("No ConfigDat") : F("DRD/MRD")));
+        }
+        else
+        {
+          ETM_LOGERROR1(F("bg:Stay forever in CP:"), isForcedConfigPortal ? F("Forced-non-Persistent") : (noConfigPortal ? F("No ConfigDat") : F("DRD/MRD")));
+          clearForcedCP();
+        }
+          
+        //To permit autoreset after timeout if DRD/MRD or non-persistent forced-CP 
+        hadConfigData = isForcedConfigPortal ? true : (noConfigPortal ? false : true);
         
-        // failed to connect to Blynk server, will start configuration mode
-        hadConfigData = false;
+        // failed to connect to WiFi, will start configuration mode
         startConfigurationMode();
       }
     }
+    
+    //////////////////////////////////////////
 
     // Return true if still in CP mode
     bool run()
@@ -293,10 +360,14 @@ class Ethernet_Manager
       return configuration_mode;
     }
 
+    //////////////////////////////////////////
+
     String getBoardName()
     {
       return (String(Ethernet_Manager_config.board_name));
     }
+    
+    //////////////////////////////////////////
 
     Ethernet_Configuration* getFullConfigData(Ethernet_Configuration *configData)
     {
@@ -310,24 +381,133 @@ class Ethernet_Manager
       return (configData);
     }
     
+    //////////////////////////////////////////
+    
     void clearConfigData()
     {
       memset(&Ethernet_Manager_config, 0, sizeof(Ethernet_Manager_config));
-      
+
+#if USE_DYNAMIC_PARAMETERS        
       for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         // Actual size of pdata is [maxlen + 1]
         memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
       }
+#endif
       
       saveConfigData();
     }
     
+    //////////////////////////////////////////////
+    
+    bool isConfigDataValid()
+    {
+      return hadConfigData;
+    }
+    
+    //////////////////////////////////////////////
+    
+    // Forced CP => Flag = 0xBEEFBEEF. Else => No forced CP
+    // Flag to be stored at (EEPROM_START + DRD_FLAG_DATA_SIZE + CONFIG_DATA_SIZE) 
+    // to avoid corruption to current data
+    //#define FORCED_CONFIG_PORTAL_FLAG_DATA              ( (uint32_t) 0xDEADBEEF)
+    //#define FORCED_PERS_CONFIG_PORTAL_FLAG_DATA         ( (uint32_t) 0xBEEFDEAD)
+    
+    const uint32_t FORCED_CONFIG_PORTAL_FLAG_DATA       = 0xDEADBEEF;
+    const uint32_t FORCED_PERS_CONFIG_PORTAL_FLAG_DATA  = 0xBEEFDEAD;
+    
+    #define FORCED_CONFIG_PORTAL_FLAG_DATA_SIZE     4
+    
+    void resetAndEnterConfigPortal()
+    {
+      persForcedConfigPortal = false;
+      
+      setForcedCP(false);
+      
+      // Delay then reset the ESP8266 after save data
+      delay(1000);
+      resetFunc();
+    }
+    
+    //////////////////////////////////////////////
+    
+    // This will keep CP forever, until you successfully enter CP, and Save data to clear the flag.
+    void resetAndEnterConfigPortalPersistent()
+    {
+      persForcedConfigPortal = true;
+      
+      setForcedCP(true);
+      
+      // Delay then reset the ESP8266 after save data
+      delay(1000);
+      resetFunc();
+    }
+    
+    //////////////////////////////////////////////
+
     void resetFunc()
     {
       delay(1000);
       ESP.restart();
     }
+
+    //////////////////////////////////////
+    
+    // Add customs headers from v1.1.0
+    
+    // New from v1.1.0, for configure CORS Header, default to WM_HTTP_CORS_ALLOW_ALL = "*"
+
+#if USING_CUSTOMS_STYLE
+    //sets a custom style, such as color
+    // "<style>div,input{padding:5px;font-size:1em;}
+    // input{width:95%;}body{text-align: center;}
+    // button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}
+    // fieldset{border-radius:0.3rem;margin:0px;}</style>";
+    void setCustomsStyle(const char* CustomsStyle = ETM_HTML_HEAD_STYLE) 
+    {
+      ETM_HTML_HEAD_CUSTOMS_STYLE = CustomsStyle;
+      ETM_LOGDEBUG1(F("Set CustomsStyle to : "), ETM_HTML_HEAD_CUSTOMS_STYLE);
+    }
+    
+    const char* getCustomsStyle()
+    {
+      ETM_LOGDEBUG1(F("Get CustomsStyle = "), ETM_HTML_HEAD_CUSTOMS_STYLE);
+      return ETM_HTML_HEAD_CUSTOMS_STYLE;
+    }
+#endif
+
+#if USING_CUSTOMS_HEAD_ELEMENT    
+    //sets a custom element to add to head, like a new style tag
+    void setCustomsHeadElement(const char* CustomsHeadElement = NULL) 
+    {
+      _CustomsHeadElement = CustomsHeadElement;
+      ETM_LOGDEBUG1(F("Set CustomsHeadElement to : "), _CustomsHeadElement);
+    }
+    
+    const char* getCustomsHeadElement()
+    {
+      ETM_LOGDEBUG1(F("Get CustomsHeadElement = "), _CustomsHeadElement);
+      return _CustomsHeadElement;
+    }
+#endif
+    
+#if USING_CORS_FEATURE   
+    void setCORSHeader(const char* CORSHeaders = NULL)
+    {     
+      _CORS_Header = CORSHeaders;
+
+      ETM_LOGDEBUG1(F("Set CORS Header to : "), _CORS_Header);
+    }
+    
+    const char* getCORSHeader()
+    {      
+      ETM_LOGDEBUG1(F("Get CORS Header = "), _CORS_Header);
+      return _CORS_Header;
+    }
+#endif
+          
+    //////////////////////////////////////
+
 
   private:
    
@@ -344,6 +524,9 @@ class Ethernet_Manager
 
     unsigned long configTimeout;
     bool hadConfigData = false;
+    
+    bool isForcedConfigPortal   = false;
+    bool persForcedConfigPortal = false;
 
     Ethernet_Configuration Ethernet_Manager_config;
     
@@ -351,7 +534,26 @@ class Ethernet_Manager
     
     uint8_t currentBlynkServerIndex = 255;
 
+/////////////////////////////////////
+    
+    // Add customs headers from v1.1.0
+    
+#if USING_CUSTOMS_STYLE
+    const char* ETM_HTML_HEAD_CUSTOMS_STYLE = NULL;
+#endif
+    
+#if USING_CUSTOMS_HEAD_ELEMENT
+    const char* _CustomsHeadElement = NULL;
+#endif
+    
+#if USING_CORS_FEATURE    
+    const char* _CORS_Header        = WM_HTTP_CORS_ALLOW_ALL;   //"*";
+#endif
+       
+    //////////////////////////////////////
+    
 #define RFC952_HOSTNAME_MAXLEN      24
+
     char RFC952_hostname[RFC952_HOSTNAME_MAXLEN + 1];
 
     void setRFC952_hostname(const char* iHostname = "")
@@ -372,6 +574,8 @@ class Ethernet_Manager
 
       ETM_LOGWARN1(F("Hostname="), RFC952_hostname);
     }
+    
+    //////////////////////////////////////
 
     char* getRFC952_hostname(const char* iHostname)
     {
@@ -389,6 +593,7 @@ class Ethernet_Manager
           j++;
         }
       }
+      
       // no '-' as last char
       if ( isalnum(iHostname[len - 1]) || (iHostname[len - 1] != '-') )
         RFC952_hostname[j] = iHostname[len - 1];
@@ -396,18 +601,24 @@ class Ethernet_Manager
       return RFC952_hostname;
     }
 
+    //////////////////////////////////////
+
     void displayConfigData(Ethernet_Configuration configData)
     {
       ETM_LOGWARN3(F("Header="),       configData.header,
                  F(", BoardName="),    configData.board_name);
       ETM_LOGWARN1(F("StaticIP="),      configData.static_IP);
-                 
+
+#if USE_DYNAMIC_PARAMETERS                 
       for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         ETM_LOGINFO3("i=", i, ",id=", myMenuItems[i].id);
         ETM_LOGINFO1("data=", myMenuItems[i].pdata);
-      }      
+      }   
+#endif         
     }
+    
+    //////////////////////////////////////
 
 #define ETHERNET_BOARD_TYPE   "ESP32"
 #define WM_NO_CONFIG          "blank"
@@ -425,12 +636,126 @@ class Ethernet_Manager
 
 #if ( USE_LITTLEFS || USE_SPIFFS )
 
-#define  CONFIG_FILENAME              "/etm_config.dat"
-#define  CONFIG_FILENAME_BACKUP       "/etm_config.bak"
+#define  CONFIG_FILENAME                  ("/etm_config.dat")
+#define  CONFIG_FILENAME_BACKUP           ("/etm_config.bak")
 
-#define  CREDENTIALS_FILENAME         "/etm_cred.dat"
-#define  CREDENTIALS_FILENAME_BACKUP  "/etm_cred.bak"
+#define  CREDENTIALS_FILENAME             ("/etm_cred.dat")
+#define  CREDENTIALS_FILENAME_BACKUP      ("/etm_cred.bak")
+
+#define  CONFIG_PORTAL_FILENAME           ("/etm_cp.dat")
+#define  CONFIG_PORTAL_FILENAME_BACKUP    ("/etm_cp.bak")
+
+    //////////////////////////////////////////////
     
+    void saveForcedCP(uint32_t value)
+    {
+      File file = FileFS.open(CONFIG_PORTAL_FILENAME, "w");
+      
+      ETM_LOGINFO(F("SaveCPFile "));
+
+      if (file)
+      {
+        file.write((uint8_t*) &value, sizeof(value));
+        file.close();
+        ETM_LOGINFO(F("OK"));
+      }
+      else
+      {
+        ETM_LOGINFO(F("failed"));
+      }
+
+      // Trying open redundant CP file
+      file = FileFS.open(CONFIG_PORTAL_FILENAME_BACKUP, "w");
+      
+      ETM_LOGINFO(F("SaveBkUpCPFile "));
+
+      if (file)
+      {
+        file.write((uint8_t *) &value, sizeof(value));
+        file.close();
+        ETM_LOGINFO(F("OK"));
+      }
+      else
+      {
+        ETM_LOGINFO(F("failed"));
+      }
+    }
+    
+    //////////////////////////////////////////////
+    
+    void setForcedCP(bool isPersistent)
+    {
+      uint32_t readForcedConfigPortalFlag = isPersistent? FORCED_PERS_CONFIG_PORTAL_FLAG_DATA : FORCED_CONFIG_PORTAL_FLAG_DATA;
+  
+      ETM_LOGDEBUG(isPersistent ? F("setForcedCP Persistent") : F("setForcedCP non-Persistent"));
+
+      saveForcedCP(readForcedConfigPortalFlag);
+    }
+    
+    //////////////////////////////////////////////
+    
+    void clearForcedCP()
+    {
+      uint32_t readForcedConfigPortalFlag = 0;
+   
+      ETM_LOGDEBUG(F("clearForcedCP"));
+      
+      saveForcedCP(readForcedConfigPortalFlag);
+    }
+    
+    //////////////////////////////////////////////
+
+    bool isForcedCP()
+    {
+      uint32_t readForcedConfigPortalFlag;
+   
+      ETM_LOGDEBUG(F("Check if isForcedCP"));
+      
+      File file = FileFS.open(CONFIG_PORTAL_FILENAME, "r");
+      ETM_LOGINFO(F("LoadCPFile "));
+
+      if (!file)
+      {
+        ETM_LOGINFO(F("failed"));
+
+        // Trying open redundant config file
+        file = FileFS.open(CONFIG_PORTAL_FILENAME_BACKUP, "r");
+        ETM_LOGINFO(F("LoadBkUpCPFile "));
+
+        if (!file)
+        {
+          ETM_LOGINFO(F("failed"));
+          return false;
+        }
+       }
+
+      file.readBytes((char *) &readForcedConfigPortalFlag, sizeof(readForcedConfigPortalFlag));
+
+      ETM_LOGINFO(F("OK"));
+      file.close();
+      
+      // Return true if forced CP (0xDEADBEEF read at offset EPROM_START + DRD_FLAG_DATA_SIZE + CONFIG_DATA_SIZE)
+      // => set flag noForcedConfigPortal = false     
+      if (readForcedConfigPortalFlag == FORCED_CONFIG_PORTAL_FLAG_DATA)
+      {       
+        persForcedConfigPortal = false;
+        return true;
+      }
+      else if (readForcedConfigPortalFlag == FORCED_PERS_CONFIG_PORTAL_FLAG_DATA)
+      {       
+        persForcedConfigPortal = true;
+        return true;
+      }
+      else
+      {       
+        return false;
+      }
+    }
+    
+    //////////////////////////////////////////////
+
+#if USE_DYNAMIC_PARAMETERS
+
     bool checkDynamicData()
     {
       int checkSum = 0;
@@ -446,7 +771,6 @@ class Ethernet_Manager
 
         // Trying open redundant config file
         file = FileFS.open(CREDENTIALS_FILENAME_BACKUP, "r");
-        
         ETM_LOGINFO(F("LoadBkUpCredFile "));
 
         if (!file)
@@ -474,67 +798,60 @@ class Ethernet_Manager
         // check to see NULL => stop and return false
         if (readBuffer == NULL)
         {
-          ETM_LOGINFO(F("ChkCrR: Error can't allocate buffer."));
+          ETM_LOGERROR(F("ChkCrR: Error can't allocate buffer."));
           return false;
-        }     
+        }      
         else
         {
-          ETM_LOGINFO1(F("ChkCrR: Buffer allocated, Sz="), maxBufferLength + 1);
+          ETM_LOGDEBUG1(F("ChkCrR: Buffer allocated, sz="), maxBufferLength + 1);
         }          
-      }
-      else
-      {
-        ETM_LOGINFO(F("ChkCrR: Error maxBufferLength == 0."));
-        return false;
-      }   
-      
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
-      {       
-        char* _pointer = readBuffer;
+     
+        for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+        {       
+          char* _pointer = readBuffer;
 
-        // Actual size of pdata is [maxlen + 1]
-        memset(readBuffer, 0, myMenuItems[i].maxlen + 1);
+          // Actual size of pdata is [maxlen + 1]
+          memset(readBuffer, 0, myMenuItems[i].maxlen + 1);
+          
+          file.readBytes(_pointer, myMenuItems[i].maxlen);
+     
+          ETM_LOGDEBUG3(F("ChkCrR:pdata="), readBuffer, F(",len="), myMenuItems[i].maxlen);      
+                 
+          for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
+          {         
+            checkSum += *_pointer;  
+          }       
+        }
+
+        file.readBytes((char *) &readCheckSum, sizeof(readCheckSum));
         
-        file.readBytes(_pointer, myMenuItems[i].maxlen);
-  
-        ETM_LOGINFO3(F("ChkCrR:pdata="), readBuffer, F(",len="), myMenuItems[i].maxlen);
-               
-        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
-        {         
-          checkSum += *_pointer;  
-        }       
-      }
-
-      file.readBytes((char *) &readCheckSum, sizeof(readCheckSum));
+        ETM_LOGINFO(F("OK"));
+        file.close();
+        
+        ETM_LOGINFO3(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
+        
+        // Free buffer
+        delete [] readBuffer;
+        ETM_LOGDEBUG(F("Buffer freed"));
+        
+        if ( checkSum != readCheckSum)
+        {
+          return true;
+        }
+      }  
       
-      ETM_LOGINFO(F("OK"));
-      file.close();
-      
-      ETM_LOGINFO3(F("CrCCSum=0x"), String(checkSum, HEX), F(",CrRCSum=0x"), String(readCheckSum, HEX));
-      
-      // Free buffer
-      if (readBuffer != NULL)
-      {
-        free(readBuffer);
-        ETM_LOGINFO(F("Buffer freed"));
-      }
-      
-      if ( checkSum != readCheckSum)
-      {
-        return false;
-      }
-      
-      return true;    
+      return false;    
     }
+    
+    //////////////////////////////////////////////
 
     bool loadDynamicData()
     {
       int checkSum = 0;
       int readCheckSum;
-      totalDataSize = sizeof(Ethernet_Configuration) + sizeof(readCheckSum);
+      totalDataSize = sizeof(Ethernet_Manager_config) + sizeof(readCheckSum);
       
       File file = FileFS.open(CREDENTIALS_FILENAME, "r");
-      
       ETM_LOGINFO(F("LoadCredFile "));
 
       if (!file)
@@ -543,7 +860,6 @@ class Ethernet_Manager
 
         // Trying open redundant config file
         file = FileFS.open(CREDENTIALS_FILENAME_BACKUP, "r");
-        
         ETM_LOGINFO(F("LoadBkUpCredFile "));
 
         if (!file)
@@ -562,9 +878,9 @@ class Ethernet_Manager
         memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
         
         file.readBytes(_pointer, myMenuItems[i].maxlen);
-
-        ETM_LOGDEBUG3(F("CrR:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
-              
+ 
+        ETM_LOGDEBUG3(F("CrR:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);       
+               
         for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
         {         
           checkSum += *_pointer;  
@@ -576,7 +892,7 @@ class Ethernet_Manager
       ETM_LOGINFO(F("OK"));
       file.close();
       
-      ETM_LOGINFO3(F("CrCCSum=0x"), String(checkSum, HEX), F(",CrRCSum=0x"), String(readCheckSum, HEX));
+      ETM_LOGINFO3(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
       
       if ( checkSum != readCheckSum)
       {
@@ -586,23 +902,24 @@ class Ethernet_Manager
       return true;    
     }
 
+    //////////////////////////////////////////////
+    
     void saveDynamicData()
     {
       int checkSum = 0;
     
       File file = FileFS.open(CREDENTIALS_FILENAME, "w");
-      
       ETM_LOGINFO(F("SaveCredFile "));
-     
+
       for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         char* _pointer = myMenuItems[i].pdata;
-     
+   
         ETM_LOGDEBUG3(F("CW1:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
         
         if (file)
         {
-          file.write((uint8_t*) _pointer, myMenuItems[i].maxlen);     
+          file.write((uint8_t*) _pointer, myMenuItems[i].maxlen);         
         }
         else
         {
@@ -626,23 +943,21 @@ class Ethernet_Manager
         ETM_LOGINFO(F("failed"));
       }   
            
-      ETM_LOGINFO1(F("CrWCSum="), String(checkSum, HEX));
+      ETM_LOGINFO1(F("CrWCSum=0x"), String(checkSum, HEX));
       
       // Trying open redundant Auth file
       file = FileFS.open(CREDENTIALS_FILENAME_BACKUP, "w");
-      
       ETM_LOGINFO(F("SaveBkUpCredFile "));
-     
+
       for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         char* _pointer = myMenuItems[i].pdata;
-    
+  
         ETM_LOGDEBUG3(F("CW2:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
-
         
         if (file)
         {
-          file.write((uint8_t*) _pointer, myMenuItems[i].maxlen);
+          file.write((uint8_t*) _pointer, myMenuItems[i].maxlen);         
         }
         else
         {
@@ -666,6 +981,23 @@ class Ethernet_Manager
         ETM_LOGINFO(F("failed"));
       }   
     }
+#endif
+
+    //////////////////////////////////////////////
+    
+    void NULLTerminateConfig()
+    {
+      //#define HEADER_MAX_LEN      16
+      //#define STATIC_IP_MAX_LEN   16
+      //#define BOARD_NAME_MAX_LEN  24
+      
+      // NULL Terminating to be sure
+      Ethernet_Manager_config.header    [HEADER_MAX_LEN - 1]      = 0;
+      Ethernet_Manager_config.static_IP [STATIC_IP_MAX_LEN - 1]   = 0;
+      Ethernet_Manager_config.board_name[BOARD_NAME_MAX_LEN - 1]  = 0;
+    }
+
+    //////////////////////////////////////////////    
 
     void loadConfigData()
     {
@@ -735,9 +1067,20 @@ class Ethernet_Manager
       {
         ETM_LOGINFO(F("failed"));
       }
-      
-      saveDynamicData();
     }
+    
+    //////////////////////////////////////////////
+    
+    void saveAllConfigData()
+    {
+      saveConfigData();     
+      
+#if USE_DYNAMIC_PARAMETERS      
+      saveDynamicData();
+#endif      
+    }
+    
+    //////////////////////////////////////////////
     
     void loadAndSaveDefaultConfigData()
     {
@@ -751,75 +1094,79 @@ class Ethernet_Manager
       ETM_LOGDEBUG(F("======= Start Loaded Config Data ======="));
       displayConfigData(Ethernet_Manager_config);    
     }
+    
+    //////////////////////////////////////////////
 
     // Return false if init new EEPROM or SPIFFS. No more need trying to connect. Go directly to config mode
     bool getConfigData()
     {
-      bool dynamicDataValid;
-      int calChecksum;   
+      bool dynamicDataValid = true; 
+      int calChecksum; 
       
       hadConfigData = false;
-      
+
       // Format SPIFFS if not yet
       if (!FileFS.begin(true))
       {
-        ETM_LOGERROR(F("SPIFFS failed! Formatting."));
-        
+        ETM_LOGERROR(F("SPIFFS/LittleFS failed! Formatting."));
+     
         if (!FileFS.begin())
         {
-          ETM_LOGERROR(F("SPIFFS failed! Pls use EEPROM."));
+#if USE_LITTLEFS
+          ETM_LOGERROR(F("LittleFS failed!. Please use SPIFFS or EEPROM."));
+#else
+          ETM_LOGERROR(F("SPIFFS failed!. Please use LittleFS or EEPROM."));
+#endif 
           return false;
         }
       }
 
-      // Use new LOAD_DEFAULT_CONFIG_DATA logic
       if (LOAD_DEFAULT_CONFIG_DATA)
-      {     
+      {
         // Load Config Data from Sketch
-        loadAndSaveDefaultConfigData();
+        memcpy(&Ethernet_Manager_config, &defaultConfig, sizeof(Ethernet_Manager_config));
+        strcpy(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE);
         
+        // Including config and dynamic data, and assume valid
+        saveAllConfigData();
+         
+        ETM_LOGINFO(F("======= Start Loaded Config Data ======="));
+        displayConfigData(Ethernet_Manager_config);
+
         // Don't need Config Portal anymore
         return true; 
       }
+#if USE_DYNAMIC_PARAMETERS      
       else if ( ( FileFS.exists(CONFIG_FILENAME)      || FileFS.exists(CONFIG_FILENAME_BACKUP) ) &&
                 ( FileFS.exists(CREDENTIALS_FILENAME) || FileFS.exists(CREDENTIALS_FILENAME_BACKUP) ) )
-      {   
-        // Load stored config data from LittleFS
+#else
+      else if ( FileFS.exists(CONFIG_FILENAME) || FileFS.exists(CONFIG_FILENAME_BACKUP) )
+#endif   
+      {
+        // if config file exists, load
         loadConfigData();
         
-        // Load stored default data from LittleFS
-        dynamicDataValid = checkDynamicData();
-        
-        // Verify ChkSum        
+        ETM_LOGINFO(F("======= Start Stored Config Data ======="));
+        displayConfigData(Ethernet_Manager_config);
+
         calChecksum = calcChecksum();
 
-        ETM_LOGWARN3(F("CCSum=0x"), String(calChecksum, HEX),
+        ETM_LOGINFO3(F("CCSum=0x"), String(calChecksum, HEX),
                    F(",RCSum=0x"), String(Ethernet_Manager_config.checkSum, HEX));
-                   
+
+#if USE_DYNAMIC_PARAMETERS                 
+        // Load dynamic data
+        dynamicDataValid = loadDynamicData();
+        
         if (dynamicDataValid)
-        {
-          loadDynamicData();
-          
-          ETM_LOGDEBUG(F("Valid Stored Dynamic Data"));
-          ETM_LOGWARN(F("======= Start Stored Config Data ======="));
-          
-          displayConfigData(Ethernet_Manager_config);
-          
-          // Don't need Config Portal anymore
-          return true;
+        { 
+          ETM_LOGINFO(F("Valid Stored Dynamic Data"));    
         }
         else
         {
-          // Invalid Stored config data => Config Portal
-          ETM_LOGWARN(F("Invalid Stored Dynamic Data. Load default from Sketch"));
-          
-          // Load Default Config Data from Sketch, better than just "blank"
-          loadAndSaveDefaultConfigData();
-                           
-          // Need Config Portal here as data can be just dummy
-          // Even if you don't open CP, you're OK on next boot if your default config data is valid 
-          return false;
-        }      
+          ETM_LOGINFO(F("Invalid Stored Dynamic Data. Ignored"));
+        }
+#endif
       }
       else    
       {
@@ -829,7 +1176,8 @@ class Ethernet_Manager
 
       if ( (strncmp(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE, strlen(ETHERNET_BOARD_TYPE)) != 0) ||
            (calChecksum != Ethernet_Manager_config.checkSum) || !dynamicDataValid )
-      {       
+                      
+      {         
         // Including Credentials CSum
         ETM_LOGINFO1(F("InitCfgFile,sz="), sizeof(Ethernet_Manager_config));
 
@@ -841,35 +1189,35 @@ class Ethernet_Manager
         else
         {
           memset(&Ethernet_Manager_config, 0, sizeof(Ethernet_Manager_config));
-
+          
+          strcpy(Ethernet_Manager_config.static_IP,   WM_NO_CONFIG);
+          strcpy(Ethernet_Manager_config.board_name,  WM_NO_CONFIG);
+          
+#if USE_DYNAMIC_PARAMETERS       
           for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             // Actual size of pdata is [maxlen + 1]
             memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
-          }
-              
-          strcpy(Ethernet_Manager_config.static_IP,   WM_NO_CONFIG);
-          strcpy(Ethernet_Manager_config.board_name,  WM_NO_CONFIG);
-          
-          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
-          {
             strncpy(myMenuItems[i].pdata, WM_NO_CONFIG, myMenuItems[i].maxlen);
           }
+#endif          
         }
     
         strcpy(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE);
         
+#if USE_DYNAMIC_PARAMETERS
         for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
         {
           ETM_LOGDEBUG3(F("g:myMenuItems["), i, F("]="), myMenuItems[i].pdata );
         }
+#endif
         
         // Don't need
         Ethernet_Manager_config.checkSum = 0;
 
-        saveConfigData();
+        saveAllConfigData();
         
-        return false;
+        return false;        
       }
       else
       {
@@ -878,11 +1226,13 @@ class Ethernet_Manager
 
       return true;
     }
+    
+    //////////////////////////////////////////////
 
 #else     // USE_EEPROM
 
 #ifndef EEPROM_SIZE
-  #define EEPROM_SIZE     1024
+  #define EEPROM_SIZE     2048
 #else
   #if (EEPROM_SIZE > 2048)
     #warning EEPROM_SIZE must be <= 2048. Reset to 2048
@@ -902,15 +1252,70 @@ class Ethernet_Manager
   #define EEPROM_START     0      //define 256 in DRD
   #warning EEPROM_START not defined. Set to 0
 #else
-  #if (EEPROM_START + FLAG_DATA_SIZE + CONFIG_DATA_SIZE > EEPROM_SIZE)
-    #error EPROM_START + FLAG_DATA_SIZE + CONFIG_DATA_SIZE > EEPROM_SIZE. Please adjust.
+  #if (EEPROM_START + DRD_FLAG_DATA_SIZE + CONFIG_DATA_SIZE + FORCED_CONFIG_PORTAL_FLAG_DATA_SIZE > EEPROM_SIZE)
+    #error EPROM_START + DRD_FLAG_DATA_SIZE + CONFIG_DATA_SIZE + FORCED_CONFIG_PORTAL_FLAG_DATA_SIZE > EEPROM_SIZE. Please adjust.
   #endif
 #endif
 
 // Stating positon to store Blynk8266_WM_config
-#define ETHERNET_MANAGER_EEPROM_START    (EEPROM_START + FLAG_DATA_SIZE)
+#define CONFIG_EEPROM_START    (EEPROM_START + FLAG_DATA_SIZE)
 
-    bool checkDynamicData(void)
+    //////////////////////////////////////////////
+    
+    void setForcedCP(bool isPersistent)
+    {
+      uint32_t readForcedConfigPortalFlag = isPersistent? FORCED_PERS_CONFIG_PORTAL_FLAG_DATA : FORCED_CONFIG_PORTAL_FLAG_DATA;
+    
+      ETM_LOGINFO(F("setForcedCP"));
+      
+      EEPROM.put(CONFIG_EEPROM_START + CONFIG_DATA_SIZE, readForcedConfigPortalFlag);
+      EEPROM.commit();
+    }
+    //////////////////////////////////////////////
+    
+    void clearForcedCP()
+    { 
+      ETM_LOGINFO(F("clearForcedCP"));
+
+      EEPROM.put(CONFIG_EEPROM_START + CONFIG_DATA_SIZE, 0);
+      EEPROM.commit();
+    }
+    
+    //////////////////////////////////////////////
+
+    bool isForcedCP()
+    {
+      uint32_t readForcedConfigPortalFlag;
+
+      ETM_LOGINFO(F("Check if isForcedCP"));
+
+      // Return true if forced CP (0xDEADBEEF read at offset EPROM_START + DRD_FLAG_DATA_SIZE + CONFIG_DATA_SIZE)
+      // => set flag noForcedConfigPortal = false
+      EEPROM.get(CONFIG_EEPROM_START + CONFIG_DATA_SIZE, readForcedConfigPortalFlag);
+      
+      // Return true if forced CP (0xDEADBEEF read at offset EPROM_START + DRD_FLAG_DATA_SIZE + CONFIG_DATA_SIZE)
+      // => set flag noForcedConfigPortal = false     
+      if (readForcedConfigPortalFlag == FORCED_CONFIG_PORTAL_FLAG_DATA)
+      {       
+        persForcedConfigPortal = false;
+        return true;
+      }
+      else if (readForcedConfigPortalFlag == FORCED_PERS_CONFIG_PORTAL_FLAG_DATA)
+      {       
+        persForcedConfigPortal = true;
+        return true;
+      }
+      else
+      {       
+        return false;
+      }
+    }
+    
+    //////////////////////////////////////////////
+    
+#if USE_DYNAMIC_PARAMETERS
+    
+    bool checkDynamicData()
     {
       int checkSum = 0;
       int readCheckSum;
@@ -918,17 +1323,18 @@ class Ethernet_Manager
       #define BUFFER_LEN      128
       char readBuffer[BUFFER_LEN + 1];
       
-      uint16_t offset = ETHERNET_MANAGER_EEPROM_START + sizeof(Ethernet_Manager_config);
+      uint16_t offset = CONFIG_EEPROM_START + sizeof(Ethernet_Manager_config) + FORCED_CONFIG_PORTAL_FLAG_DATA_SIZE;
                 
       // Find the longest pdata, then dynamically allocate buffer. Remember to free when done
       // This is used to store tempo data to calculate checksum to see of data is valid
-      // We dont like to destroy myMenuItems[i].pdata with invalid data      
+      // We dont like to destroy myMenuItems[i].pdata with invalid data
+      
       for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         if (myMenuItems[i].maxlen > BUFFER_LEN)
         {
           // Size too large, abort and flag false
-          ETM_LOGINFO(F("ChkCrR: Error Small Buffer."));
+          ETM_LOGERROR(F("ChkCrR: Error Small Buffer."));
           return false;
         }
       }
@@ -944,8 +1350,8 @@ class Ethernet_Manager
         EEPROM.get(offset, readBuffer);
         // NULL terminated
         readBuffer[myMenuItems[i].maxlen] = 0;
-   
-        ETM_LOGINFO3(F("ChkCrR:pdata="), readBuffer, F(",len="), myMenuItems[i].maxlen);
+
+        ETM_LOGDEBUG3(F("ChkCrR:pdata="), readBuffer, F(",len="), myMenuItems[i].maxlen);      
                
         for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
         {         
@@ -957,7 +1363,7 @@ class Ethernet_Manager
 
       EEPROM.get(offset, readCheckSum);
            
-      ETM_LOGINFO3(F("ChkCrR:CrCCsum="), String(checkSum, HEX), F(",CrRCsum="), String(readCheckSum, HEX));
+      ETM_LOGINFO3(F("ChkCrR:CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
            
       if ( checkSum != readCheckSum)
       {
@@ -967,12 +1373,13 @@ class Ethernet_Manager
       return true;    
     }
 
-
-    bool EEPROM_getDynamicData(void)
+    //////////////////////////////////////////////
+    
+    bool EEPROM_getDynamicData()
     {
       int readCheckSum;
       int checkSum = 0;
-      uint16_t offset = ETHERNET_MANAGER_EEPROM_START + sizeof(Ethernet_Manager_config);
+      uint16_t offset = CONFIG_EEPROM_START + sizeof(Ethernet_Manager_config) + FORCED_CONFIG_PORTAL_FLAG_DATA_SIZE;
            
       totalDataSize = sizeof(Ethernet_Manager_config) + sizeof(readCheckSum);
       
@@ -989,14 +1396,14 @@ class Ethernet_Manager
           *_pointer = EEPROM.read(offset);
           
           checkSum += *_pointer;  
-        }    
-   
-        ETM_LOGINFO3(F("CR:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);         
+        }
+         
+        ETM_LOGDEBUG3(F("CR:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);         
       }
       
       EEPROM.get(offset, readCheckSum);
       
-      ETM_LOGINFO3(F("CrCCsum="), String(checkSum, HEX), F(",CrRCsum="), String(readCheckSum, HEX));
+      ETM_LOGINFO3(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
       
       if ( checkSum != readCheckSum)
       {
@@ -1005,17 +1412,19 @@ class Ethernet_Manager
       
       return true;
     }
+    
+    //////////////////////////////////////////////
 
-    void EEPROM_putDynamicData(void)
+    void EEPROM_putDynamicData()
     {
       int checkSum = 0;
-      uint16_t offset = ETHERNET_MANAGER_EEPROM_START + sizeof(Ethernet_Manager_config);
+      uint16_t offset = CONFIG_EEPROM_START + sizeof(Ethernet_Manager_config) + FORCED_CONFIG_PORTAL_FLAG_DATA_SIZE;
                 
       for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         char* _pointer = myMenuItems[i].pdata;
-            
-        //ETM_LOGINFO3(F("CW:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
+           
+        ETM_LOGDEBUG3(F("CW:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
                             
         for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++,offset++)
         {
@@ -1030,21 +1439,41 @@ class Ethernet_Manager
       
       ETM_LOGINFO1(F("CrWCSum=0x"), String(checkSum, HEX));
     }
-    
+#endif
+
+    //////////////////////////////////////////////
+
     void saveConfigData()
     {
       int calChecksum = calcChecksum();
       Ethernet_Manager_config.checkSum = calChecksum;
-      
-      ETM_LOGINFO1(F("Save,WCSum=0x"), String(calChecksum, HEX));
+      ETM_LOGINFO3(F("SaveEEPROM,sz="), EEPROM_SIZE, F(",CSum=0x"), String(calChecksum, HEX))
 
-      EEPROM.put(ETHERNET_MANAGER_EEPROM_START, Ethernet_Manager_config);
-      EEPROM_putDynamicData();
+      EEPROM.put(CONFIG_EEPROM_START, Ethernet_Manager_config);
       
       EEPROM.commit();
     }
     
-    void loadAndSaveDefaultConfigData(void)
+    //////////////////////////////////////////////
+    
+    void saveAllConfigData()
+    {
+      int calChecksum = calcChecksum();
+      Ethernet_Manager_config.checkSum = calChecksum;
+      ETM_LOGINFO3(F("SaveEEPROM,sz="), EEPROM_SIZE, F(",CSum=0x"), String(calChecksum, HEX))
+
+      EEPROM.put(CONFIG_EEPROM_START, Ethernet_Manager_config);
+      
+#if USE_DYNAMIC_PARAMETERS         
+      EEPROM_putDynamicData();
+#endif
+      
+      EEPROM.commit();
+    }
+
+    //////////////////////////////////////////////
+    
+    void loadAndSaveDefaultConfigData()
     {
       // Load Default Config Data from Sketch
       memcpy(&Ethernet_Manager_config, &defaultConfig, sizeof(Ethernet_Manager_config));
@@ -1053,100 +1482,109 @@ class Ethernet_Manager
       // Including config and dynamic data, and assume valid
       saveConfigData();
        
-      ETM_LOGDEBUG(F("======= Start Loaded Config Data ======="));
-      displayConfigData(Ethernet_Manager_config);
+      ETM_LOGINFO(F("======= Start Loaded Config Data ======="));
+      displayConfigData(Ethernet_Manager_config);  
     }
+        
+    //////////////////////////////////////////////
     
     bool getConfigData()
     {
-      bool dynamicDataValid;
+      bool dynamicDataValid = true;
+      int calChecksum;
       
       hadConfigData = false; 
       
       EEPROM.begin(EEPROM_SIZE);
       ETM_LOGINFO1(F("EEPROMsz:"), EEPROM_SIZE);
       
-      EEPROM.get(ETHERNET_MANAGER_EEPROM_START, Ethernet_Manager_config);
-    
-      ETM_LOGINFO(F("======= Start Stored Config Data ======="));
-      displayConfigData(Ethernet_Manager_config);
-
-      int calChecksum = calcChecksum();
-
-      ETM_LOGWARN3(F("CCSum=0x"), String(calChecksum, HEX),
-                 F(",RCSum=0x"), String(Ethernet_Manager_config.checkSum, HEX));
-                      
       if (LOAD_DEFAULT_CONFIG_DATA)
       {
-        // Load default dynamicData, if checkSum OK => valid data => load
-        // otherwise, use default in sketch and just assume it's OK        
-        if (checkDynamicData())
-        {   
-          ETM_LOGDEBUG(F("Valid Stored Dynamic Data"));
+        // Load Config Data from Sketch
+        memcpy(&Ethernet_Manager_config, &defaultConfig, sizeof(Ethernet_Manager_config));
+        strcpy(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE);
         
-          EEPROM_getDynamicData();
-          dynamicDataValid = true;
+        // Including config and dynamic data, and assume valid
+        saveAllConfigData();
+                    
+        ETM_LOGINFO(F("======= Start Loaded Config Data ======="));
+        displayConfigData(Ethernet_Manager_config);
+
+        // Don't need Config Portal anymore
+        return true;             
+      }
+      else
+      {
+        // Load data from EEPROM
+        EEPROM.get(CONFIG_EEPROM_START, Ethernet_Manager_config);
+          
+        ETM_LOGINFO(F("======= Start Stored Config Data ======="));
+        displayConfigData(Ethernet_Manager_config);
+
+        calChecksum = calcChecksum();
+
+        ETM_LOGINFO3(F("CCSum=0x"), String(calChecksum, HEX),
+                   F(",RCSum=0x"), String(Ethernet_Manager_config.checkSum, HEX));
+
+#if USE_DYNAMIC_PARAMETERS
+                 
+        // Load dynamic data from EEPROM
+        dynamicDataValid = EEPROM_getDynamicData();
+        
+        if (dynamicDataValid)
+        {  
+          ETM_LOGINFO(F("Valid Stored Dynamic Data"));       
         }
         else
         {
-          ETM_LOGWARN(F("Invalid Stored Dynamic Data. Ignored"));
-          dynamicDataValid = false;
-        }           
+          ETM_LOGINFO(F("Invalid Stored Dynamic Data. Ignored"));
+        }
+#endif
       }
-      else
-      {           
-        dynamicDataValid = EEPROM_getDynamicData();    
-      }  
-      
+        
       if ( (strncmp(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE, strlen(ETHERNET_BOARD_TYPE)) != 0) ||
            (calChecksum != Ethernet_Manager_config.checkSum) || !dynamicDataValid )
-      {
+      {       
         // Including Credentials CSum
-        ETM_LOGINFO3(F("InitEEPROM,sz="), EEPROM_SIZE, F(",Datasz="), totalDataSize);
-        
+        ETM_LOGINFO3(F("InitEEPROM,sz="), EEPROM_SIZE, F(",DataSz="), totalDataSize);
+
         // doesn't have any configuration        
         if (LOAD_DEFAULT_CONFIG_DATA)
         {
           memcpy(&Ethernet_Manager_config, &defaultConfig, sizeof(Ethernet_Manager_config));
         }
         else
-        {  
+        {
           memset(&Ethernet_Manager_config, 0, sizeof(Ethernet_Manager_config));
-
+             
+          strcpy(Ethernet_Manager_config.static_IP,   WM_NO_CONFIG);
+          strcpy(Ethernet_Manager_config.board_name,  WM_NO_CONFIG);
+          
+#if USE_DYNAMIC_PARAMETERS       
           for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             // Actual size of pdata is [maxlen + 1]
             memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
-          }
-          
-          // Including Credentials CSum
-          ETM_LOGINFO3(F("InitEEPROM,sz="), EEPROM_SIZE, F(",Datasz="), totalDataSize);
-
-          // doesn't have any configuration
-          strcpy(Ethernet_Manager_config.static_IP,   WM_NO_CONFIG);
-          strcpy(Ethernet_Manager_config.board_name,  WM_NO_CONFIG);
-
-          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
-          {
             strncpy(myMenuItems[i].pdata, WM_NO_CONFIG, myMenuItems[i].maxlen);
           }
+#endif          
         }
-        
+    
         strcpy(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE);
-
+        
+#if USE_DYNAMIC_PARAMETERS
         for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
         {
           ETM_LOGDEBUG3(F("g:myMenuItems["), i, F("]="), myMenuItems[i].pdata );
         }
-                
+#endif
+        
         // Don't need
         Ethernet_Manager_config.checkSum = 0;
 
-        EEPROM.put(ETHERNET_MANAGER_EEPROM_START, Ethernet_Manager_config);
-        EEPROM_putDynamicData();
-        EEPROM.commit();
-
-        return false;
+        saveAllConfigData();
+        
+        return false;        
       }
       else
       {
@@ -1155,53 +1593,87 @@ class Ethernet_Manager
 
       return true;
     }
+    
+#endif    // ( USE_LITTLEFS || USE_SPIFFS )
 
-#endif      // ( USE_LITTLEFS || USE_SPIFFS )
+    //////////////////////////////////////////////
 
     // NEW
     void createHTML(String& root_html_template)
     {
       String pitem;
       
-      root_html_template = String(ETM_HTML_HEAD);
-     
-      if (NUM_MENU_ITEMS > 0)
-      {
-        root_html_template += String(ETM_FLDSET_START);
-           
-        for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
-        {
-          pitem = String(ETM_HTML_PARAM);
+      root_html_template  = ETM_HTML_HEAD_START;
+      
+  #if USING_CUSTOMS_STYLE
+      // Using Customs style when not NULL
+      if (ETM_HTML_HEAD_CUSTOMS_STYLE)
+        root_html_template  += ETM_HTML_HEAD_CUSTOMS_STYLE;
+      else
+        root_html_template  += ETM_HTML_HEAD_STYLE;
+  #else     
+      root_html_template  += ETM_HTML_HEAD_STYLE;
+  #endif
+      
+  #if USING_CUSTOMS_HEAD_ELEMENT
+      if (_CustomsHeadElement)
+        root_html_template += _CustomsHeadElement;
+  #endif          
+      
+      root_html_template += String(ETM_HTML_HEAD_END) + ETM_FLDSET_START;
 
-          pitem.replace("{b}", myMenuItems[i].displayName);
-          pitem.replace("{v}", myMenuItems[i].id);
-          pitem.replace("{i}", myMenuItems[i].id);
-          
-          root_html_template += pitem;      
-        }
-            
-        root_html_template += String(ETM_FLDSET_END);
+#if USE_DYNAMIC_PARAMETERS      
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      {
+        pitem = String(ETM_HTML_PARAM);
+
+        pitem.replace("{b}", myMenuItems[i].displayName);
+        pitem.replace("{v}", myMenuItems[i].id);
+        pitem.replace("{i}", myMenuItems[i].id);
+        
+        root_html_template += pitem;
       }
+#endif
       
-      root_html_template += String(ETM_HTML_BUTTON) + String(ETM_HTML_SCRIPT);   
-           
-      if (NUM_MENU_ITEMS > 0)
-      {        
-        for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
-        {
-          pitem = String(ETM_HTML_SCRIPT_ITEM);
-          
-          pitem.replace("{d}", myMenuItems[i].id);
-          
-          root_html_template += pitem;        
-        }
+      root_html_template += String(ETM_FLDSET_END) + ETM_HTML_BUTTON + ETM_HTML_SCRIPT;     
+
+#if USE_DYNAMIC_PARAMETERS      
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      {
+        pitem = String(ETM_HTML_SCRIPT_ITEM);
+        
+        pitem.replace("{d}", myMenuItems[i].id);
+        
+        root_html_template += pitem;
       }
+#endif
       
-      root_html_template += String(ETM_HTML_SCRIPT_END) + String(ETM_HTML_END);
+      root_html_template += String(ETM_HTML_SCRIPT_END) + ETM_HTML_END;
       
-      return;      
+      return;     
     }
-    ////
+       
+    //////////////////////////////////////////////
+
+    void serverSendHeaders()
+    {
+      ETM_LOGDEBUG3(F("serverSendHeaders:WM_HTTP_CACHE_CONTROL:"), WM_HTTP_CACHE_CONTROL, "=", WM_HTTP_NO_STORE);
+      server->sendHeader(WM_HTTP_CACHE_CONTROL, WM_HTTP_NO_STORE);
+      
+#if USING_CORS_FEATURE
+      // New from v1.2.0, for configure CORS Header, default to WM_HTTP_CORS_ALLOW_ALL = "*"
+      ETM_LOGDEBUG3(F("serverSendHeaders:WM_HTTP_CORS:"), WM_HTTP_CORS, " : ", _CORS_Header);
+      server->sendHeader(WM_HTTP_CORS, _CORS_Header);
+#endif
+     
+      ETM_LOGDEBUG3(F("serverSendHeaders:WM_HTTP_PRAGMA:"), WM_HTTP_PRAGMA, " : ", WM_HTTP_NO_CACHE);
+      server->sendHeader(WM_HTTP_PRAGMA, WM_HTTP_NO_CACHE);
+      
+      ETM_LOGDEBUG3(F("serverSendHeaders:WM_HTTP_EXPIRES:"), WM_HTTP_EXPIRES, " : ", "-1");
+      server->sendHeader(WM_HTTP_EXPIRES, "-1");
+    }
+       
+    //////////////////////////////////////////////
     
     void handleRequest()
     {
@@ -1210,11 +1682,14 @@ class Ethernet_Manager
         String key = server->arg("key");
         String value = server->arg("value");
 
-        //static int number_items_Updated = 0;
-        static int number_items_Updated = -1;
+        static int number_items_Updated = 0;
 
         if (key == "" && value == "")
         {
+          // New from v1.2.0         
+          serverSendHeaders();        
+          //////
+          
           String result;
           createHTML(result);
 
@@ -1237,6 +1712,7 @@ class Ethernet_Manager
           result.replace("[[ip]]",     Ethernet_Manager_config.static_IP);
           result.replace("[[nm]]",     Ethernet_Manager_config.board_name);
 
+#if USE_DYNAMIC_PARAMETERS
           for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             String toChange = String("[[") + myMenuItems[i].id + "]]";
@@ -1244,92 +1720,143 @@ class Ethernet_Manager
               
             ETM_LOGDEBUG3(F("h1:myMenuItems["), i, F("]="), myMenuItems[i].pdata );
           }
+#endif
 
-          server->send(200, "text/html", result);
+          ETM_LOGDEBUG1(F("h:HTML page size:"), result.length());
+          ETM_LOGDEBUG1(F("h:HTML="), result);
+          
+          server->send(200, WM_HTTP_HEAD_TEXT_HTML, result);
           
           return;
         }
         
-        if (number_items_Updated < 0)
+        if (number_items_Updated == 0)
         {
-          number_items_Updated = 0;
           memset(&Ethernet_Manager_config, 0, sizeof(Ethernet_Manager_config));
           strcpy(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE);
         }
-        
-        ETM_LOGINFO1(F("h:items updated ="), number_items_Updated);
-        ETM_LOGINFO3(F("h:key ="), key, ", value =", value);
-        
-        if (key == String("ip"))
-        {
-          ETM_LOGINFO(F("h:ip"));
 
+#if USE_DYNAMIC_PARAMETERS
+        if (!menuItemUpdated)
+        {
+          // Don't need to free
+          menuItemUpdated = new bool[NUM_MENU_ITEMS];
+          
+          if (menuItemUpdated)
+          {
+            for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+            {           
+              // To flag item is not yet updated
+              menuItemUpdated[i] = false;           
+            }
+            
+            ETM_LOGDEBUG(F("h: Init menuItemUpdated" ));                    
+          }
+          else
+          {
+            ETM_LOGERROR(F("h: Error can't alloc memory for menuItemUpdated" ));
+          }
+        }  
+#endif
+
+        static bool ip_Updated  = false;
+        static bool nm_Updated  = false;
+        
+        if (!ip_Updated && (key == String("ip")))
+        {   
+          ETM_LOGDEBUG(F("h:repl ip"));
+          ip_Updated = true;
+          
           number_items_Updated++;
+          
           if (strlen(value.c_str()) < sizeof(Ethernet_Manager_config.static_IP) - 1)
             strcpy(Ethernet_Manager_config.static_IP, value.c_str());
           else
             strncpy(Ethernet_Manager_config.static_IP, value.c_str(), sizeof(Ethernet_Manager_config.static_IP) - 1);
         }
-        else if (key == String("nm"))
+        else if (!nm_Updated && (key == String("nm")))
         {
-          ETM_LOGINFO(F("h:nm"));
-
+          ETM_LOGDEBUG(F("h:repl nm"));
+          nm_Updated = true;
+          
           number_items_Updated++;
+          
           if (strlen(value.c_str()) < sizeof(Ethernet_Manager_config.board_name) - 1)
             strcpy(Ethernet_Manager_config.board_name, value.c_str());
           else
             strncpy(Ethernet_Manager_config.board_name, value.c_str(), sizeof(Ethernet_Manager_config.board_name) - 1);
         }
-
-        //ETM_LOGINFO(F("h:OK"));
-
-        for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
-        {
-          if (key == myMenuItems[i].id)
+        
+#if USE_DYNAMIC_PARAMETERS   
+        else
+        {     
+          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
-            //ETM_LOGDEBUG3(F("h:"), myMenuItems[i].id, F("="), value.c_str() );
-            number_items_Updated++;
+            if ( !menuItemUpdated[i] && (key == myMenuItems[i].id) )
+            {
+              ETM_LOGDEBUG3(F("h:"), myMenuItems[i].id, F("="), value.c_str() );
+              
+              menuItemUpdated[i] = true;
+              
+              number_items_Updated++;
 
-            // Actual size of pdata is [maxlen + 1]
-            memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
+              // Actual size of pdata is [maxlen + 1]
+              memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
 
-            if ((int) strlen(value.c_str()) < myMenuItems[i].maxlen)
-              strcpy(myMenuItems[i].pdata, value.c_str());
-            else
-              strncpy(myMenuItems[i].pdata, value.c_str(), myMenuItems[i].maxlen);
-                             
-            ETM_LOGINFO3(F("h2:myMenuItems["), i, F("]="), myMenuItems[i].pdata );            
+              if ((int) strlen(value.c_str()) < myMenuItems[i].maxlen)
+                strcpy(myMenuItems[i].pdata, value.c_str());
+              else
+                strncpy(myMenuItems[i].pdata, value.c_str(), myMenuItems[i].maxlen);
+                
+             break;   
+            }
           }
         }
+#endif
         
-        server->send(200, "text/html", "OK");
+        ETM_LOGDEBUG1(F("h:items updated ="), number_items_Updated);
+        ETM_LOGDEBUG3(F("h:key ="), key, ", value =", value);
 
-        // NEW
+        server->send(200, WM_HTTP_HEAD_TEXT_HTML, "OK");
+
+#if USE_DYNAMIC_PARAMETERS        
         if (number_items_Updated == NUM_CONFIGURABLE_ITEMS + NUM_MENU_ITEMS)
+#else
+        if (number_items_Updated == NUM_CONFIGURABLE_ITEMS)
+#endif 
         {
 #if USE_LITTLEFS
-          ETM_LOGWARN1(F("h:Updating LittleFS:"), CONFIG_FILENAME);        
+          ETM_LOGERROR1(F("h:Updating LittleFS:"), CONFIG_FILENAME);        
 #elif USE_SPIFFS
-          ETM_LOGWARN1(F("h:Updating SPIFFS:"), CONFIG_FILENAME);
+          ETM_LOGERROR1(F("h:Updating SPIFFS:"), CONFIG_FILENAME);
 #else
-          ETM_LOGWARN(F("h:Updating EEPROM. Please wait for reset"));
+          ETM_LOGERROR(F("h:Updating EEPROM. Please wait for reset"));
 #endif
 
-          saveConfigData();
+          saveAllConfigData();
+          
+          // Done with CP, Clear CP Flag here if forced
+          if (isForcedConfigPortal)
+            clearForcedCP();
 
           ETM_LOGWARN(F("h:Rst"));
 
           // Delay then reset after save data
-          //delay(200);
+          delay(1000);
           resetFunc();
         }
       }     // if (server)
     }
 
+    //////////////////////////////////////////////
+
+#ifndef CONFIG_TIMEOUT
+  #warning Default CONFIG_TIMEOUT = 60s
+  #define CONFIG_TIMEOUT			60000L
+#endif
+
     void startConfigurationMode()
     {
-#define CONFIG_TIMEOUT			60000L
-
       // turn the LED_BUILTIN ON to tell us we are in configuration mode.
       digitalWrite(LED_BUILTIN, LED_ON);
 
@@ -1349,12 +1876,21 @@ class Ethernet_Manager
       // If there is no saved config Data, stay in config mode forever until having config Data.
       // or SSID, PW, Server,Token ="nothing"
       if (hadConfigData)
+      {
         configTimeout = millis() + CONFIG_TIMEOUT;
+                       
+        ETM_LOGDEBUG3(F("s:millis() = "), millis(), F(", configTimeout = "), configTimeout);
+      }
       else
-        configTimeout = 0;
+      {
+        configTimeout = 0;             
+        ETM_LOGDEBUG(F("s:configTimeout = 0"));   
+      }  
 
       configuration_mode = true;
     }
+
+    //////////////////////////////////////////////
 
     bool connectEthernet()
     {
