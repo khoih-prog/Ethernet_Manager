@@ -670,7 +670,7 @@ Then using the similar steps as in
 then copy whole `riscv32-esp-elf` directory into `/home/your_account/.arduino15/packages/esp32/hardware/esp32/1.0.6/tools`
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/ESP_WM_ESP32_C3_Support.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/Ethernet_Manager_ESP32_C3_Support.png">
 </p>
 
 
