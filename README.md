@@ -17,6 +17,7 @@
   * [Currently supported Boards](#currently-supported-boards)
   * [Currently supported Ethernet shields/modules](#currently-supported-ethernet-shieldsmodules)
 * [Changelog](#changelog)
+  * [Major Releases v1.3.0](#major-releases-v130)
   * [Major Releases v1.2.0](#major-releases-v120)
   * [Releases v1.1.1](#releases-v111)
   * [Releases v1.1.0](#releases-v110)
@@ -36,6 +37,9 @@
   * [5. For Adafruit SAMD boards](#5-for-adafruit-samd-boards)
   * [6. For Seeeduino SAMD boards](#6-for-seeeduino-samd-boards)
   * [7. For STM32 boards](#7-for-stm32-boards) 
+    * [7.1. For STM32 boards to use LAN8720](#71-for-stm32-boards-to-use-lan8720)
+    * [7.2. For STM32 boards to use Serial1](#72-for-stm32-boards-to-use-serial1)
+  * [8. For RP2040-based boards using Earle Philhower arduino-pico core](#8-for-rp2040-based-boards-using-earle-philhower-arduino-pico-core)
 * [Libraries' Patches](#libraries-patches)
   * [1. For application requiring 2K+ HTML page](#1-for-application-requiring-2k-html-page)
   * [2. For Ethernet library](#2-for-ethernet-library)
@@ -44,20 +48,22 @@
   * [5. For Ethernet3 library](#5-for-ethernet3-library)
   * [6. For UIPEthernet library](#6-for-uipethernet-library)
   * [7. For fixing ESP32 compile error](#7-for-fixing-esp32-compile-error) 
-* [HOWTO Install esp32-s2 core for ESP32-S2 (Saola, AI-Thinker ESP-12K) boards into Arduino IDE)](#howto-install-esp32-s2-core-for-esp32-s2-saola-ai-thinker-esp-12k-boards-into-arduino-ide)
+* [HOWTO Install esp32 core for ESP32-S2 (Saola, AI-Thinker ESP-12K) and ESP32-C3 boards into Arduino IDE](#howto-install-esp32-core-for-esp32-s2-saola-ai-thinker-esp-12k-and-esp32-c3-boards-into-arduino-ide)
   * [1. Save the original esp32 core](#1-save-the-original-esp32-core)
-  * [2. Download esp32-s2 core](#2-download-esp32-s2-core)
-    * [2.1 Download zip](#21-download-zip)
-    * [2.2 Unzip](#22-unzip)
-    * [2.3 Update esp32-s2 core directories](#23-update-esp32-s2-core-directories)
-  * [3. Download tools](#3-download-tools) 
+  * [2. Install esp32 core v1.0.6](#2-install-esp32-core-v106)
+    * [2.1 Install esp32 core](#21-install-esp32-core)
+    * [2.2 Download latest zip with esp32-s2 support](#22-download-latest-zip-with-esp32-s2-support)
+    * [2.3 Unzip](#23-unzip)
+    * [2.3 Update esp32 core directories](#24-update-esp32-core-directories)
+  * [3. Download tools for ESP32-S2](#3-download-tools-for-esp32-s2) 
     * [3.1 Download Toolchain for Xtensa (ESP32-S2) based on GCC](#31-download-toolchain-for-xtensa-esp32-s2-based-on-gcc)
     * [3.2 Download esptool](#32-download-esptool)
     * [3.3 Unzip](#33-unzip)
   * [4. Update tools](#4-update-tools)
     * [4.1 Update Toolchain](#41-update-toolchain)
     * [4.2 Update esptool](#42-update-esptool)
-  * [5. esp32-s2 WebServer Library Patch](#5-esp32-s2-webserver-library-patch)
+  * [5. Download tools for ESP32-C3](#5-download-tools-for-esp32-c3)
+  * [6. esp32-s2 WebServer Library Patch](#6-esp32-s2-webserver-library-patch)
 * [Note for Platform IO using ESP32 LittleFS](#note-for-platform-io-using-esp32-littlefs) 
 * [HOWTO Use analogRead() with ESP32 running WiFi and/or BlueTooth (BT/BLE)](#howto-use-analogread-with-esp32-running-wifi-andor-bluetooth-btble)
   * [1. ESP32 has 2 ADCs, named ADC1 and ADC2](#1--esp32-has-2-adcs-named-adc1-and-adc2)
@@ -68,6 +74,7 @@
   * [2. Note for Adafruit nRF52](#2-note-for-adafruit-nrf52)
   * [3. Note for Adafruit SAMD21 and SAMD51](#3-note-for-adafruit-samd21-and-samd51)
   * [4. Note for Arduino SAM DUE](#4-note-for-arduino-sam-due)
+  * [5. Note for RP2040-based boards](#5-note-for-rp2040-based-boards)
 * [Configuration Notes](#configuration-notes)
   * [1. How to select which built-in Ethernet or shield to use](#1-how-to-select-which-built-in-ethernet-or-shield-to-use)
   * [2. How to select another CS/SS pin to use](#2-how-to-select-another-csss-pin-to-use)
@@ -87,17 +94,18 @@
 * [Important Notes for using Dynamic Parameters' ids](#important-notes-for-using-dynamic-parameters-ids)
 * [Examples](#examples)
   * [ 1. AM2315_Ethernet](examples/AM2315_Ethernet)
-  * [ 2. DHT11_Ethernet](examples/DHT11_Ethernet)
-  * [ 3. Ethernet_Generic](examples/Ethernet_Generic)
-  * [ 4. Ethernet_nRF52](examples/Ethernet_nRF52)
+  * [ 2. Ethernet_Generic](examples/Ethernet_Generic)
+  * [ 3. Ethernet_nRF52](examples/Ethernet_nRF52)
+  * [ 4. Ethernet_RP2040](examples/Ethernet_RP2040). **New**
   * [ 5. Ethernet_SAMD](examples/Ethernet_SAMD)
   * [ 6. Ethernet_SAM_DUE](examples/Ethernet_SAM_DUE)
   * [ 7. Ethernet_Teensy](examples/Ethernet_Teensy)
   * [ 8. **MQTT_ThingStream_Ethernet_Generic**](examples/MQTT_ThingStream_Ethernet_Generic)
   * [ 9. **MQTT_ThingStream_Ethernet_nRF52**](examples/MQTT_ThingStream_Ethernet_nRF52)
-  * [10. **MQTT_ThingStream_Ethernet_SAMD**](examples/MQTT_ThingStream_Ethernet_SAMD)
-  * [11. **MQTT_ThingStream_Ethernet_SAM_DUE**](examples/MQTT_ThingStream_Ethernet_SAM_DUE)
-  * [12. **MQTT_ThingStream_Ethernet_Teensy**](examples/MQTT_ThingStream_Ethernet_Teensy)
+  * [10. **MQTT_ThingStream_Ethernet_RP2040**](examples/MQTT_ThingStream_Ethernet_RP2040). **New**
+  * [11. **MQTT_ThingStream_Ethernet_SAMD**](examples/MQTT_ThingStream_Ethernet_SAMD)
+  * [12. **MQTT_ThingStream_Ethernet_SAM_DUE**](examples/MQTT_ThingStream_Ethernet_SAM_DUE)
+  * [13. **MQTT_ThingStream_Ethernet_Teensy**](examples/MQTT_ThingStream_Ethernet_Teensy)
 * [So, how it works?](#so-how-it-works)
 * [Example Ethernet_Generic](#example-ethernet_generic)
   * [1. File Ethernet_Generic.ino](#1-file-ethernet_genericino)
@@ -117,7 +125,10 @@
     * [4.2. Got correct ThingStream MQTT Credentials from Config Portal](#42-got-correct-thingstream-mqtt-credentials-from-config-portal) 
   * [5. MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER with ENC28J60 using EthernetENC Library](#5-mqtt_thingstream_ethernet_generic-on-nrf52840_feather-with-enc28j60-using-ethernetenc-library)
     * [5.1. Normal run without correct ThingStream MQTT Credentials](#51-normal-run-without-correct-thingstream-mqtt-credentials)
-    * [5.2. Got correct ThingStream MQTT Credentials from Config Portal](#52-got-correct-thingstream-mqtt-credentials-from-config-portal) 
+    * [5.2. Got correct ThingStream MQTT Credentials from Config Portal](#52-got-correct-thingstream-mqtt-credentials-from-config-portal)
+  * [6. MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO with W5x00 using Ethernet Library](#6-mqtt_thingstream_ethernet_rp2040-on-raspberry_pi_pico-with-w5x00-using-ethernet-Library)
+    * [6.1. Normal run without correct ThingStream MQTT Credentials or DRD](#61-normal-run-without-correct-thingstream-mqtt-credentials-or-drd)
+    * [6.2. Got correct ThingStream MQTT Credentials from Config Portal](#62-got-correct-thingstream-mqtt-credentials-from-config-portal)
 * [Debug](#debug)
 * [Troubleshooting](#troubleshooting)
 * [Releases](#releases)
@@ -137,7 +148,7 @@
 
 #### Features
 
-- This is the new library, adding to the current WiFiManager sets of libraries. It's designed to help you eliminate `hardcoding` your Credentials in **Teensy, SAM DUE, SAMD21, SAMD51, nRF52, etc. boards using Ethernet shields (W5100, W5200, W5500, ENC28J60, Teensy 4.1 NativeEthernet, etc)**. It's currently **not supporting SSL**. Will support soon.
+- This is the new library, adding to the current WiFiManager sets of libraries. It's designed to help you eliminate `hardcoding` your Credentials in **Teensy, SAM DUE, SAMD21, SAMD51, nRF52,RP2040-based, etc. boards using Ethernet shields (W5100, W5200, W5500, ENC28J60, Teensy 4.1 NativeEthernet, etc)**. It's currently **not supporting SSL**. Will support soon.
 - It's not supporting UNO/Nano/Mega and other AVR boards for not enough memory.
 - You can update Credentials any time you need to change via Configure Portal. Data are saved in configurable locations in EEPROM, DueFlashStorage or FlashStorage
 - Teensy LC, 2.0++ and 2.0 not supported.
@@ -145,6 +156,7 @@
 - Configurable **Config Portal Title** to be either BoardName or default undistinguishable names.
 - Examples are redesigned to separate Credentials / Defines / Dynamic Params / Code so that you can change Credentials / Dynamic Params quickly for each device
 
+The **RP2040-based boards, such as RASPBERRY_PI_PICO**, are currently supported using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico) and LittleFS. The support to [**Arduino-mbed RP2040** core](https://github.com/arduino/ArduinoCore-mbed), which has **no LittleFS support yet**, will be added in the future using **simulated-EEPROM** if LittleFS not ready then.
 
 New recent features:
 
@@ -177,6 +189,8 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
  
  7. **ESP8266**
  
+ 8. RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Earle Philhower's arduino-pico** core v1.3.1+](https://github.com/earlephilhower/arduino-pico) and LittleFS.
+ 
  ---
  
 #### Currently Supported Ethernet shields/modules:
@@ -189,6 +203,11 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
 ---
 
 ## Changelog
+
+### Major Releases v1.3.0
+
+1. Add support to RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Earle Philhower's arduino-pico core** v1.3.1+](https://github.com/earlephilhower/arduino-pico) with LittleFS.
+2. Update examples with new features
 
 ### Major Releases v1.2.0
 
@@ -218,7 +237,6 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
 2. Provide support to W5x00, ENC28J60 and Teensy 4.1 NativeEthernet.
 3. Supporting Ethernet, EthernetLarge, Ethernet2, Ethernet3, EthernetENC, UIPEthernet and Teensy NativeEthernet Libraries
 
-
 ---
 ---
 
@@ -228,29 +246,30 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
  2. [`Teensy core v1.51`](https://www.pjrc.com/teensy/td_download.html) for Teensy (4.0, 3.6, 3.5, 3,2, 3.1, 3.0) boards and [`Teensy core v1.53+`](https://www.pjrc.com/teensy/td_download.html) for Teensy 4.1 boards using NativeEthernet.
  3. [`Arduino SAM DUE core v1.6.12+`](https://www.arduino.cc/en/Guide/ArduinoDue) for SAM DUE ARM Cortex-M3 boards.
  4. [`Arduino SAMD core 1.8.11+`](https://www.arduino.cc/en/Guide/ArduinoM0) for SAMD ARM Cortex-M0+ boards. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-samd.svg)](https://github.com/arduino/ArduinoCore-samd/releases/latest)
- 5. [`Adafruit SAMD core 1.6.5+`](https://www.adafruit.com/) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
+ 5. [`Adafruit SAMD core 1.6.8+`](https://www.adafruit.com/) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
  6. [`Seeeduino SAMD core 1.8.1+`](https://github.com/Seeed-Studio/ArduinoCore-samd) for SAMD21/SAMD51 boards (XIAO M0, Wio Terminal, etc.). [![Latest release](https://img.shields.io/github/release/Seeed-Studio/ArduinoCore-samd.svg)](https://github.com/Seeed-Studio/ArduinoCore-samd/releases/latest/)
  7. [`Adafruit nRF52 v0.21.0+`](https://www.adafruit.com) for nRF52 boards such as Adafruit NRF52840_FEATHER, NRF52832_FEATHER, NRF52840_FEATHER_SENSE, NRF52840_ITSYBITSY, NRF52840_CIRCUITPLAY, NRF52840_CLUE, NRF52840_METRO, NRF52840_PCA10056, PARTICLE_XENON, **NINA_B302_ublox**, etc. [![GitHub release](https://img.shields.io/github/release/adafruit/Adafruit_nRF52_Arduino.svg)](https://github.com/adafruit/Adafruit_nRF52_Arduino/releases/latest)
  8. [`ESP8266 Core 2.7.4+`](https://github.com/esp8266/Arduino) for ESP8266-based boards. [![Latest release](https://img.shields.io/github/release/esp8266/Arduino.svg)](https://github.com/esp8266/Arduino/releases/latest/). To use ESP8266 core 2.7.1+ for LittleFS. 
- 9. [`ESP32 Core 1.0.5+`](https://github.com/espressif/arduino-esp32) for ESP32-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/)
-10. [`ESP32S2 Core 1.0.5+`](https://github.com/espressif/arduino-esp32/tree/esp32s2) for ESP32S2-based boards.
-11. Depending on which Ethernet card you're using:
+ 9. [`ESP32 Core 1.0.6+`](https://github.com/espressif/arduino-esp32) for ESP32-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/)
+10. [`ESP32S2 Core 1.0.6+`](https://github.com/espressif/arduino-esp32/tree/esp32s2) for ESP32S2-based boards.
+11. [`Earle Philhower's arduino-pico core v1.3.1+`](https://github.com/earlephilhower/arduino-pico) for RP2040-based boards such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, etc. [![GitHub release](https://img.shields.io/github/release/earlephilhower/arduino-pico.svg)](https://github.com/earlephilhower/arduino-pico/releases/latest)
+12. Depending on which Ethernet card you're using:
    - [`Ethernet library v2.0.0+`](https://github.com/arduino-libraries/Ethernet) for W5100, W5200 and W5500.  [![GitHub release](https://img.shields.io/github/release/arduino-libraries/Ethernet.svg)](https://github.com/arduino-libraries/Ethernet/releases/latest)
    - [`EthernetLarge library v2.0.0+`](https://github.com/OPEnSLab-OSU/EthernetLarge) for W5100, W5200 and W5500.
    - [`Ethernet2 library v1.0.4+`](https://github.com/khoih-prog/Ethernet2) for W5500. [![GitHub release](https://img.shields.io/github/release/adafruit/Ethernet2.svg)](https://github.com/adafruit/Ethernet2/releases/latest)
    - [`Ethernet3 library v1.5.5+`](https://github.com/sstaub/Ethernet3) for W5500/WIZ550io/WIZ850io/USR-ES1 with Wiznet W5500 chip. [![GitHub release](https://img.shields.io/github/release/sstaub/Ethernet3.svg)](https://github.com/sstaub/Ethernet3/releases/latest)
-   - [`EthernetENC library v2.0.0+`](https://github.com/jandrassy/EthernetENC) for ENC28J60. [![GitHub release](https://img.shields.io/github/release/jandrassy/EthernetENC.svg)](https://github.com/jandrassy/EthernetENC/releases/latest). **New and Better**
+   - [`EthernetENC library v2.0.1+`](https://github.com/jandrassy/EthernetENC) for ENC28J60. [![GitHub release](https://img.shields.io/github/release/jandrassy/EthernetENC.svg)](https://github.com/jandrassy/EthernetENC/releases/latest). **New and Better**
    - [`UIPEthernet library v2.0.9+`](https://github.com/UIPEthernet/UIPEthernet) for ENC28J60. [![GitHub release](https://img.shields.io/github/release/UIPEthernet/UIPEthernet.svg)](https://github.com/UIPEthernet/UIPEthernet/releases/latest)
    - [`NativeEthernet Library version stable111+`](https://github.com/vjmuzik/NativeEthernet) for Teensy 4.1 built-in NativeEthernet.
-12. Depending on which board you're using:
+13. Depending on which board you're using:
    - [`DueFlashStorage library v1.0.0+`](https://github.com/sebnil/DueFlashStorage) for SAM DUE. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/DueFlashStorage.svg?)](https://www.ardu-badge.com/DueFlashStorage)
    - [`FlashStorage_SAMD library v1.1.0+`](https://github.com/khoih-prog/FlashStorage_SAMD) for SAMD21 and SAMD51 boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit Itsy-Bitsy M4, etc.). [![GitHub release](https://img.shields.io/github/release/khoih-prog/FlashStorage_SAMD.svg)](https://github.com/khoih-prog/FlashStorage_SAMD/releases/latest)
    - [`Adafruit's LittleFS/InternalFS`](www.adafruit.com) for nRF52
-13. [`EthernetWebServer library v1.3.0+`](https://github.com/khoih-prog/EthernetWebServer). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/EthernetWebServer.svg?)](https://www.ardu-badge.com/EthernetWebServer).
-14. [`ESP_DoubleResetDetector library v1.1.1+`](https://github.com/khoih-prog/ESP_DoubleResetDetector) for ESP32 and ESP8266.  To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_DoubleResetDetector.svg?)](https://www.ardu-badge.com/ESP_DoubleResetDetector).
-15. [`DoubleResetDetector_Generic library v1.0.3+`](https://github.com/khoih-prog/DoubleResetDetector_Generic) for other boards (not ESP32 or ESP8266). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic).
-16. [`Functional-VLPP library v1.0.2+`](https://github.com/khoih-prog/functional-vlpp) to use server's lambda function. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/Functional-Vlpp.svg?)](https://www.ardu-badge.com/Functional-Vlpp)
-17. [`LittleFS_esp32 v1.0.5+`](https://github.com/lorol/LITTLEFS) for ESP32-based boards using LittleFS. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/LittleFS_esp32.svg?)](https://www.ardu-badge.com/LittleFS_esp32).
+14. [`EthernetWebServer library v1.5.0+`](https://github.com/khoih-prog/EthernetWebServer). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/EthernetWebServer.svg?)](https://www.ardu-badge.com/EthernetWebServer).
+15. [`ESP_DoubleResetDetector library v1.1.1+`](https://github.com/khoih-prog/ESP_DoubleResetDetector) for ESP32 and ESP8266.  To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_DoubleResetDetector.svg?)](https://www.ardu-badge.com/ESP_DoubleResetDetector).
+16. [`DoubleResetDetector_Generic library v1.2.0+`](https://github.com/khoih-prog/DoubleResetDetector_Generic) for other boards (not ESP32 or ESP8266). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic).
+17. [`Functional-VLPP library v1.0.2+`](https://github.com/khoih-prog/functional-vlpp) to use server's lambda function. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/Functional-Vlpp.svg?)](https://www.ardu-badge.com/Functional-Vlpp)
+18. [`LittleFS_esp32 v1.0.6+`](https://github.com/lorol/LITTLEFS) for ESP32-based boards using LittleFS. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/LittleFS_esp32.svg?)](https://www.ardu-badge.com/LittleFS_esp32). **Notice**: This [`LittleFS_esp32 library`](https://github.com/lorol/LITTLEFS) has been integrated to Arduino [esp32 core v1.0.6](https://github.com/espressif/arduino-esp32/tree/master/libraries/LITTLEFS).
 
 ---
 
@@ -341,7 +360,7 @@ This file must be copied into the directory:
  
  ***To be able to compile without error and automatically detect and display BOARD_NAME on Arduino SAMD (Nano-33-IoT, etc) boards***, you have to copy the whole [Arduino SAMD cores 1.8.10](Packages_Patches/arduino/hardware/samd/1.8.10) directory into Arduino SAMD directory (~/.arduino15/packages/arduino/hardware/samd/1.8.10).
  
-#### For core version v1.8.10+
+#### For core version v1.8.11+
 
 Supposing the Arduino SAMD version is 1.8.11. Now only one file must be copied into the directory:
 
@@ -378,11 +397,11 @@ Whenever the above-mentioned compiler error issue is fixed with the new Arduino 
 
 #### 5. For Adafruit SAMD boards
  
- ***To be able to automatically detect and display BOARD_NAME on Adafruit SAMD (Itsy-Bitsy M4, etc) boards***, you have to copy the file [Adafruit SAMD platform.txt](Packages_Patches/adafruit/hardware/samd/1.6.4) into Adafruit samd directory (~/.arduino15/packages/adafruit/hardware/samd/1.6.4). 
+ ***To be able to automatically detect and display BOARD_NAME on Adafruit SAMD (Itsy-Bitsy M4, etc) boards***, you have to copy the file [Adafruit SAMD platform.txt](Packages_Patches/adafruit/hardware/samd/1.6.8) into Adafruit samd directory (~/.arduino15/packages/adafruit/hardware/samd/1.6.8). 
 
-Supposing the Adafruit SAMD core version is 1.6.4. This file must be copied into the directory:
+Supposing the Adafruit SAMD core version is 1.6.8. This file must be copied into the directory:
 
-- `~/.arduino15/packages/adafruit/hardware/samd/1.6.4/platform.txt`
+- `~/.arduino15/packages/adafruit/hardware/samd/1.6.8/platform.txt`
 
 Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz
 This file must be copied into the directory:
@@ -404,12 +423,36 @@ This file must be copied into the directory:
 
 #### 7. For STM32 boards
 
-**To use Serial1 on some STM32 boards without Serial1 definition (Nucleo-144 NUCLEO_F767ZI, Nucleo-64 NUCLEO_L053R8, etc.) boards**, you have to copy the files [STM32 variant.h](Packages_Patches/STM32/hardware/stm32/1.9.0) into STM32 stm32 directory (~/.arduino15/packages/STM32/hardware/stm32/1.9.0). You have to modify the files corresponding to your boards, this is just an illustration how to do.
+#### 7.1 For STM32 boards to use LAN8720
 
-Supposing the STM32 stm32 core version is 1.9.0. These files must be copied into the directory:
+To use LAN8720 on some STM32 boards 
 
-- `~/.arduino15/packages/STM32/hardware/stm32/1.9.0/variants/NUCLEO_F767ZI/variant.h` for Nucleo-144 NUCLEO_F767ZI.
-- `~/.arduino15/packages/STM32/hardware/stm32/1.9.0/variants/NUCLEO_L053R8/variant.h` for Nucleo-64 NUCLEO_L053R8.
+- **Nucleo-144 (F429ZI, NUCLEO_F746NG, NUCLEO_F746ZG, NUCLEO_F756ZG)**
+- **Discovery (DISCO_F746NG)**
+- **STM32F4 boards (BLACK_F407VE, BLACK_F407VG, BLACK_F407ZE, BLACK_F407ZG, BLACK_F407VE_Mini, DIYMORE_F407VGT, FK407M1)**
+
+you have to copy the files [stm32f4xx_hal_conf_default.h](Packages_Patches/STM32/hardware/stm32/2.0.0/system/STM32F4xx) and [stm32f7xx_hal_conf_default.h](Packages_Patches/STM32/hardware/stm32/2.0.0/system/STM32F7xx) into STM32 stm32 directory (~/.arduino15/packages/STM32/hardware/stm32/2.0.0/system) to overwrite the old files.
+
+Supposing the STM32 stm32 core version is 2.0.0. These files must be copied into the directory:
+
+- `~/.arduino15/packages/STM32/hardware/stm32/2.0.0/system/STM32F4xx/stm32f4xx_hal_conf_default.h` for STM32F4.
+- `~/.arduino15/packages/STM32/hardware/stm32/2.0.0/system/STM32F7xx/stm32f7xx_hal_conf_default.h` for Nucleo-144 STM32F7.
+
+Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz,
+theses files must be copied into the corresponding directory:
+
+- `~/.arduino15/packages/STM32/hardware/stm32/x.yy.zz/system/STM32F4xx/stm32f4xx_hal_conf_default.h`
+- `~/.arduino15/packages/STM32/hardware/stm32/x.yy.zz/system/STM32F7xx/stm32f7xx_hal_conf_default.h
+
+
+#### 7.2 For STM32 boards to use Serial1
+
+**To use Serial1 on some STM32 boards without Serial1 definition (Nucleo-144 NUCLEO_F767ZI, Nucleo-64 NUCLEO_L053R8, etc.) boards**, you have to copy the files [STM32 variant.h](Packages_Patches/STM32/hardware/stm32/2.0.0) into STM32 stm32 directory (~/.arduino15/packages/STM32/hardware/stm32/2.0.0). You have to modify the files corresponding to your boards, this is just an illustration how to do.
+
+Supposing the STM32 stm32 core version is 2.0.0. These files must be copied into the directory:
+
+- `~/.arduino15/packages/STM32/hardware/stm32/2.0.0/variants/NUCLEO_F767ZI/variant.h` for Nucleo-144 NUCLEO_F767ZI.
+- `~/.arduino15/packages/STM32/hardware/stm32/2.0.0/variants/NUCLEO_L053R8/variant.h` for Nucleo-64 NUCLEO_L053R8.
 
 Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz,
 theses files must be copied into the corresponding directory:
@@ -417,6 +460,18 @@ theses files must be copied into the corresponding directory:
 - `~/.arduino15/packages/STM32/hardware/stm32/x.yy.zz/variants/NUCLEO_F767ZI/variant.h`
 - `~/.arduino15/packages/STM32/hardware/stm32/x.yy.zz/variants/NUCLEO_L053R8/variant.h`
 
+#### 8. For RP2040-based boards using [Earle Philhower arduino-pico core](https://github.com/earlephilhower/arduino-pico)
+ 
+ ***To be able to automatically detect and display BOARD_NAME on Seeeduino SAMD (RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040, GENERIC_RP2040, etc) boards***, you have to copy the file [RP2040 platform.txt](Packages_Patches/rp2040/hardware/rp2040/1.3.1) into rp2040 directory (~/.arduino15/packages/rp2040/hardware/rp2040/1.3.1). 
+
+Supposing the rp2040 core version is 1.3.1. This file must be copied into the directory:
+
+- `~/.arduino15/packages/rp2040/hardware/rp2040/1.2.1/platform.txt`
+
+Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz
+This file must be copied into the directory:
+
+- `~/.arduino15/packages/rp2040/hardware/rp2040/x.yy.zz/platform.txt`
 ---
 
 ### Libraries' Patches
@@ -479,10 +534,34 @@ To fix [`ESP32 compile error`](https://github.com/espressif/arduino-esp32), just
 ---
 ---
 
-## HOWTO Install esp32-s2 core for ESP32-S2 (Saola, AI-Thinker ESP-12K) boards into Arduino IDE
+## HOWTO Install esp32 core for ESP32-S2 (Saola, AI-Thinker ESP-12K) and ESP32-C3 boards into Arduino IDE
 
 
-These are instructions demonstrating the steps to install esp32-s2 core on Ubuntu machines. For Windows or other OS'es, just follow the the similar principles and steps.
+These are instructions demonstrating the steps to install esp32-s2/c3 core on Ubuntu machines. For Windows or other OS'es, just follow the the similar principles and steps.
+
+* Windows 10, follows these steps in [Steps to install Arduino ESP32 support on Windows](https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/windows.md) 
+
+* Mac OS, follows these steps in [Installation instructions for Mac OS](https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/mac.md)
+
+* Fedora, follows these steps in [Installation instructions for Fedora](https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/fedora.md)
+
+* openSUSE, follows these steps in [Installation instructions for openSUSE](https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/opensuse.md)
+
+* You can also try to add [package_esp32_dev_index.json](https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json) into Arduino IDE `File - Preferences - Additional Boards Manager URLs` 
+
+
+```
+https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
+```
+
+and have Board Manager auto-install the **development** esp32 core. For example : esp32 core `v2.0.0-alpha1`
+
+
+---
+
+If you're already successful in testing the core, after installing by using the above procedures, you don't need to follows the hereafter manual steps.
+
+---
 
 Assuming you already installed Arduino IDE ESP32 core and the installed directory is
 
@@ -497,27 +576,32 @@ First, copy the whole original esp32 core to another safe place. Then delete all
 
 ---
 
-### 2. Download esp32-s2 core
 
-#### 2.1 Download zip
+### 2. Install esp32 core v1.0.6
 
-Download [**esp32-s2 core**](https://github.com/espressif/arduino-esp32/tree/esp32s2) in the `zip` format: 
+#### 2.1 Install esp32 core
 
-`arduino-esp32-esp32s2.zip`
+Just use Arduino IDE Board Manager to install [ESP32 Arduino Release 1.0.6 based on ESP-IDF v3.3.5](https://github.com/espressif/arduino-esp32/releases/tag/1.0.6). This official v1.06 core doesn't have esp32-s2/s3 support. You have to download and use the latest master branch.
 
-#### 2.2 Unzip
+
+#### 2.2 Download latest zip with esp32-s2 support
+
+As of **April 16th 2021**, the **esp32-s2/c3** board support has been included in master branch of esp32 core. Download [**esp32 core, master branch**](https://github.com/espressif/arduino-esp32) in the zip format.
+
+#### 2.3 Unzip
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/esp32_s2_Core_Unzipped.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/Images/esp32_s2_Core_Unzipped.png">
 </p>
 
-#### 2.3 Update esp32-s2 core directories
+#### 2.4 Update esp32 core directories
 
-Copy all subdirectories of esp32-s2 core into `/home/your_account/.arduino15/packages/esp32/hardware/esp32/1.0.4`
+Copy all subdirectories of esp32 core into `/home/your_account/.arduino15/packages/esp32/hardware/esp32/1.0.6`
+
 
 ---
 
-### 3 Download tools
+### 3 Download tools for ESP32-S2
 
 
 #### 3.1 Download Toolchain for Xtensa (ESP32-S2) based on GCC
@@ -528,7 +612,7 @@ For example `xtensa-esp32s2-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz`, then un
 
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/esp32_s2_Toolchain.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/Images/esp32_s2_Toolchain.png">
 </p>
 
 #### 3.2 Download esptool
@@ -541,7 +625,7 @@ Download [esptool](https://github.com/espressif/esptool/releases) int the `zip` 
 #### 3.3 Unzip
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/esp32_s2_esptool.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/Images/esp32_s2_esptool.png">
 </p>
 
 ---
@@ -550,7 +634,7 @@ Download [esptool](https://github.com/espressif/esptool/releases) int the `zip` 
 
 #### 4.1 Update Toolchain
 
-Copy whole `xtensa-esp32s2-elf` directory into `/home/your_account/.arduino15/packages/esp32/hardware/esp32/1.0.4/tools`
+Copy whole `xtensa-esp32s2-elf` directory into `/home/your_account/.arduino15/packages/esp32/hardware/esp32/1.0.6/tools`
 
 
 #### 4.2 Update esptool
@@ -558,15 +642,40 @@ Copy whole `xtensa-esp32s2-elf` directory into `/home/your_account/.arduino15/pa
 Rename `esptool-3.0` directory to `esptool`
 
 
-Copy whole `esptool` directory into `/home/your_account/.arduino15/packages/esp32/hardware/esp32/1.0.4/tools`
+Copy whole `esptool` directory into `/home/your_account/.arduino15/packages/esp32/hardware/esp32/1.0.6/tools`
 
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/esp32_s2_tools.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/Images/esp32_s2_tools.png">
 </p>
 
 
-### 5. esp32-s2 WebServer Library Patch
+### 5 Download tools for ESP32-C3
+
+Download [**esp32-c3 Toolchain**](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/api-guides/tools/idf-tools.html#riscv32-esp-elf) corresponding to your environment (linux-amd64, win64, etc.).
+
+For example`riscv32-esp-elf-gcc8_4_0-crosstool-ng-1.24.0-123-g64eb9ff-linux-amd64.tar.gz`, then un-archive.
+
+Then using the similar steps as in
+
+* [3. Download tools for ESP32-S2](#3-download-tools-for-esp32-s2) 
+  * [3.1 Download Toolchain for Xtensa (ESP32-S2) based on GCC](#31-download-toolchain-for-xtensa-esp32-s2-based-on-gcc)
+  * [3.2 Download esptool](#32-download-esptool)
+  * [3.3 Unzip](#33-unzip)
+* [4. Update tools](#4-update-tools)
+  * [4.1 Update Toolchain](#41-update-toolchain)
+  * [4.2 Update esptool](#42-update-esptool)
+
+then copy whole `riscv32-esp-elf` directory into `/home/your_account/.arduino15/packages/esp32/hardware/esp32/1.0.6/tools`
+
+<p align="center">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/Images/ESP_WM_ESP32_C3_Support.png">
+</p>
+
+
+### 6. esp32-s2 WebServer Library Patch
+
+#### Necessary only for esp32 core v1.0.6-
 
 If you haven't installed a new version with [WebServer.handleClient delay PR #4350](https://github.com/espressif/arduino-esp32/pull/4350) or haven't applied the above mentioned PR, you have to use the following patch.
 
@@ -581,7 +690,7 @@ Supposing the esp32-s2 version is 1.0.4, these files `WebServer.h/cpp` must be c
 
 ---
 
-That's it. You're now ready to compile and test for ESP32-S2 now
+That's it. You're now ready to compile and test for **ESP32-S2 and ESP32-C3** now
 
 ---
 ---
@@ -602,7 +711,7 @@ to
 #define CONFIG_LITTLEFS_FOR_IDF_3_2   /* For old IDF - like in release 1.0.4 */
 ```
 
-It's advisable to use the latest [`LittleFS_esp32 v1.0.5+`](https://github.com/lorol/LITTLEFS) to avoid the issue.
+It's advisable to use the latest [`LittleFS_esp32 v1.0.6+`](https://github.com/lorol/LITTLEFS) to avoid the issue.
 
 Thanks to [Roshan](https://github.com/solroshan) to report the issue in [Error esp_littlefs.c 'utime_p'](https://github.com/khoih-prog/ESPAsync_WiFiManager/issues/28) 
 
@@ -656,7 +765,7 @@ Code is restructured to provide flexibility to make it easy to support many more
 
 #### 2. Note for Adafruit nRF52
 
-For **Adafruit nRF52**, use the SPI's  pin as follows:
+For **Adafruit nRF52**, use the SPI's pins as follows:
 
   - SS/CS     = 10
   - SPI_MOSI  = MO(SI)
@@ -679,7 +788,7 @@ To know the default CS/SS pins of not listed boards, check the related `variant.
 
 #### 4. Note for Arduino SAM DUE
 
-4. For **Arduino SAM DUE**, use the SPI's  pin as follows:
+For **Arduino SAM DUE**, use the SPI's pins as follows:
 
   - SS/CS     = 10
   - SPI_MOSI  = 75 ( pin 4 @ [ICSP connector](pics/ICSP_connector.jpg) )
@@ -689,6 +798,16 @@ To know the default CS/SS pins of not listed boards, check the related `variant.
 <p align="center">
     <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/ICSP_connector.jpg">
 </p>
+  
+#### 5. Note for RP2040-based boards
+
+For **RP2040-based** boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-pico core** v1.3.1+](https://github.com/earlephilhower/arduino-pico), use the SPI's pins as follows:
+
+  - SS/CS     = 17
+  - SPI_MOSI  = 19
+  - SPI_MISO  = 16
+  - SPI_SCK   = 18
+
   
 ---
 ---
@@ -1111,17 +1230,18 @@ Please be noted that the following **reserved names are already used in library*
 ### Examples
 
  1. [AM2315_Ethernet](examples/AM2315_Ethernet)
- 2. [DHT11_Ethernet](examples/DHT11_Ethernet)
- 3. [Ethernet_Generic](examples/Ethernet_Generic) 
- 4. [Ethernet_nRF52](examples/Ethernet_nRF52)
+ 2. [Ethernet_Generic](examples/Ethernet_Generic) 
+ 3. [Ethernet_nRF52](examples/Ethernet_nRF52)
+ 4. [Ethernet_RP2040](examples/Ethernet_RP2040). **New**
  5. [Ethernet_SAMD](examples/Ethernet_SAMD)
  6. [Ethernet_SAM_DUE](examples/Ethernet_SAM_DUE)
  7. [Ethernet_Teensy](examples/Ethernet_Teensy)
- 8. [**MQTT_ThingStream_Ethernet_Generic**](examples/MQTT_ThingStream_Ethernet_Generic). **New**
- 9. [**MQTT_ThingStream_Ethernet_nRF52**](examples/MQTT_ThingStream_Ethernet_nRF52). **New**
-10. [**MQTT_ThingStream_Ethernet_SAMD**](examples/MQTT_ThingStream_Ethernet_SAMD). **New**
-11. [**MQTT_ThingStream_Ethernet_SAM_DUE**](examples/MQTT_ThingStream_Ethernet_SAM_DUE). **New**
-12. [**MQTT_ThingStream_Ethernet_Teensy**](examples/MQTT_ThingStream_Ethernet_Teensy). **New**
+ 8. [**MQTT_ThingStream_Ethernet_Generic**](examples/MQTT_ThingStream_Ethernet_Generic).
+ 9. [**MQTT_ThingStream_Ethernet_nRF52**](examples/MQTT_ThingStream_Ethernet_nRF52).
+10. [**MQTT_ThingStream_Ethernet_RP2040**](examples/MQTT_ThingStream_Ethernet_RP2040). **New**
+11. [**MQTT_ThingStream_Ethernet_SAMD**](examples/MQTT_ThingStream_Ethernet_SAMD).
+12. [**MQTT_ThingStream_Ethernet_SAM_DUE**](examples/MQTT_ThingStream_Ethernet_SAM_DUE).
+13. [**MQTT_ThingStream_Ethernet_Teensy**](examples/MQTT_ThingStream_Ethernet_Teensy).
 
 ---
 ---
@@ -1188,14 +1308,14 @@ void heartBeatPrint()
 {
   static int num        = 1;
   static int linkStatus = 0;
-  
+
   localEthernetIP = Ethernet.localIP();
-  
+
 #if ( (USE_ETHERNET2 || USE_ETHERNET3) && !(USE_NATIVE_ETHERNET) )
   // To modify Ethernet2 library
   linkStatus = Ethernet.link();
   ET_LOGINFO3("localEthernetIP = ", localEthernetIP, ", linkStatus = ", (linkStatus == 1) ? "LinkON" : "LinkOFF" );
-  
+
   if ( ( linkStatus == 1 ) && ((uint32_t) localEthernetIP != 0) )
 #else
 
@@ -1203,14 +1323,14 @@ void heartBeatPrint()
   // Better to use ping for W5100
   linkStatus = (int) Ethernet.linkStatus();
   ET_LOGINFO3("localEthernetIP = ", localEthernetIP, ", linkStatus = ", (linkStatus == LinkON) ? "LinkON" : "LinkOFF" );
-  
+
   if ( ( (linkStatus == LinkON) || !isW5500 ) && ((uint32_t) localEthernetIP != 0) )
 #endif
   {
     Serial.print(F("H"));
   }
   else
-    Serial.print(F("F"));  
+    Serial.print(F("F"));
 
   if (num == 40)
   {
@@ -1225,8 +1345,8 @@ void heartBeatPrint()
 
 void check_status()
 {
-  #define STATUS_CHECK_INTERVAL     10000L
-  
+#define STATUS_CHECK_INTERVAL     10000L
+
   static unsigned long checkstatus_timeout = STATUS_CHECK_INTERVAL;
 
   // Send status report every STATUS_REPORT_INTERVAL (60) seconds: we don't need to send updates frequently if there is no status change.
@@ -1258,10 +1378,10 @@ void setup()
 
   Serial.println("Ethernet Shield type : " + String(SHIELD_TYPE));
   Serial.println(ETHERNET_MANAGER_VERSION);
-  
+
 #if (ESP32 || ESP8266)
   Serial.println(ESP_DOUBLE_RESET_DETECTOR_VERSION);
-#else  
+#else
   Serial.println(DOUBLERESETDETECTOR_GENERIC_VERSION);
 #endif
 
@@ -1290,7 +1410,7 @@ void setup()
 #elif USE_ETHERNET_ESP8266
   ET_LOGWARN(F("=========== USE_ETHERNET_ESP8266 ==========="));
 #elif USE_ETHERNET_ENC
-  ET_LOGWARN(F("=========== USE_ETHERNET_ENC ==========="));  
+  ET_LOGWARN(F("=========== USE_ETHERNET_ENC ==========="));
 #else
   ET_LOGWARN(F("========================="));
 #endif
@@ -1304,55 +1424,55 @@ void setup()
 
 #if defined(ESP8266)
 
-  #define PIN_D5            14        // Pin D5 mapped to pin GPIO14/HSCLK of ESP8266
-  #define PIN_D6            12        // Pin D6 mapped to pin GPIO12/HMISO of ESP8266
-  #define PIN_D7            13        // Pin D7 mapped to pin GPIO13/RXD2/HMOSI of ESP8266
-  
+#define PIN_D5            14        // Pin D5 mapped to pin GPIO14/HSCLK of ESP8266
+#define PIN_D6            12        // Pin D6 mapped to pin GPIO12/HMISO of ESP8266
+#define PIN_D7            13        // Pin D7 mapped to pin GPIO13/RXD2/HMOSI of ESP8266
+
   // Connection for ESP8266
   // MOSI: D7/GPIO13, MISO: D6/GPIO12, SCK: D5/GPIO14, CS/SS: D2/GPIO4
-  
+
   // For ESP8266, change for other boards if necessary
-  #ifndef USE_THIS_SS_PIN
-    #define USE_THIS_SS_PIN   D2    // For ESP8266
-  #endif
+#ifndef USE_THIS_SS_PIN
+#define USE_THIS_SS_PIN   D2    // For ESP8266
+#endif
 
   ET_LOGWARN1(F("ESP8266 setCsPin:"), USE_THIS_SS_PIN);
 
-  #if ( USE_ETHERNET || USE_ETHERNET_LARGE || USE_ETHERNET2 || USE_ETHERNET_ENC )
-    // For ESP8266
-    // Pin                D0(GPIO16)    D1(GPIO5)    D2(GPIO4)    D3(GPIO0)    D4(GPIO2)    D8
-    // Ethernet           0                 X            X            X            X        0
-    // Ethernet2          X                 X            X            X            X        0
-    // Ethernet3          X                 X            X            X            X        0
-    // EthernetLarge      X                 X            X            X            X        0
-    // Ethernet_ESP8266   0                 0            0            0            0        0
-    // D2 is safe to used for Ethernet, Ethernet2, Ethernet3, EthernetLarge libs
-    // Must use library patch for Ethernet, EthernetLarge libraries
-    Ethernet.init (USE_THIS_SS_PIN);
+#if ( USE_ETHERNET || USE_ETHERNET_LARGE || USE_ETHERNET2 || USE_ETHERNET_ENC )
+  // For ESP8266
+  // Pin                D0(GPIO16)    D1(GPIO5)    D2(GPIO4)    D3(GPIO0)    D4(GPIO2)    D8
+  // Ethernet           0                 X            X            X            X        0
+  // Ethernet2          X                 X            X            X            X        0
+  // Ethernet3          X                 X            X            X            X        0
+  // EthernetLarge      X                 X            X            X            X        0
+  // Ethernet_ESP8266   0                 0            0            0            0        0
+  // D2 is safe to used for Ethernet, Ethernet2, Ethernet3, EthernetLarge libs
+  // Must use library patch for Ethernet, EthernetLarge libraries
+  Ethernet.init (USE_THIS_SS_PIN);
 
-  #elif USE_ETHERNET3
-    // Use  MAX_SOCK_NUM = 4 for 4K, 2 for 8K, 1 for 16K RX/TX buffer
-    #ifndef ETHERNET3_MAX_SOCK_NUM
-      #define ETHERNET3_MAX_SOCK_NUM      4
-    #endif
-  
-    Ethernet.setCsPin (USE_THIS_SS_PIN);
-    Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
+#elif USE_ETHERNET3
+  // Use  MAX_SOCK_NUM = 4 for 4K, 2 for 8K, 1 for 16K RX/TX buffer
+#ifndef ETHERNET3_MAX_SOCK_NUM
+#define ETHERNET3_MAX_SOCK_NUM      4
+#endif
 
-  #elif USE_CUSTOM_ETHERNET
-  
-    // You have to add initialization for your Custom Ethernet here
-    // This is just an example to setCSPin to USE_THIS_SS_PIN, and can be not correct and enough
-    Ethernet.init(USE_THIS_SS_PIN);
-  
-  #endif  //( USE_ETHERNET || USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE )
+  Ethernet.setCsPin (USE_THIS_SS_PIN);
+  Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
+
+#elif USE_CUSTOM_ETHERNET
+
+  // You have to add initialization for your Custom Ethernet here
+  // This is just an example to setCSPin to USE_THIS_SS_PIN, and can be not correct and enough
+  Ethernet.init(USE_THIS_SS_PIN);
+
+#endif  //( USE_ETHERNET || USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE )
 
 #elif defined(ESP32)
 
-  #define PIN_D18           18        // Pin D18 mapped to pin GPIO18/VSPI_SCK of ESP32
-  #define PIN_D19           19        // Pin D19 mapped to pin GPIO19/VSPI_MISO of ESP32
-  #define PIN_D23           23        // Pin D23 mapped to pin GPIO23/VSPI_MOSI of ESP32
-   
+#define PIN_D18           18        // Pin D18 mapped to pin GPIO18/VSPI_SCK of ESP32
+#define PIN_D19           19        // Pin D19 mapped to pin GPIO19/VSPI_MISO of ESP32
+#define PIN_D23           23        // Pin D23 mapped to pin GPIO23/VSPI_MOSI of ESP32
+
   // You can use Ethernet.init(pin) to configure the CS pin
   //Ethernet.init(10);  // Most Arduino shields
   //Ethernet.init(5);   // MKR ETH shield
@@ -1363,79 +1483,79 @@ void setup()
 
   // Connection for ESP32
   // MOSI: GPIO23, MISOP: GPIO19, SCK: GPIO18, CS/SS: GPIO22
-  
-  #ifndef USE_THIS_SS_PIN
-    #define USING_M5STACK_W5500     false
-    #if USING_M5STACK_W5500
-      #warning Using M5Stack_Core_ESP32 with W5500 mudule
-      #define USE_THIS_SS_PIN   26    // For M5Stack_Core_ESP32 with W5500 mudule
-    #else
-      #define USE_THIS_SS_PIN   22    // For ESP32
-    #endif
-  #endif
+
+#ifndef USE_THIS_SS_PIN
+#define USING_M5STACK_W5500     false
+#if USING_M5STACK_W5500
+#warning Using M5Stack_Core_ESP32 with W5500 mudule
+#define USE_THIS_SS_PIN   26    // For M5Stack_Core_ESP32 with W5500 mudule
+#else
+#define USE_THIS_SS_PIN   27    //22    // For ESP32
+#endif
+#endif
 
   ET_LOGWARN1(F("ESP32 setCsPin:"), USE_THIS_SS_PIN);
 
   // For other boards, to change if necessary
-  #if ( USE_ETHERNET || USE_ETHERNET_LARGE || USE_ETHERNET2 || USE_ETHERNET_ENC )
-    // Must use library patch for Ethernet, EthernetLarge libraries
-    // ESP32 => GPIO2,4,5,13,15,21,22 OK with Ethernet, Ethernet2, EthernetLarge
-    // ESP32 => GPIO2,4,5,15,21,22 OK with Ethernet3
-  
-    //Ethernet.setCsPin (USE_THIS_SS_PIN);
-    Ethernet.init (USE_THIS_SS_PIN);
-  
-  #elif USE_ETHERNET3
-    // Use  MAX_SOCK_NUM = 4 for 4K, 2 for 8K, 1 for 16K RX/TX buffer
-    #ifndef ETHERNET3_MAX_SOCK_NUM
-      #define ETHERNET3_MAX_SOCK_NUM      4
-    #endif
-  
-    Ethernet.setCsPin (USE_THIS_SS_PIN);
-    Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
+#if ( USE_ETHERNET || USE_ETHERNET_LARGE || USE_ETHERNET2 || USE_ETHERNET_ENC )
+  // Must use library patch for Ethernet, EthernetLarge libraries
+  // ESP32 => GPIO2,4,5,13,15,21,22 OK with Ethernet, Ethernet2, EthernetLarge
+  // ESP32 => GPIO2,4,5,15,21,22 OK with Ethernet3
 
-  #elif USE_CUSTOM_ETHERNET
-  
-    // You have to add initialization for your Custom Ethernet here
-    // This is just an example to setCSPin to USE_THIS_SS_PIN, and can be not correct and enough
-    Ethernet.init(USE_THIS_SS_PIN); 
-  
-  #endif  //( USE_ETHERNET || USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE )
+  //Ethernet.setCsPin (USE_THIS_SS_PIN);
+  Ethernet.init (USE_THIS_SS_PIN);
+
+#elif USE_ETHERNET3
+  // Use  MAX_SOCK_NUM = 4 for 4K, 2 for 8K, 1 for 16K RX/TX buffer
+#ifndef ETHERNET3_MAX_SOCK_NUM
+#define ETHERNET3_MAX_SOCK_NUM      4
+#endif
+
+  Ethernet.setCsPin (USE_THIS_SS_PIN);
+  Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
+
+#elif USE_CUSTOM_ETHERNET
+
+  // You have to add initialization for your Custom Ethernet here
+  // This is just an example to setCSPin to USE_THIS_SS_PIN, and can be not correct and enough
+  Ethernet.init(USE_THIS_SS_PIN);
+
+#endif  //( USE_ETHERNET || USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE )
 
 #else   //defined(ESP8266)
   // unknown board, do nothing, use default SS = 10
-  #ifndef USE_THIS_SS_PIN
-    #define USE_THIS_SS_PIN   10    // For other boards
-  #endif
+#ifndef USE_THIS_SS_PIN
+#define USE_THIS_SS_PIN   10    // For other boards
+#endif
 
-  #if defined(BOARD_NAME)
-    ET_LOGWARN3(F("Board :"), BOARD_NAME, F(", setCsPin:"), USE_THIS_SS_PIN);
-  #else
-    ET_LOGWARN1(F("Unknown board setCsPin:"), USE_THIS_SS_PIN);
-  #endif
+#if defined(BOARD_NAME)
+  ET_LOGWARN3(F("Board :"), BOARD_NAME, F(", setCsPin:"), USE_THIS_SS_PIN);
+#else
+  ET_LOGWARN1(F("Unknown board setCsPin:"), USE_THIS_SS_PIN);
+#endif
 
   // For other boards, to change if necessary
-  #if ( USE_ETHERNET || USE_ETHERNET_LARGE || USE_ETHERNET2  || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
-    // Must use library patch for Ethernet, Ethernet2, EthernetLarge libraries
-  
-    Ethernet.init (USE_THIS_SS_PIN);
-  
-  #elif USE_ETHERNET3
-    // Use  MAX_SOCK_NUM = 4 for 4K, 2 for 8K, 1 for 16K RX/TX buffer
-    #ifndef ETHERNET3_MAX_SOCK_NUM
-      #define ETHERNET3_MAX_SOCK_NUM      4
-    #endif
-  
-    Ethernet.setCsPin (USE_THIS_SS_PIN);
-    Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
+#if ( USE_ETHERNET || USE_ETHERNET_LARGE || USE_ETHERNET2  || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
+  // Must use library patch for Ethernet, Ethernet2, EthernetLarge libraries
 
-  #elif USE_CUSTOM_ETHERNET
-  
-    // You have to add initialization for your Custom Ethernet here
-    // This is just an example to setCSPin to USE_THIS_SS_PIN, and can be not correct and enough
-    Ethernet.init(USE_THIS_SS_PIN);
-    
-  #endif  //( USE_ETHERNET || USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE )
+  Ethernet.init (USE_THIS_SS_PIN);
+
+#elif USE_ETHERNET3
+  // Use  MAX_SOCK_NUM = 4 for 4K, 2 for 8K, 1 for 16K RX/TX buffer
+#ifndef ETHERNET3_MAX_SOCK_NUM
+#define ETHERNET3_MAX_SOCK_NUM      4
+#endif
+
+  Ethernet.setCsPin (USE_THIS_SS_PIN);
+  Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
+
+#elif USE_CUSTOM_ETHERNET
+
+  // You have to add initialization for your Custom Ethernet here
+  // This is just an example to setCSPin to USE_THIS_SS_PIN, and can be not correct and enough
+  Ethernet.init(USE_THIS_SS_PIN);
+
+#endif  //( USE_ETHERNET || USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE )
 
 #endif    //defined(ESP8266)
 
@@ -1458,9 +1578,9 @@ void setup()
   Serial.println(SPI_CS);
 #endif
   Serial.println(F("========================="));
-  
+
   //////////////////////////////////////////////
-  
+
 #if USING_CUSTOMS_STYLE
   ethernet_manager.setCustomsStyle(NewCustomsStyle);
 #endif
@@ -1469,7 +1589,7 @@ void setup()
   ethernet_manager.setCustomsHeadElement("<style>html{filter: invert(10%);}</style>");
 #endif
 
-#if USING_CORS_FEATURE  
+#if USING_CORS_FEATURE
   ethernet_manager.setCORSHeader("Your Access-Control-Allow-Origin");
 #endif
 
@@ -1539,12 +1659,12 @@ void displayCredentialsOnce()
 void loop()
 {
   ethernet_manager.run();
-  
+
   check_status();
 
 #if (USE_DYNAMIC_PARAMETERS)
   displayCredentialsOnce();
-#endif  
+#endif
 }
 ```
 
@@ -1591,6 +1711,15 @@ void loop()
     #undef ETHERNET_USE_NRF528XX
   #endif
   #define ETHERNET_USE_NRF528XX         true
+  #define USE_DYNAMIC_PARAMETERS        true
+#endif
+
+#if ( defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) || defined(ARDUINO_GENERIC_RP2040) )
+  // For RPI Pico
+  #if defined(ETHERNET_USE_RPIPICO)
+    #undef ETHERNET_USE_RPIPICO
+  #endif
+  #define ETHERNET_USE_RPIPICO         true
   #define USE_DYNAMIC_PARAMETERS        true
 #endif
 
@@ -1807,6 +1936,36 @@ void loop()
   
   #define W5500_RST_PORT   21
 
+#elif (ETHERNET_USE_RP2040)
+
+  // Default pin 5 (in Mbed) or 17 to SS/CS
+  #if defined(ARDUINO_ARCH_MBED)
+    // For RPI Pico using Arduino Mbed RP2040 core
+    // SCK: GPIO2,  MOSI: GPIO3, MISO: GPIO4, SS/CS: GPIO5 
+    #define USE_THIS_SS_PIN       5
+  
+    #if defined(BOARD_NAME)
+      #undef BOARD_NAME
+    #endif
+  
+    #if defined(ARDUINO_RASPBERRY_PI_PICO) 
+      #define BOARD_TYPE      "MBED RASPBERRY_PI_PICO"
+    #elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2040)
+      #define BOARD_TYPE      "MBED DAFRUIT_FEATHER_RP2040"
+    #elif defined(ARDUINO_GENERIC_RP2040)
+      #define BOARD_TYPE      "MBED GENERIC_RP2040"
+    #else
+      #define BOARD_TYPE      "MBED Unknown RP2040"
+    #endif
+    
+  #else
+  
+    // For RPI Pico using E. Philhower RP2040 core
+    // SCK: GPIO18,  MOSI: GPIO19, MISO: GPIO16, SS/CS: GPIO17
+    #define USE_THIS_SS_PIN       17
+  
+  #endif
+  
 #else
   // For Mega
   // Default pin 10 to SS/CS
@@ -1850,7 +2009,7 @@ void loop()
   #define USE_ETHERNET_ESP8266  false 
   #define USE_ETHERNET_ENC      false
   #define USE_CUSTOM_ETHERNET   false
-  
+
   #if !USE_ETHERNET_WRAPPER
   
     #if ( USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE || USE_ETHERNET_ESP8266 || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
@@ -1904,6 +2063,7 @@ void loop()
     // Otherwise, standard Ethernet library will be used for W5x00
   
   #endif    //  USE_ETHERNET_WRAPPER
+  
 #elif USE_UIP_ETHERNET
     #include "UIPEthernet.h"
     #warning Using UIPEthernet library
@@ -1976,7 +2136,9 @@ void loop()
 
   #if !( defined(ARDUINO_SAM_DUE) || defined(__SAM3X8E__) )
     // EEPROM_SIZE must be <= 2048 and >= CONFIG_DATA_SIZE (currently 172 bytes)
-    #define EEPROM_SIZE    (2 * 1024)
+    #if !defined(EEPROM_SIZE)
+      #define EEPROM_SIZE    (2 * 1024)
+    #endif
   #endif
   
   // EEPROM_START + CONFIG_DATA_SIZE must be <= EEPROM_SIZE
@@ -1998,7 +2160,6 @@ void loop()
 #define USE_DYNAMIC_PARAMETERS              true
 
 //////////////////////////////////////////
-
 
 #include <Ethernet_Manager.h>
 
@@ -2156,8 +2317,8 @@ This is the terminal output of an Adafruit NRF52840_FEATHER board with W5500 Eth
 ```
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type W5x00 using Ethernet2 Library
-Ethernet_Manager v1.2.0
-DoubleResetDetector_Generic Version v1.0.3
+Ethernet_Manager v1.3.0
+DoubleResetDetector_Generic Version v1.2.0
 [ETHERNET_WEBSERVER] =========== USE_ETHERNET2 ===========
 [ETHERNET_WEBSERVER] Default SPI pinout:
 [ETHERNET_WEBSERVER] MOSI: 25
@@ -2248,8 +2409,8 @@ Pubs Topics = old-mqtt-PubTopic
 ```cpp
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.2.0
-DoubleResetDetector_Generic Version v1.0.3
+Ethernet_Manager v1.3.0
+DoubleResetDetector_Generic Version v1.2.0
 [ETHERNET_WEBSERVER] =========== USE_ETHERNET2 ===========
 [ETHERNET_WEBSERVER] Default SPI pinout:
 [ETHERNET_WEBSERVER] MOSI: 25
@@ -2431,8 +2592,8 @@ This is the terminal output of an SeeedStudio SAMD21 SEEED_XIAO_M0 board with W5
 ```
 Start Ethernet_SAMD on SEEED_XIAO_M0
 Ethernet Shield type : W5x00 using Ethernet Library
-Ethernet_Manager v1.2.0
-DoubleResetDetector_Generic Version v1.0.3
+Ethernet_Manager v1.3.0
+DoubleResetDetector_Generic Version v1.2.0
 Flag read = 0xffffffff
 No doubleResetDetected
 SetFlag write = 0xd0d01234
@@ -2506,11 +2667,10 @@ ClearFlag write = 0xd0d04321
 This is the terminal output of an Arduino SAM DUE board with W5100 Ethernet shield using EthernetLarge Library, running [Ethernet_SAM_DUE](examples/Ethernet_SAM_DUE) example when **no doubleResetDetected**.
 
 ```
-
 Start Ethernet_SAM_DUE on SAM DUE
 Ethernet Shield type : W5x00 using EthernetLarge Library
-Ethernet_Manager v1.2.0
-DoubleResetDetector_Generic Version v1.0.3
+Ethernet_Manager v1.3.0
+DoubleResetDetector_Generic Version v1.2.0
 Flag read = 0xd0d01234
 doubleResetDetected
 ClearFlag write = 0xd0d04321
@@ -2595,7 +2755,7 @@ If no valid config data are stored in EEPROM, it will switch to `Configuration M
 ```
 Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.2.0
+Ethernet_Manager v1.3.0
 ESP_DoubleResetDetector Version v1.1.1
 =========================
 Currently Used SPI pinout:
@@ -2643,7 +2803,7 @@ Enter your credentials (Blynk Servers/Tokens and Port). If you prefer static IP,
 ```
 Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.2.0
+Ethernet_Manager v1.3.0
 ESP_DoubleResetDetector Version v1.1.1
 =========================
 Currently Used SPI pinout:
@@ -2703,8 +2863,8 @@ This is the terminal output of NRF52840_FEATHER board with ENC28J60 using Ethern
 ```
 Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
 Ethernet Shield type : ENC28J60 using EthernetENC Library
-Ethernet_Manager v1.2.0
-DoubleResetDetector_Generic Version v1.0.3
+Ethernet_Manager v1.3.0
+DoubleResetDetector_Generic Version v1.2.0
 LittleFS Flag read = 0xd0d01234
 Flag read = 0xd0d01234
 doubleResetDetected
@@ -2741,8 +2901,8 @@ esp32-sniffer/12345678/ble
 ```
 Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
 Ethernet Shield type : ENC28J60 using EthernetENC Library
-Ethernet_Manager v1.2.0
-DoubleResetDetector_Generic Version v1.0.3
+Ethernet_Manager v1.3.0
+DoubleResetDetector_Generic Version v1.2.0
 LittleFS Flag read = 0xd0d04321
 Flag read = 0xd0d04321
 No doubleResetDetected
@@ -2786,6 +2946,137 @@ H
 MQTT Message receive [esp32-sniffer/12345678/ble] Hello from MQTT_ThingStream on NRF52840_FEATHER with ENC28J60 using EthernetENC Library
 H
 ```
+
+---
+
+#### 6. MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO with W5x00 using Ethernet Library
+
+This is the terminal output of RASPBERRY_PI_PICO board with W5x00 using Ethernet Library, running complex [MQTT_ThingStream_Ethernet_RP2040](examples/MQTT_ThingStream_Ethernet_RP2040) example to demonstrate how to use dynamic parameters, entered via Config Portal, to connect to [**ThingStream MQTT Server**](mqtt.thingstream.io).
+
+#### 6.1. Normal run without correct ThingStream MQTT Credentials or DRD
+
+```
+Start MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO
+Ethernet Shield type : W5x00 using Ethernet Library
+Ethernet_Manager v1.3.0
+DoubleResetDetector_Generic v1.2.0
+[EWS] =========== USE_ETHERNET ===========
+[EWS] Default SPI pinout:
+[EWS] MOSI: 19
+[EWS] MISO: 16
+[EWS] SCK: 18
+[EWS] SS: 17
+[EWS] =========================
+[EWS] Board : RASPBERRY_PI_PICO , setCsPin: 17
+[EWS] =========================
+[EWS] Currently Used SPI pinout:
+[EWS] MOSI: 19
+[EWS] MISO: 16
+[EWS] SCK: 18
+[EWS] SS: 17
+[EWS] =========================
+LittleFS Flag read = 0xd0d01234
+Flag read = 0xd0d01234
+doubleResetDetected
+Saving to DRD file : 0xd0d04321
+Saving DRD file OK
+LittleFS Flag read = 0xd0d04321
+ClearFlag write = 0xd0d04321
+[ETM] =====================
+[ETM] DRD. Run ConfigPortal
+[ETM] =====================
+[ETM] CCSum=0x 8cb ,RCSum=0x 8cb
+[ETM] CrCCsum=0x 2785 ,CrRCsum=0x 2785
+[ETM] CrCCsum=0x 2785 ,CrRCsum=0x 2785
+[ETM] Valid Stored Dynamic Data
+[ETM] ======= Start Stored Config Data =======
+[ETM] Header= RP2040 , BoardName= RP2040-Ethernet
+[ETM] StaticIP= 192.168.2.233
+[ETM] Start connectEthernet using Static IP = 192.168.2.233
+[ETM] MAC:FE-99-F5-DF-DB-BA
+[ETM] IP: 192.168.2.233
+[ETM] bg: isForcedConfigPortal = false
+[ETM] bg:Stay forever in CP: DRD/MRD
+[ETM] clearForcedCP
+[ETM] SaveCPFile 
+[ETM] OK
+[ETM] SaveBkUpCPFile 
+[ETM] OK
+[ETM] CfgIP= 192.168.2.233
+Connected! IP address: 192.168.2.233
+Ethernet type is W5500
+***************************************
+esp32-sniffer/12345678/ble
+***************************************
+```
+
+#### 6.2. Got correct ThingStream MQTT Credentials from Config Portal
+
+```
+Start MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO
+Ethernet Shield type : W5x00 using Ethernet Library
+Ethernet_Manager v1.3.0
+DoubleResetDetector_Generic v1.2.0
+[EWS] =========== USE_ETHERNET ===========
+[EWS] Default SPI pinout:
+[EWS] MOSI: 19
+[EWS] MISO: 16
+[EWS] SCK: 18
+[EWS] SS: 17
+[EWS] =========================
+[EWS] Board : RASPBERRY_PI_PICO , setCsPin: 17
+[EWS] =========================
+[EWS] Currently Used SPI pinout:
+[EWS] MOSI: 19
+[EWS] MISO: 16
+[EWS] SCK: 18
+[EWS] SS: 17
+[EWS] =========================
+LittleFS Flag read = 0xd0d04321
+Flag read = 0xd0d04321
+No doubleResetDetected
+Saving DOUBLERESETDETECTOR_FLAG to DRD file : 0xd0d01234
+Saving DRD file OK
+SetFlag write = 0xd0d01234
+[ETM] CCSum=0x 8cb ,RCSum=0x 8cb
+[ETM] CrCCsum=0x 2785 ,CrRCsum=0x 2785
+[ETM] CrCCsum=0x 2785 ,CrRCsum=0x 2785
+[ETM] Valid Stored Dynamic Data
+[ETM] ======= Start Stored Config Data =======
+[ETM] Header= RP2040 , BoardName= RP2040-Ethernet
+[ETM] StaticIP= 192.168.2.233
+[ETM] Start connectEthernet using Static IP = 192.168.2.233
+[ETM] MAC:FE-9A-FB-DD-DB-8E
+[ETM] IP: 192.168.2.233
+[ETM] begin:Ethernet Connected.
+Connected! IP address: 192.168.2.233
+Ethernet type is W5500
+***************************************
+esp32-sniffer/12345678/ble
+***************************************
+Stop doubleResetDetecting
+Saving to DRD file : 0xd0d04321
+Saving DRD file OK
+LittleFS Flag read = 0xd0d04321
+ClearFlag write = 0xd0d04321
+Attempting MQTT connection to mqtt.thingstream.io
+...connected
+Published connection message successfully!
+Subcribed to: esp32-sniffer/12345678/ble
+H
+Your stored Credentials :
+MQTT Server = mqtt.thingstream.io
+Port = 1883
+MQTT UserName = User_name
+MQTT PWD = password
+Client ID = device_id
+
+MQTT Message Send : esp32-sniffer/12345678/ble => Hello from MQTT_ThingStream on RASPBERRY_PI_PICO with W5x00 using Ethernet Library
+
+MQTT Message receive [esp32-sniffer/12345678/ble] Hello from MQTT_ThingStream on RASPBERRY_PI_PICO with W5x00 using Ethernet Library
+H
+```
+
 ---
 ---
 
@@ -2816,6 +3107,11 @@ Sometimes, the library will only work if you update the board core to the latest
 ---
 
 ## Releases
+
+### Major Releases v1.3.0
+
+1. Add support to RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Earle Philhower's arduino-pico core** v1.3.1+](https://github.com/earlephilhower/arduino-pico) with LittleFS.
+2. Update examples with new features
 
 ### Major Releases v1.2.0
 
@@ -2864,6 +3160,7 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
  5. **Teensy (4.1, 4.0, 3.6, 3.5, 3,2, 3.1, 3.0, LC)**
  6. **ESP32 including ESP32-S2 (ESP32-S2 Saola, AI-Thinker ESP-12K, etc.)**
  7. **ESP8266**
+ 8. RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Earle Philhower's arduino-pico** core v1.3.1+](https://github.com/earlephilhower/arduino-pico) and LittleFS.
  
 #### Supported Ethernet shields/modules:
 
@@ -2887,6 +3184,7 @@ Submit issues to: [Ethernet_Manager issues](https://github.com/khoih-prog/Ethern
 2. Add SSL/TLS feature.
 3. Bug Searching and Killing
 4. Support more non-compatible Ethernet Libraries such as Ethernet_Shield_W5200, EtherCard, EtherSia.
+5. Add support to RP2040-based boards such as RASPBERRY_PI_PICO, using [**Arduino-mbed RP2040** core](https://github.com/arduino/ArduinoCore-mbed)
 
 ### DONE
 
@@ -2913,7 +3211,7 @@ Default Credentials and dynamic parameters
 20. Add Table of Contents and Version String
 21. Configurable **Customs HTML Headers**, including Customs Style, Customs Head Elements, CORS Header
 22. Add support to **ESP32-S2 (ESP32-S2 Saola, AI-Thinker ESP-12K, etc.)**
-
+23. Add support to RP2040-based boards such as RASPBERRY_PI_PICO, using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico) using LittleFS
 
 ---
 ---

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************
-  MQTT_ThingStream_Ethernet_nRF52.ino
+  MQTT_ThingStream_Ethernet_RP2040.ino
   For W5x00 and ENC28J60 Ethernet shields.
 
   Ethernet_Manager is a library for nRF52, Teensy, STM32, SAM DUE and SAMD boards, with Ethernet W5x00 or ENC28J60 shields,
@@ -189,7 +189,7 @@ void setup()
   Serial.begin(115200);
   while (!Serial);
 
-  Serial.println("\nStart MQTT_ThingStream_Ethernet_nRF52 on " + String(BOARD_NAME)); 
+  Serial.println("\nStart MQTT_ThingStream_Ethernet_RP2040 on " + String(BOARD_NAME)); 
   Serial.println("Ethernet Shield type : " + String(SHIELD_TYPE));
   Serial.println(ETHERNET_MANAGER_VERSION);
   Serial.println(DOUBLERESETDETECTOR_GENERIC_VERSION);

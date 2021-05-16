@@ -9,7 +9,7 @@
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
 
-  Version: 1.2.0
+  Version: 1.3.0
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -18,6 +18,7 @@
   1.1.1     K Hoang     28/12/2020 Suppress all possible compiler warnings
   1.2.0     K Hoang     22/02/2021 Optimize code and use better FlashStorage_SAMD and FlashStorage_STM32. 
                                    Add customs HTML header feature. Fix bug.
+  1.3.0     K Hoang     16/05/2021 Add support to RP2040-based boards such as RASPBERRY_PI_PICO
  *****************************************************************************************************************************/
 
 #include "defines.h"
@@ -308,7 +309,7 @@ void setup()
       #warning Using M5Stack_Core_ESP32 with W5500 mudule
       #define USE_THIS_SS_PIN   26    // For M5Stack_Core_ESP32 with W5500 mudule
     #else
-      #define USE_THIS_SS_PIN   22    // For ESP32
+      #define USE_THIS_SS_PIN   27    //22    // For ESP32
     #endif
   #endif
 

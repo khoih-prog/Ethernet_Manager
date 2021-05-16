@@ -51,6 +51,15 @@
   #define USE_DYNAMIC_PARAMETERS        true
 #endif
 
+#if ( defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) || defined(ARDUINO_GENERIC_RP2040) )
+  // For RPI Pico
+  #if defined(ETHERNET_USE_RPIPICO)
+    #undef ETHERNET_USE_RPIPICO
+  #endif
+  #define ETHERNET_USE_RPIPICO         true
+  #define USE_DYNAMIC_PARAMETERS        true
+#endif
+
 #if ( defined(ARDUINO_SAM_DUE) || defined(__SAM3X8E__) )
   #if defined(ETHERNET_USE_SAM_DUE)
     #undef ETHERNET_USE_SAM_DUE
@@ -264,6 +273,36 @@
   
   #define W5500_RST_PORT   21
 
+#elif (ETHERNET_USE_RP2040)
+
+  // Default pin 5 (in Mbed) or 17 to SS/CS
+  #if defined(ARDUINO_ARCH_MBED)
+    // For RPI Pico using Arduino Mbed RP2040 core
+    // SCK: GPIO2,  MOSI: GPIO3, MISO: GPIO4, SS/CS: GPIO5 
+    #define USE_THIS_SS_PIN       5
+  
+    #if defined(BOARD_NAME)
+      #undef BOARD_NAME
+    #endif
+  
+    #if defined(ARDUINO_RASPBERRY_PI_PICO) 
+      #define BOARD_TYPE      "MBED RASPBERRY_PI_PICO"
+    #elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2040)
+      #define BOARD_TYPE      "MBED DAFRUIT_FEATHER_RP2040"
+    #elif defined(ARDUINO_GENERIC_RP2040)
+      #define BOARD_TYPE      "MBED GENERIC_RP2040"
+    #else
+      #define BOARD_TYPE      "MBED Unknown RP2040"
+    #endif
+    
+  #else
+  
+    // For RPI Pico using E. Philhower RP2040 core
+    // SCK: GPIO18,  MOSI: GPIO19, MISO: GPIO16, SS/CS: GPIO17
+    #define USE_THIS_SS_PIN       17
+  
+  #endif
+  
 #else
   // For Mega
   // Default pin 10 to SS/CS

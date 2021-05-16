@@ -8,7 +8,7 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
-  Version: 1.2.0
+  Version: 1.3.0
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -17,6 +17,7 @@
   1.1.1     K Hoang     28/12/2020 Suppress all possible compiler warnings
   1.2.0     K Hoang     22/02/2021 Optimize code and use better FlashStorage_SAMD and FlashStorage_STM32. 
                                    Add customs HTML header feature. Fix bug.
+  1.3.0     K Hoang     16/05/2021 Add support to RP2040-based boards such as RASPBERRY_PI_PICO
  *****************************************************************************************************************************/
 
 #pragma once
@@ -351,7 +352,7 @@ class Ethernet_Manager
       memset(&Ethernet_Manager_config, 0, sizeof(Ethernet_Manager_config));
 
 #if USE_DYNAMIC_PARAMETERS        
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         // Actual size of pdata is [maxlen + 1]
         memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
@@ -572,7 +573,7 @@ class Ethernet_Manager
       ETM_LOGWARN1(F("StaticIP="),      configData.static_IP);
 
 #if USE_DYNAMIC_PARAMETERS                 
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         ETM_LOGINFO3("i=", i, ",id=", myMenuItems[i].id);
         ETM_LOGINFO1("data=", myMenuItems[i].pdata);
@@ -1003,18 +1004,18 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
           memset(&Ethernet_Manager_config, 0, sizeof(Ethernet_Manager_config));
 
 #if USE_DYNAMIC_PARAMETERS
-          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+          for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             // Actual size of pdata is [maxlen + 1]
             memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
           }
 #endif
               
-          strcpy(Ethernet_Manager_config.static_IP,   WM_NO_CONFIG);
-          strcpy(Ethernet_Manager_config.board_name,  WM_NO_CONFIG);
+          //strcpy(Ethernet_Manager_config.static_IP,   WM_NO_CONFIG);
+          strcpy(Ethernet_Manager_config.board_name,  ETHERNET_BOARD_TYPE);
           
 #if USE_DYNAMIC_PARAMETERS
-          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+          for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             strncpy(myMenuItems[i].pdata, WM_NO_CONFIG, myMenuItems[i].maxlen);
           }
@@ -1024,7 +1025,7 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
         strcpy(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE);
         
 #if USE_DYNAMIC_PARAMETERS
-        for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+        for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
         {
           ETM_LOGDEBUG3(F("g:myMenuItems["), i, F("]="), myMenuItems[i].pdata );
         }
@@ -1072,7 +1073,7 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
       root_html_template += String(ETM_HTML_HEAD_END) + ETM_FLDSET_START;
 
 #if USE_DYNAMIC_PARAMETERS      
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         pitem = String(ETM_HTML_PARAM);
 
@@ -1087,7 +1088,7 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
       root_html_template += String(ETM_FLDSET_END) + ETM_HTML_BUTTON + ETM_HTML_SCRIPT;     
 
 #if USE_DYNAMIC_PARAMETERS      
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         pitem = String(ETM_HTML_SCRIPT_ITEM);
         
@@ -1158,11 +1159,19 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
             result.replace("Ethernet_ESP32_Manager", Ethernet_Manager_config.board_name);
           }
 
-          result.replace("[[ip]]",     Ethernet_Manager_config.static_IP);
-          result.replace("[[nm]]",     Ethernet_Manager_config.board_name);
+          if (hadConfigData)
+          {
+            result.replace("[[ip]]", Ethernet_Manager_config.static_IP);
+            result.replace("[[nm]]", Ethernet_Manager_config.board_name);
+          }
+          else
+          {
+            result.replace("[[ip]]", "0");
+            result.replace("[[nm]]", ETHERNET_BOARD_TYPE);
+          }
 
 #if USE_DYNAMIC_PARAMETERS
-          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+          for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             String toChange = String("[[") + myMenuItems[i].id + "]]";
             result.replace(toChange, myMenuItems[i].pdata);
@@ -1193,7 +1202,7 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
           
           if (menuItemUpdated)
           {
-            for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+            for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
             {           
               // To flag item is not yet updated
               menuItemUpdated[i] = false;           
@@ -1239,7 +1248,7 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
 #if USE_DYNAMIC_PARAMETERS   
         else
         {     
-          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+          for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             if ( !menuItemUpdated[i] && (key == myMenuItems[i].id) )
             {

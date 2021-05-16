@@ -51,6 +51,15 @@
   #define USE_DYNAMIC_PARAMETERS        true
 #endif
 
+#if ( defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) || defined(ARDUINO_GENERIC_RP2040) )
+  // For RPI Pico
+  #if defined(ETHERNET_USE_RPIPICO)
+    #undef ETHERNET_USE_RPIPICO
+  #endif
+  #define ETHERNET_USE_RPIPICO         true
+  #define USE_DYNAMIC_PARAMETERS        true
+#endif
+
 #if ( defined(ARDUINO_SAM_DUE) || defined(__SAM3X8E__) )
   #if defined(ETHERNET_USE_SAM_DUE)
     #undef ETHERNET_USE_SAM_DUE
@@ -264,6 +273,36 @@
   
   #define W5500_RST_PORT   21
 
+#elif (ETHERNET_USE_RP2040)
+
+  // Default pin 5 (in Mbed) or 17 to SS/CS
+  #if defined(ARDUINO_ARCH_MBED)
+    // For RPI Pico using Arduino Mbed RP2040 core
+    // SCK: GPIO2,  MOSI: GPIO3, MISO: GPIO4, SS/CS: GPIO5 
+    #define USE_THIS_SS_PIN       5
+  
+    #if defined(BOARD_NAME)
+      #undef BOARD_NAME
+    #endif
+  
+    #if defined(ARDUINO_RASPBERRY_PI_PICO) 
+      #define BOARD_TYPE      "MBED RASPBERRY_PI_PICO"
+    #elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2040)
+      #define BOARD_TYPE      "MBED DAFRUIT_FEATHER_RP2040"
+    #elif defined(ARDUINO_GENERIC_RP2040)
+      #define BOARD_TYPE      "MBED GENERIC_RP2040"
+    #else
+      #define BOARD_TYPE      "MBED Unknown RP2040"
+    #endif
+    
+  #else
+  
+    // For RPI Pico using E. Philhower RP2040 core
+    // SCK: GPIO18,  MOSI: GPIO19, MISO: GPIO16, SS/CS: GPIO17
+    #define USE_THIS_SS_PIN       17
+  
+  #endif
+  
 #else
   // For Mega
   // Default pin 10 to SS/CS
@@ -307,7 +346,7 @@
   #define USE_ETHERNET_ESP8266  false 
   #define USE_ETHERNET_ENC      false
   #define USE_CUSTOM_ETHERNET   false
-  
+
   #if !USE_ETHERNET_WRAPPER
   
     #if ( USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE || USE_ETHERNET_ESP8266 || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
@@ -361,6 +400,7 @@
     // Otherwise, standard Ethernet library will be used for W5x00
   
   #endif    //  USE_ETHERNET_WRAPPER
+  
 #elif USE_UIP_ETHERNET
     #include "UIPEthernet.h"
     #warning Using UIPEthernet library
@@ -433,7 +473,9 @@
 
   #if !( defined(ARDUINO_SAM_DUE) || defined(__SAM3X8E__) )
     // EEPROM_SIZE must be <= 2048 and >= CONFIG_DATA_SIZE (currently 172 bytes)
-    #define EEPROM_SIZE    (2 * 1024)
+    #if !defined(EEPROM_SIZE)
+      #define EEPROM_SIZE    (2 * 1024)
+    #endif
   #endif
   
   // EEPROM_START + CONFIG_DATA_SIZE must be <= EEPROM_SIZE
@@ -455,7 +497,6 @@
 #define USE_DYNAMIC_PARAMETERS              true
 
 //////////////////////////////////////////
-
 
 #include <Ethernet_Manager.h>
 

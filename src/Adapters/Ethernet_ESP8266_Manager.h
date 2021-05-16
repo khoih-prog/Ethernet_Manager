@@ -8,7 +8,7 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
-  Version: 1.2.0
+  Version: 1.3.0
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -17,6 +17,7 @@
   1.1.1     K Hoang     28/12/2020 Suppress all possible compiler warnings
   1.2.0     K Hoang     22/02/2021 Optimize code and use better FlashStorage_SAMD and FlashStorage_STM32. 
                                    Add customs HTML header feature. Fix bug.
+  1.3.0     K Hoang     16/05/2021 Add support to RP2040-based boards such as RASPBERRY_PI_PICO
 *****************************************************************************************************************************/
 
 #pragma once
@@ -382,7 +383,7 @@ class Ethernet_Manager
       memset(&Ethernet_Manager_config, 0, sizeof(Ethernet_Manager_config));
 
 #if USE_DYNAMIC_PARAMETERS        
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         // Actual size of pdata is [maxlen + 1]
         memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
@@ -604,7 +605,7 @@ class Ethernet_Manager
       ETM_LOGWARN1(F("StaticIP="),      configData.static_IP);
 
 #if USE_DYNAMIC_PARAMETERS                 
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         ETM_LOGINFO3("i=", i, ",id=", myMenuItems[i].id);
         ETM_LOGINFO1("data=", myMenuItems[i].pdata);
@@ -779,7 +780,7 @@ class Ethernet_Manager
       // We dont like to destroy myMenuItems[i].pdata with invalid data
       
       uint16_t maxBufferLength = 0;
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         if (myMenuItems[i].maxlen > maxBufferLength)
           maxBufferLength = myMenuItems[i].maxlen;
@@ -800,7 +801,7 @@ class Ethernet_Manager
           ETM_LOGDEBUG1(F("ChkCrR: Buffer allocated, sz="), maxBufferLength + 1);
         }          
      
-        for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+        for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
         {       
           char* _pointer = readBuffer;
 
@@ -863,7 +864,7 @@ class Ethernet_Manager
         }
       }
      
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         char* _pointer = myMenuItems[i].pdata;
         totalDataSize += myMenuItems[i].maxlen;
@@ -905,7 +906,7 @@ class Ethernet_Manager
       File file = FileFS.open(CREDENTIALS_FILENAME, "w");
       ETM_LOGINFO(F("SaveCredFile "));
 
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         char* _pointer = myMenuItems[i].pdata;
    
@@ -943,7 +944,7 @@ class Ethernet_Manager
       file = FileFS.open(CREDENTIALS_FILENAME_BACKUP, "w");
       ETM_LOGINFO(F("SaveBkUpCredFile "));
 
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         char* _pointer = myMenuItems[i].pdata;
   
@@ -993,7 +994,7 @@ class Ethernet_Manager
 
     //////////////////////////////////////////////    
 
-    void loadConfigData()
+    bool loadConfigData()
     {
       ETM_LOGINFO(F("LoadCfgFile "));
       
@@ -1012,7 +1013,7 @@ class Ethernet_Manager
         if (!file)
         {
           ETM_LOGINFO(F("failed"));
-          return;
+          return false;
         }
       }
      
@@ -1020,6 +1021,10 @@ class Ethernet_Manager
 
       ETM_LOGINFO(F("OK"));
       file.close();
+      
+      NULLTerminateConfig();
+      
+      return true;
     }
     
     //////////////////////////////////////////////  
@@ -1140,7 +1145,10 @@ class Ethernet_Manager
 #endif   
       {
         // if config file exists, load
-        loadConfigData();
+        if (!loadConfigData())
+        {
+          return false;
+        }
         
         ETM_LOGINFO(F("======= Start Stored Config Data ======="));
         displayConfigData(Ethernet_Manager_config);
@@ -1171,7 +1179,8 @@ class Ethernet_Manager
       }    
 
       if ( (strncmp(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE, strlen(ETHERNET_BOARD_TYPE)) != 0) ||
-           (calChecksum != Ethernet_Manager_config.checkSum) || !dynamicDataValid )
+           (calChecksum != Ethernet_Manager_config.checkSum) || !dynamicDataValid || 
+           ( (calChecksum == 0) && (Ethernet_Manager_config.checkSum == 0) ) )   
                       
       {         
         // Including Credentials CSum
@@ -1190,7 +1199,7 @@ class Ethernet_Manager
           strcpy(Ethernet_Manager_config.board_name,  WM_NO_CONFIG);
           
 #if USE_DYNAMIC_PARAMETERS       
-          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+          for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             // Actual size of pdata is [maxlen + 1]
             memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
@@ -1202,7 +1211,7 @@ class Ethernet_Manager
         strcpy(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE);
         
 #if USE_DYNAMIC_PARAMETERS
-        for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+        for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
         {
           ETM_LOGDEBUG3(F("g:myMenuItems["), i, F("]="), myMenuItems[i].pdata );
         }
@@ -1325,7 +1334,7 @@ class Ethernet_Manager
       // This is used to store tempo data to calculate checksum to see of data is valid
       // We dont like to destroy myMenuItems[i].pdata with invalid data
       
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         if (myMenuItems[i].maxlen > BUFFER_LEN)
         {
@@ -1335,7 +1344,7 @@ class Ethernet_Manager
         }
       }
          
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         char* _pointer = readBuffer;
         
@@ -1379,7 +1388,7 @@ class Ethernet_Manager
            
       totalDataSize = sizeof(Ethernet_Manager_config) + sizeof(readCheckSum);
       
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         char* _pointer = myMenuItems[i].pdata;
         totalDataSize += myMenuItems[i].maxlen;
@@ -1416,7 +1425,7 @@ class Ethernet_Manager
       int checkSum = 0;
       uint16_t offset = CONFIG_EEPROM_START + sizeof(Ethernet_Manager_config) + FORCED_CONFIG_PORTAL_FLAG_DATA_SIZE;
                 
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         char* _pointer = myMenuItems[i].pdata;
            
@@ -1539,7 +1548,8 @@ class Ethernet_Manager
       }
         
       if ( (strncmp(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE, strlen(ETHERNET_BOARD_TYPE)) != 0) ||
-           (calChecksum != Ethernet_Manager_config.checkSum) || !dynamicDataValid )
+           (calChecksum != Ethernet_Manager_config.checkSum) || !dynamicDataValid || 
+           ( (calChecksum == 0) && (Ethernet_Manager_config.checkSum == 0) ) )   
       {       
         // Including Credentials CSum
         ETM_LOGINFO3(F("InitEEPROM,sz="), EEPROM_SIZE, F(",DataSz="), totalDataSize);
@@ -1553,11 +1563,11 @@ class Ethernet_Manager
         {
           memset(&Ethernet_Manager_config, 0, sizeof(Ethernet_Manager_config));
              
-          strcpy(Ethernet_Manager_config.static_IP,   WM_NO_CONFIG);
-          strcpy(Ethernet_Manager_config.board_name,  WM_NO_CONFIG);
+          //strcpy(Ethernet_Manager_config.static_IP,   WM_NO_CONFIG);
+          strcpy(Ethernet_Manager_config.board_name,  ETHERNET_BOARD_TYPE);
           
 #if USE_DYNAMIC_PARAMETERS       
-          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+          for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             // Actual size of pdata is [maxlen + 1]
             memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
@@ -1569,7 +1579,7 @@ class Ethernet_Manager
         strcpy(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE);
         
 #if USE_DYNAMIC_PARAMETERS
-        for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+        for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
         {
           ETM_LOGDEBUG3(F("g:myMenuItems["), i, F("]="), myMenuItems[i].pdata );
         }
@@ -1619,7 +1629,7 @@ class Ethernet_Manager
       root_html_template += String(ETM_HTML_HEAD_END) + ETM_FLDSET_START;
 
 #if USE_DYNAMIC_PARAMETERS      
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         pitem = String(ETM_HTML_PARAM);
 
@@ -1634,7 +1644,7 @@ class Ethernet_Manager
       root_html_template += String(ETM_FLDSET_END) + ETM_HTML_BUTTON + ETM_HTML_SCRIPT;     
 
 #if USE_DYNAMIC_PARAMETERS      
-      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         pitem = String(ETM_HTML_SCRIPT_ITEM);
         
@@ -1705,11 +1715,19 @@ class Ethernet_Manager
             result.replace("Ethernet_ESP32_Manager", Ethernet_Manager_config.board_name);
           }
 
-          result.replace("[[ip]]",     Ethernet_Manager_config.static_IP);
-          result.replace("[[nm]]",     Ethernet_Manager_config.board_name);
+          if (hadConfigData)
+          {
+            result.replace("[[ip]]", Ethernet_Manager_config.static_IP);
+            result.replace("[[nm]]", Ethernet_Manager_config.board_name);
+          }
+          else
+          {
+            result.replace("[[ip]]", "0");
+            result.replace("[[nm]]", ETHERNET_BOARD_TYPE);
+          }
 
 #if USE_DYNAMIC_PARAMETERS
-          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+          for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             String toChange = String("[[") + myMenuItems[i].id + "]]";
             result.replace(toChange, myMenuItems[i].pdata);
@@ -1740,7 +1758,7 @@ class Ethernet_Manager
           
           if (menuItemUpdated)
           {
-            for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+            for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
             {           
               // To flag item is not yet updated
               menuItemUpdated[i] = false;           
@@ -1786,7 +1804,7 @@ class Ethernet_Manager
 #if USE_DYNAMIC_PARAMETERS   
         else
         {     
-          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+          for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             if ( !menuItemUpdated[i] && (key == myMenuItems[i].id) )
             {
