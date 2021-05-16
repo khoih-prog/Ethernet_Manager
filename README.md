@@ -156,7 +156,7 @@
 - Configurable **Config Portal Title** to be either BoardName or default undistinguishable names.
 - Examples are redesigned to separate Credentials / Defines / Dynamic Params / Code so that you can change Credentials / Dynamic Params quickly for each device
 
-The **RP2040-based boards, such as RASPBERRY_PI_PICO**, are currently supported using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico) and LittleFS. The support to [**Arduino-mbed RP2040** core](https://github.com/arduino/ArduinoCore-mbed), which has **no LittleFS support yet**, will be added in the future using **simulated-EEPROM** if LittleFS not ready then.
+The **RP2040-based boards, such as RASPBERRY_PI_PICO**, are currently supported using [**Earle Philhower's arduino-pico** core v1.3.1+](https://github.com/earlephilhower/arduino-pico) and LittleFS. The support to [**Arduino-mbed RP2040** core](https://github.com/arduino/ArduinoCore-mbed), which has **no LittleFS support yet**, will be added in the future using **simulated-EEPROM** if LittleFS not ready then.
 
 New recent features:
 
@@ -278,6 +278,7 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
 The suggested way to install is to:
 
 #### Use Arduino Library Manager
+
 The best way is to use `Arduino Library Manager`. Search for `Ethernet_Manager`, then select / install the latest version. You can also use this link [![arduino-library-badge](https://www.ardu-badge.com/badge/Ethernet_Manager.svg?)](https://www.ardu-badge.com/Ethernet_Manager) for more detailed instructions.
 
 ### Manual Install
@@ -287,7 +288,7 @@ The best way is to use `Arduino Library Manager`. Search for `Ethernet_Manager`,
 3. Extract the zip file to `Ethernet_Manager-main` directory 
 4. Copy the whole `Ethernet_Manager-main` folder to Arduino libraries' directory such as `~/Arduino/libraries/`.
 
-### VS Code & PlatformIO:
+### VS Code & PlatformIO
 
 1. Install [VS Code](https://code.visualstudio.com/)
 2. Install [PlatformIO](https://platformio.org/platformio-ide)
@@ -591,7 +592,7 @@ As of **April 16th 2021**, the **esp32-s2/c3** board support has been included i
 #### 2.3 Unzip
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/Images/esp32_s2_Core_Unzipped.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/pics/esp32_s2_Core_Unzipped.png">
 </p>
 
 #### 2.4 Update esp32 core directories
@@ -612,7 +613,7 @@ For example `xtensa-esp32s2-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz`, then un
 
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/Images/esp32_s2_Toolchain.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/pics/esp32_s2_Toolchain.png">
 </p>
 
 #### 3.2 Download esptool
@@ -625,7 +626,7 @@ Download [esptool](https://github.com/espressif/esptool/releases) int the `zip` 
 #### 3.3 Unzip
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/Images/esp32_s2_esptool.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/pics/esp32_s2_esptool.png">
 </p>
 
 ---
@@ -646,7 +647,7 @@ Copy whole `esptool` directory into `/home/your_account/.arduino15/packages/esp3
 
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/Images/esp32_s2_tools.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/pics/esp32_s2_tools.png">
 </p>
 
 
@@ -669,7 +670,7 @@ Then using the similar steps as in
 then copy whole `riscv32-esp-elf` directory into `/home/your_account/.arduino15/packages/esp32/hardware/esp32/1.0.6/tools`
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/Images/ESP_WM_ESP32_C3_Support.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/master/pics/ESP_WM_ESP32_C3_Support.png">
 </p>
 
 
