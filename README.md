@@ -134,7 +134,7 @@
   * [6. MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO with W5x00 using Ethernet Library](#6-mqtt_thingstream_ethernet_rp2040-on-raspberry_pi_pico-with-w5x00-using-ethernet-library)
     * [6.1. Normal run without correct ThingStream MQTT Credentials or DRD](#61-normal-run-without-correct-thingstream-mqtt-credentials-or-drd)
     * [6.2. Got correct ThingStream MQTT Credentials from Config Portal](#62-got-correct-thingstream-mqtt-credentials-from-config-portal)
-  * [7. Ethernet_RP2040 on MBED RASPBERRY_PI_PICO with W5500 using EthernetLarge Library](#7-ethernet_rp040-on-mbed-raspberry_pi_pico-with-w5500-using-ethernetlarge-library)
+  * [7. Ethernet_RP2040 on MBED RASPBERRY_PI_PICO with W5500 using EthernetLarge Library](#7-ethernet_rp2040-on-mbed-raspberry_pi_pico-with-w5500-using-ethernetlarge-library)
     * [7.1. DRD => Config Portal](#71-drd--config-portal)
     * [7.2. Data Saved => Exit Config Portal](#72-data-saved--exit-config-portal)
 * [Debug](#debug)
@@ -511,6 +511,8 @@ This file must be copied to replace:
 - `~/.arduino15/packages/rp2040/hardware/rp2040/x.yy.zz/cores/rp2040/Arduino.h`
 
 With core after v1.5.1, this step is not necessary anymore thanks to the PR [Add defs for compatibility #142](https://github.com/earlephilhower/arduino-pico/pull/142).
+
+
 ---
 
 ### Libraries' Patches
