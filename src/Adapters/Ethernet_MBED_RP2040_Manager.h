@@ -1,9 +1,9 @@
 /****************************************************************************************************************************
-  Ethernet_DUE_Manager.h
+  Ethernet_MBED_RP2040_Manager.h
   For W5x00 and ENC28J60 Ethernet shields.
 
-  Ethernet_Manager is a library for nRF52, Teensy, STM32, SAM DUE and SAMD boards, with Ethernet W5x00 or ENC28J60 shields,
-  to enable easy configuration/reconfiguration of Credentials and autoconnect/autoreconnect of Ethernet.
+  Ethernet_Manager is a library for nRF52, Teensy, STM32, SAM DUE, SAMD and RP2040 boards, with Ethernet W5x00 or 
+  ENC28J60 shields, to enable easy configuration/reconfiguration of Credentials and autoconnect/autoreconnect of Ethernet.
   AVR Mega is not supported.
 
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
@@ -19,30 +19,30 @@
                                    Add customs HTML header feature. Fix bug.
   1.3.0     K Hoang     16/05/2021 Add support to RP2040-based boards such as RASPBERRY_PI_PICO
   1.4.0     K Hoang     28/05/2021 Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core
- *****************************************************************************************************************************/
+*****************************************************************************************************************************/
 
 #pragma once
 
-#ifndef Ethernet_DUE_Manager_h
-#define Ethernet_DUE_Manager_h
+#ifndef Ethernet_MBED_RP2040_Manager_h
+#define Ethernet_MBED_RP2040_Manager_h
 
-#if ( defined(ARDUINO_SAM_DUE) || defined(__SAM3X8E__) )
-  #if defined(ETHERNET_USE_SAM_DUE)
-    #undef ETHERNET_USE_SAM_DUE
+#if ( defined(NANO_RP2040_CONNECT)    || defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_RASPBERRY_PI_PICO) || \
+      defined(ARDUINO_GENERIC_RP2040) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) ) && defined(ARDUINO_ARCH_MBED)
+  #if defined(ETHERNET_USE_RPIPICO)
+    #undef ETHERNET_USE_RPIPICO
   #endif
-  #warning ETHERNET_USE_SAM_DUE from Ethernet_DUE_Manager.h
-  #define ETHERNET_USE_SAM_DUE      true
+  #warning ETHERNET_USE_RPIPICO from Ethernet_RP2040_Manager.h
+  #define ETHERNET_USE_RPIPICO      true
 #else
-  #error This code is designed to run on SAM DUE platform! Please check your Tools->Board setting.
+  #error This code is designed to run on RP2040 platform using ARDUINO_ARCH_MBED! Please check your Tools->Board setting.
 #endif
 
 // Increase HTTP_UPLOAD_BUFLEN to 4K, instead of default 2K in <EthernetWebServer.h>
 #define HTTP_UPLOAD_BUFLEN    4096
 
-//Use DueFlashStorage to simulate EEPROM
-#include <DueFlashStorage.h>                 //https://github.com/sebnil/DueFlashStorage
+//////////////////////////////////////////
 
-DueFlashStorage dueFlashStorageData;
+#warning Using LittleFS in Ethernet_MBED_RP2040_Manager.h
 
 //////////////////////////////////////////
 
@@ -74,7 +74,7 @@ DueFlashStorage dueFlashStorageData;
 // subseqent reset will be considered a double reset.
 #define DRD_TIMEOUT 10
 
-// RTC Memory Address for the DoubleResetDetector to use
+// RTC Memory Address for the DoubleResetDetector_Generic to use
 #define DRD_ADDRESS 0
 
 DoubleResetDetector_Generic* drd;
@@ -127,7 +127,7 @@ extern Ethernet_Configuration defaultConfig;
 
 // -- HTML page fragments
 
-const char ETM_HTML_HEAD_START[] /*PROGMEM*/ = "<!DOCTYPE html><html><head><title>Ethernet_DUE_Manager</title>";
+const char ETM_HTML_HEAD_START[] /*PROGMEM*/ = "<!DOCTYPE html><html><head><title>Ethernet_RP2040_Manager</title>";
 
 const char ETM_HTML_HEAD_STYLE[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
 
@@ -171,7 +171,7 @@ class Ethernet_Manager
 {
 
   public:
-
+  
 #ifndef LED_BUILTIN
 #define LED_BUILTIN       13
 #endif
@@ -265,7 +265,9 @@ class Ethernet_Manager
 
     // Return true if still in CP mode
     bool run()
-    {     
+    {
+      //static int retryTimes = 0;
+      
       //// New DRD ////
       // Call the double reset detector loop method every so often,
       // so that it can recognise when the timeout expires.
@@ -324,7 +326,7 @@ class Ethernet_Manager
       
       return configuration_mode;
     }
-    
+
     //////////////////////////////////////////
 
     String getBoardName()
@@ -409,10 +411,53 @@ class Ethernet_Manager
     }
     
     //////////////////////////////////////////////
+        
+    typedef struct
+    {
+      uint32_t CPUID;                  /*!< Offset: 0x000 (R/ )  CPUID Base Register */
+      uint32_t ICSR;                   /*!< Offset: 0x004 (R/W)  Interrupt Control and State Register */
+      uint32_t RESERVED0;
+      uint32_t AIRCR;                  /*!< Offset: 0x00C (R/W)  Application Interrupt and Reset Control Register */
+      uint32_t SCR;                    /*!< Offset: 0x010 (R/W)  System Control Register */
+      uint32_t CCR;                    /*!< Offset: 0x014 (R/W)  Configuration Control Register */
+      uint32_t RESERVED1;
+      uint32_t SHP[2U];                /*!< Offset: 0x01C (R/W)  System Handlers Priority Registers. [0] is RESERVED */
+      uint32_t SHCSR;                  /*!< Offset: 0x024 (R/W)  System Handler Control and State Register */
+    } SCB_Type;
+    
+    //////////////////////////////////////////////
 
+    void NVIC_SystemReset()
+    {                  
+    /* SCB Application Interrupt and Reset Control Register Definitions */
+    #define SCB_AIRCR_VECTKEY_Pos              16U                                      /*!< SCB AIRCR: VECTKEY Position */
+    #define SCB_AIRCR_VECTKEY_Msk              (0xFFFFUL << SCB_AIRCR_VECTKEY_Pos)      /*!< SCB AIRCR: VECTKEY Mask */
+        
+    #define SCB_AIRCR_SYSRESETREQ_Pos           2U                                      /*!< SCB AIRCR: SYSRESETREQ Position */
+    #define SCB_AIRCR_SYSRESETREQ_Msk          (1UL << SCB_AIRCR_SYSRESETREQ_Pos)       /*!< SCB AIRCR: SYSRESETREQ Mask */    
+
+    #define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base Address */
+    #define SysTick_BASE        (SCS_BASE +  0x0010UL)                    /*!< SysTick Base Address */
+    #define NVIC_BASE           (SCS_BASE +  0x0100UL)                    /*!< NVIC Base Address */
+    #define SCB_BASE            (SCS_BASE +  0x0D00UL)                    /*!< System Control Block Base Address */
+
+    #define SCB                 ((SCB_Type       *)     SCB_BASE      )   /*!< SCB configuration struct */
+    #define SysTick             ((SysTick_Type   *)     SysTick_BASE  )   /*!< SysTick configuration struct */
+    #define NVIC                ((NVIC_Type      *)     NVIC_BASE     )   /*!< NVIC configuration struct */
+
+                                  
+      SCB->AIRCR  = ((0x5FAUL << SCB_AIRCR_VECTKEY_Pos) | SCB_AIRCR_SYSRESETREQ_Msk);
+
+      while(true);
+    }
+
+    //////////////////////////////////////////////
+    
     void resetFunc()
     {
-      rstc_start_software_reset(RSTC);
+      delay(1000);
+      // Restart for RPi_Pico
+      NVIC_SystemReset();
     }
 
     //////////////////////////////////////
@@ -524,7 +569,7 @@ class Ethernet_Manager
     {
       if (iHostname[0] == 0)
       {
-        String _hostname = "DUE-XXXXXX";    // + String(macAddress, HEX);
+        String _hostname = "RP2040-XXXXXX";    // + String(macAddress, HEX);
         _hostname.toUpperCase();
 
         getRFC952_hostname(_hostname.c_str());
@@ -538,7 +583,6 @@ class Ethernet_Manager
 
       ETM_LOGWARN1(F("Hostname="), RFC952_hostname);
     }
-    
     //////////////////////////////////////
 
     char* getRFC952_hostname(const char* iHostname)
@@ -584,19 +628,9 @@ class Ethernet_Manager
     
     //////////////////////////////////////
 
-#define ETHERNET_BOARD_TYPE   "SAMDUE"
+#define ETHERNET_BOARD_TYPE   "RP2040"
 #define WM_NO_CONFIG          "blank"
     
-uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
-
-#ifndef EEPROM_START
-  #define EEPROM_START     0
-  #warning EEPROM_START not defined. Set to 0
-#endif
-
-// Stating positon to store Blynk8266_WM_config
-#define CONFIG_EEPROM_START    (EEPROM_START + DRD_FLAG_DATA_SIZE)
-
     int calcChecksum()
     {
       int checkSum = 0;
@@ -608,15 +642,64 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
       return checkSum;
     }
 
+#define  CONFIG_FILENAME                  ("/fs/etm_config.dat")
+#define  CONFIG_FILENAME_BACKUP           ("/fs/etm_config.bak")
+
+#define  CREDENTIALS_FILENAME             ("/fs/etm_cred.dat")
+#define  CREDENTIALS_FILENAME_BACKUP      ("/fs/etm_cred.bak")
+
+#define  CONFIG_PORTAL_FILENAME           ("/fs/etm_cp.dat")
+#define  CONFIG_PORTAL_FILENAME_BACKUP    ("/fs/etm_cp.bak")
+    
     //////////////////////////////////////////////
-       
+    
     void saveForcedCP(uint32_t value)
     {
-      uint32_t readForcedConfigPortalFlag = value;
+      //File file = FileFS.open(CONFIG_PORTAL_FILENAME, "w");
+      // Mbed RP2040 code
+      FILE *file = fopen(CONFIG_PORTAL_FILENAME, "w");
+      
+      ETM_LOGERROR(F("SaveCPFile "));
 
-      uint16_t offset = CONFIG_EEPROM_START + CONFIG_DATA_SIZE;
-            
-      dueFlashStorageData.write(offset, (byte *) &readForcedConfigPortalFlag, sizeof(readForcedConfigPortalFlag));
+      if (file)
+      {
+        //file.seek(0);
+        //file.write((uint8_t*) &value, sizeof(value));            
+        //file.close();
+        
+        fseek(file, 0, SEEK_SET);
+        fwrite((uint8_t *) &value, 1, sizeof(value), file);        
+        fclose(file);
+        
+        ETM_LOGERROR(F("OK"));
+      }
+      else
+      {
+        ETM_LOGERROR(F("failed"));
+      }
+
+      // Trying open redundant CP file
+      //file = FileFS.open(CONFIG_PORTAL_FILENAME_BACKUP, "w");
+      file = fopen(CONFIG_PORTAL_FILENAME_BACKUP, "w");
+      
+      ETM_LOGERROR(F("SaveBkUpCPFile "));
+
+      if (file)
+      {
+        //file.seek(0);
+        //file.write((uint8_t*) &value, sizeof(value));       
+        //file.close();
+        
+        fseek(file, 0, SEEK_SET);
+        fwrite((uint8_t *) &value, 1, sizeof(value), file);        
+        fclose(file);
+        
+        ETM_LOGERROR(F("OK"));
+      }
+      else
+      {
+        ETM_LOGERROR(F("failed"));
+      }
     }
     
     //////////////////////////////////////////////
@@ -624,9 +707,9 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
     void setForcedCP(bool isPersistent)
     {
       uint32_t readForcedConfigPortalFlag = isPersistent? FORCED_PERS_CONFIG_PORTAL_FLAG_DATA : FORCED_CONFIG_PORTAL_FLAG_DATA;
- 
+  
       ETM_LOGERROR(isPersistent ? F("setForcedCP Persistent") : F("setForcedCP non-Persistent"));
-
+      
       saveForcedCP(readForcedConfigPortalFlag);
     }
     
@@ -637,7 +720,7 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
       uint32_t readForcedConfigPortalFlag = 0;
    
       ETM_LOGERROR(F("clearForcedCP"));
-
+      
       saveForcedCP(readForcedConfigPortalFlag);
     }
     
@@ -646,15 +729,39 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
     bool isForcedCP()
     {
       uint32_t readForcedConfigPortalFlag;
+    
+      ETM_LOGDEBUG(F("Check if isForcedCP"));
       
-      // Return true if forced CP (0xDEADBEEF read at offset EPROM_START + DRD_FLAG_DATA_SIZE + CONFIG_DATA_SIZE)
-      // => set flag noForcedConfigPortal = false
-      uint16_t offset = CONFIG_EEPROM_START + CONFIG_DATA_SIZE;
-            
-      byte* dataPointer = (byte* ) dueFlashStorageData.readAddress(offset);
+      //File file = FileFS.open(CONFIG_PORTAL_FILENAME, "r");
+      FILE *file = fopen(CONFIG_PORTAL_FILENAME, "r");
+      ETM_LOGDEBUG(F("LoadCPFile "));
+
+      if (!file)
+      {
+        ETM_LOGDEBUG(F("failed"));
+
+        // Trying open redundant config file
+        //file = FileFS.open(CONFIG_PORTAL_FILENAME_BACKUP, "r");
+        file = fopen(CONFIG_PORTAL_FILENAME_BACKUP, "r");
+        ETM_LOGDEBUG(F("LoadBkUpCPFile "));
+
+        if (!file)
+        {
+          ETM_LOGDEBUG(F("failed"));
+          return false;
+        }
+      }
       
-      memcpy(&readForcedConfigPortalFlag, dataPointer, sizeof(readForcedConfigPortalFlag));
-      //EEPROM.get(CONFIG_EEPROM_START + CONFIG_DATA_SIZE, readForcedConfigPortalFlag);
+      //file.seek(0);
+      //file.read((uint8_t *) &readForcedConfigPortalFlag, sizeof(readForcedConfigPortalFlag));     
+      //file.close();
+      
+      fseek(file, 0, SEEK_SET);
+      fread((uint8_t *) &readForcedConfigPortalFlag, 1, sizeof(readForcedConfigPortalFlag), file);        
+      fclose(file);
+      
+      ETM_LOGDEBUG(F("OK"));
+      
       
       // Return true if forced CP (0xDEADBEEF read at offset EPROM_START + DRD_FLAG_DATA_SIZE + CONFIG_DATA_SIZE)
       // => set flag noForcedConfigPortal = false     
@@ -677,69 +784,182 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
     //////////////////////////////////////////////
 
 #if USE_DYNAMIC_PARAMETERS
-   
+        
     bool checkDynamicData()
     {
       int checkSum = 0;
       int readCheckSum;
-      
-      uint16_t  byteCount = 0;
+      char* readBuffer = nullptr;
            
-      #define BIG_BUFFER_LEN        768     
-      byte bigBuffer[BIG_BUFFER_LEN + 1];      
+      //File file = FileFS.open(CREDENTIALS_FILENAME, "r");
+      FILE *file = fopen(CREDENTIALS_FILENAME, "r");
       
-      uint16_t offset = CONFIG_EEPROM_START + sizeof(Ethernet_Manager_config) + FORCED_CONFIG_PORTAL_FLAG_DATA_SIZE;
-           
-      // Make address 4-byte aligned
-      if ( (offset % 4) != 0 )
+      ETM_LOGDEBUG(F("LoadCredFile "));
+
+      if (!file)
       {
-        offset += 4 - (offset % 4);
+        ETM_LOGDEBUG(F("failed"));
+
+        // Trying open redundant config file
+        //file = FileFS.open(CREDENTIALS_FILENAME_BACKUP, "r");
+        file = fopen(CREDENTIALS_FILENAME_BACKUP, "r");
+        
+        ETM_LOGDEBUG(F("LoadBkUpCredFile "));
+
+        if (!file)
+        {
+          ETM_LOGDEBUG(F("failed"));
+          return false;
+        }
       }
       
       // Find the longest pdata, then dynamically allocate buffer. Remember to free when done
       // This is used to store tempo data to calculate checksum to see of data is valid
       // We dont like to destroy myMenuItems[i].pdata with invalid data
-      int totalLength = 0;
-            
-      for (int i = 0; i < NUM_MENU_ITEMS; i++)
+      
+      uint16_t maxBufferLength = 0;
+      
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
-        totalLength += myMenuItems[i].maxlen;
+        if (myMenuItems[i].maxlen > maxBufferLength)
+          maxBufferLength = myMenuItems[i].maxlen;
+      }
+      
+      if (maxBufferLength > 0)
+      {
+        readBuffer = new char[ maxBufferLength + 1 ];
         
-        if ( (totalLength > BIG_BUFFER_LEN) )
+        // check to see NULL => stop and return false
+        if (readBuffer == NULL)
         {
-          // Size too large, abort and flag false
-          ETM_LOGERROR(F("ChkCrR: Error Small Buffer."));
+          ETM_LOGERROR(F("ChkCrR: Error can't allocate buffer."));
+          return false;
+        }     
+        else
+        {
+          ETM_LOGDEBUG1(F("ChkCrR: Buffer allocated, Sz="), maxBufferLength + 1);
+        }  
+          
+        uint16_t offset = 0;
+        
+        for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
+        {       
+          uint8_t * _pointer = (uint8_t *) readBuffer;
+
+          // Actual size of pdata is [maxlen + 1]
+          memset(readBuffer, 0, myMenuItems[i].maxlen + 1);
+          
+          // Redundant, but to be sure correct position
+          //file.seek(offset);
+          //file.read(_pointer, myMenuItems[i].maxlen);
+          
+          fseek(file, offset, SEEK_SET);
+          fread(_pointer, 1, myMenuItems[i].maxlen, file);  
+           
+          offset += myMenuItems[i].maxlen;
+       
+          ETM_LOGDEBUG3(F("ChkCrR:pdata="), readBuffer, F(",len="), myMenuItems[i].maxlen);         
+                 
+          for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
+          {         
+            checkSum += *_pointer;  
+          }       
+        }
+
+        //file.read((uint8_t *) &readCheckSum, sizeof(readCheckSum));
+        fread((uint8_t *) &readCheckSum, 1, sizeof(readCheckSum), file);
+        
+        ETM_LOGDEBUG(F("OK"));
+        
+        //file.close();
+        fclose(file);
+        
+        ETM_LOGERROR3(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
+        
+        if (readBuffer != nullptr)
+        {
+          // Free buffer
+          delete [] readBuffer;
+          ETM_LOGDEBUG(F("Buffer freed"));
+        }
+        
+        if ( checkSum == readCheckSum)
+        {
+          return true;
+        }
+      }
+      
+      return false;
+    }
+    
+    //////////////////////////////////////////////
+
+    bool loadDynamicData()
+    {
+      int checkSum = 0;
+      int readCheckSum;
+      totalDataSize = sizeof(Ethernet_Manager_config) + sizeof(readCheckSum);
+      
+      //File file = FileFS.open(CREDENTIALS_FILENAME, "r");
+      FILE *file = fopen(CREDENTIALS_FILENAME, "r");
+      
+      ETM_LOGDEBUG(F("LoadCredFile "));
+
+      if (!file)
+      {
+        ETM_LOGDEBUG(F("failed"));
+
+        // Trying open redundant config file
+        //file = FileFS.open(CREDENTIALS_FILENAME_BACKUP, "r");
+        file = fopen(CREDENTIALS_FILENAME_BACKUP, "r");
+        
+        ETM_LOGDEBUG(F("LoadBkUpCredFile "));
+
+        if (!file)
+        {
+          ETM_LOGDEBUG(F("failed"));
           return false;
         }
       }
-                         
-      // Both Buffers big enough, read all dynamicData to BigBuffer once 
-      // as address need to be 4-byte aligned
-      byte* dataPointer = (byte* ) dueFlashStorageData.readAddress(offset);
+     
+      uint16_t offset = 0;
       
-      // Prepare buffer, more than enough
-      memset(bigBuffer, 0, sizeof(bigBuffer));
-      memcpy(bigBuffer, dataPointer, sizeof(bigBuffer));               
-         
-      // Don't need readBuffer
-      // Now to split into individual piece to add to CSum
-      for (int i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
-        char* _pointer = (char*) bigBuffer;
+        uint8_t * _pointer = (uint8_t *) myMenuItems[i].pdata;
+        totalDataSize += myMenuItems[i].maxlen;
+
+        // Actual size of pdata is [maxlen + 1]
+        memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
         
-        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++, _pointer++, byteCount++)
-        {
-          *_pointer = bigBuffer[byteCount];
-                  
+        // Redundant, but to be sure correct position
+        //file.seek(offset);
+        //file.read(_pointer, myMenuItems[i].maxlen);
+        
+        fseek(file, offset, SEEK_SET);
+        fread(_pointer, 1, myMenuItems[i].maxlen, file);
+        
+        offset += myMenuItems[i].maxlen;        
+    
+        ETM_LOGDEBUG3(F("CrR:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);         
+               
+        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
+        {         
           checkSum += *_pointer;  
-        }    
+        }       
       }
+
+      //file.read((uint8_t *) &readCheckSum, sizeof(readCheckSum));
+      fread((uint8_t *) &readCheckSum, 1, sizeof(readCheckSum), file);
       
-      memcpy(&readCheckSum, &bigBuffer[byteCount], sizeof(readCheckSum));
-          
-      ETM_LOGERROR3(F("ChkCrR:CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
-           
-      if ( checkSum != readCheckSum )
+      ETM_LOGDEBUG(F("OK"));
+      
+      //file.close();
+      fclose(file);
+      
+      ETM_LOGERROR3(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
+      
+      if ( checkSum != readCheckSum)
       {
         return false;
       }
@@ -748,105 +968,113 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
     }
     
     //////////////////////////////////////////////
-    
-    bool dueFlashStorage_getDynamicData()
-    {      
-      uint16_t offset = CONFIG_EEPROM_START + sizeof(Ethernet_Manager_config) + FORCED_CONFIG_PORTAL_FLAG_DATA_SIZE;
-           
-      // Make address 4-byte aligned
-      if ( (offset % 4) != 0 )
-      {
-        offset += 4 - (offset % 4);
-      }
-            
+
+    void saveDynamicData()
+    {
       int checkSum = 0;
-      int readCheckSum;
+    
+      //File file = FileFS.open(CREDENTIALS_FILENAME, "w");
+      FILE *file = fopen(CREDENTIALS_FILENAME, "w");
       
-      uint16_t  byteCount = 0;
-           
-      #define BIG_BUFFER_LEN        768     
-      byte buffer[BIG_BUFFER_LEN + 1];      
+      ETM_LOGDEBUG(F("SaveCredFile "));
+
+      uint16_t offset = 0;
       
-      byte* dataPointer = (byte* ) dueFlashStorageData.readAddress(offset);
-      
-      memcpy(buffer, dataPointer, sizeof(buffer));
-      
-      totalDataSize = sizeof(Ethernet_Manager_config) + sizeof(readCheckSum);
-   
-      for (int i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
-        char* _pointer = myMenuItems[i].pdata;
-        totalDataSize += myMenuItems[i].maxlen;
+        uint8_t* _pointer = (uint8_t *) myMenuItems[i].pdata;
+       
+        ETM_LOGDEBUG3(F("CW1:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
         
-        // Actual size of pdata is [maxlen + 1]
-        memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
-                      
-        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++, byteCount++)
+        if (file)
         {
-          *_pointer = buffer[byteCount];
+          // Redundant, but to be sure correct position
+          //file.seek(offset);                   
+          //file.write((uint8_t*) _pointer, myMenuItems[i].maxlen); 
           
-          checkSum += *_pointer;  
-        }     
-      }
-      
-      memcpy(&readCheckSum, &buffer[byteCount], sizeof(readCheckSum));
-      
-      byteCount += sizeof(readCheckSum);      
-      
-      ETM_LOGERROR5(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX), 
-                F(",TotalDataSz="), totalDataSize);
-      
-      if ( checkSum != readCheckSum)
-      {
-        return false;
-      }
-      
-      return true;
-    }
-    
-    //////////////////////////////////////////////
-    
-    void dueFlashStorage_putDynamicData()
-    {   
-      uint16_t offset = CONFIG_EEPROM_START + sizeof(Ethernet_Manager_config) + FORCED_CONFIG_PORTAL_FLAG_DATA_SIZE;
-      
-      // Make address 4-byte aligned
-      if ( (offset % 4) != 0 )
-      {
-        offset += 4 - (offset % 4);
-      }
-      
-      int       checkSum = 0;
-      uint16_t  byteCount = 0;
-           
-      // Use 2K buffer, if need more memory, can reduce this
-      byte buffer[2048];
-         
-      for (int i = 0; i < NUM_MENU_ITEMS; i++)
-      {       
-        char* _pointer = myMenuItems[i].pdata;
- 
-        ETM_LOGDEBUG3(F("pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
+          fseek(file, offset, SEEK_SET);
+          fwrite(_pointer, 1, myMenuItems[i].maxlen, file);
+          
+          offset += myMenuItems[i].maxlen;      
+        }
+        else
+        {
+          ETM_LOGDEBUG(F("failed"));
+        }        
                      
-        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++, _pointer++, /*offset++,*/ byteCount++)
-        {
-          if (byteCount >= sizeof(buffer))
-          {
-            ETM_LOGERROR1(F("Danger:dynamic data too long >"), sizeof(buffer));
-          }
-          
-          buffer[byteCount] = *_pointer;          
+        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
+        {         
           checkSum += *_pointer;     
          }
       }
+      
+      if (file)
+      {
+        //file.write((uint8_t*) &checkSum, sizeof(checkSum)); 
+        //file.close();
+        
+        fwrite((uint8_t *) &checkSum, 1, sizeof(checkSum), file);        
+        fclose(file);
+        
+        ETM_LOGDEBUG(F("OK"));    
+      }
+      else
+      {
+        ETM_LOGDEBUG(F("failed"));
+      }   
            
-      memcpy(&buffer[byteCount], &checkSum, sizeof(checkSum));
+      ETM_LOGERROR1(F("CrWCSum=0x"), String(checkSum, HEX));
       
-      byteCount += sizeof(checkSum);
+      // Trying open redundant Auth file
+      //file = FileFS.open(CREDENTIALS_FILENAME_BACKUP, "w");
+      file = fopen(CREDENTIALS_FILENAME_BACKUP, "w");
       
-      dueFlashStorageData.write(offset, buffer, byteCount);
+      ETM_LOGDEBUG(F("SaveBkUpCredFile "));
+
+      offset = 0;
       
-      ETM_LOGERROR3(F("CrCCSum=0x"), String(checkSum, HEX), F(",byteCount="), byteCount);
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
+      {       
+        uint8_t* _pointer = (uint8_t *) myMenuItems[i].pdata;
+     
+        ETM_LOGDEBUG3(F("CW2:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
+        
+        if (file)
+        {
+          //file.seek(offset);                   
+          //file.write((uint8_t*) _pointer, myMenuItems[i].maxlen);
+          
+          fseek(file, offset, SEEK_SET);
+          fwrite(_pointer, 1, myMenuItems[i].maxlen, file); 
+          
+          // Redundant, but to be sure correct position
+          offset += myMenuItems[i].maxlen; 
+        }
+        else
+        {
+          ETM_LOGDEBUG(F("failed"));
+        }        
+                     
+        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
+        {         
+          checkSum += *_pointer;     
+         }
+      }
+      
+      if (file)
+      {
+        //file.write((uint8_t*) &checkSum, sizeof(checkSum));     
+        //file.close();
+        
+        fwrite((uint8_t *) &checkSum, 1, sizeof(checkSum), file);        
+        fclose(file);
+        
+        ETM_LOGDEBUG(F("OK"));    
+      }
+      else
+      {
+        ETM_LOGDEBUG(F("failed"));
+      }   
     }
 #endif
 
@@ -863,16 +1091,43 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
       Ethernet_Manager_config.static_IP [STATIC_IP_MAX_LEN - 1]   = 0;
       Ethernet_Manager_config.board_name[BOARD_NAME_MAX_LEN - 1]  = 0;
     }
-    
-    //////////////////////////////////////////////
-    
-    bool dueFlashStorage_get()
+
+    //////////////////////////////////////////////    
+
+    bool loadConfigData()
     {
-      uint16_t offset = CONFIG_EEPROM_START;
-            
-      byte* dataPointer = (byte* ) dueFlashStorageData.readAddress(offset);
+      ETM_LOGDEBUG(F("LoadCfgFile "));
       
-      memcpy(&Ethernet_Manager_config, dataPointer, sizeof(Ethernet_Manager_config));
+      // file existed
+      //File file = FileFS.open(CONFIG_FILENAME, "r");
+      FILE *file = fopen(CONFIG_FILENAME, "r");
+        
+      if (!file)
+      {
+        ETM_LOGDEBUG(F("failed"));
+
+        // Trying open redundant config file
+        //file = FileFS.open(CONFIG_FILENAME_BACKUP, "r");
+        file = fopen(CONFIG_FILENAME_BACKUP, "r");
+        
+        ETM_LOGDEBUG(F("LoadBkUpCfgFile "));
+
+        if (!file)
+        {
+          ETM_LOGDEBUG(F("failed"));
+          return false;
+        }
+      }
+     
+      //file.seek(0);
+      //file.read((uint8_t *) &Ethernet_Manager_config, sizeof(Ethernet_Manager_config));
+      //file.close();
+      
+      fseek(file, 0, SEEK_SET);
+      fread((uint8_t *) &Ethernet_Manager_config, 1, sizeof(Ethernet_Manager_config), file);
+      fclose(file);
+      
+      ETM_LOGDEBUG(F("OK"));
       
       NULLTerminateConfig();
       
@@ -880,32 +1135,69 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
     }
     
     //////////////////////////////////////////////
-   
-    void dueFlashStorage_put()
-    {
-      uint16_t offset = CONFIG_EEPROM_START;
-      
-      dueFlashStorageData.write(offset, (byte *) &Ethernet_Manager_config, sizeof(Ethernet_Manager_config));   
-    } 
-    
-    //////////////////////////////////////////////
 
     void saveConfigData()
     {
+      ETM_LOGDEBUG(F("SaveCfgFile "));
+
       int calChecksum = calcChecksum();
       Ethernet_Manager_config.checkSum = calChecksum;
+      ETM_LOGERROR1(F("WCSum=0x"), String(calChecksum, HEX));
       
-      ETM_LOGERROR3(F("SaveData,Sz="), totalDataSize, F(",chkSum=0x"), String(calChecksum, HEX));
+      //File file = FileFS.open(CONFIG_FILENAME, "w");
+      FILE *file = fopen(CONFIG_FILENAME, "w");
 
-      dueFlashStorage_put();
+      if (file)
+      {
+        //file.seek(0);
+        //file.write((uint8_t*) &Ethernet_Manager_config, sizeof(Ethernet_Manager_config));        
+        //file.close();
+        
+        fseek(file, 0, SEEK_SET);
+        //fwrite((uint8_t *) &Ethernet_Manager_config, 1, sizeof(Ethernet_Manager_config), file);
+        fwrite((uint8_t *) &Ethernet_Manager_config, sizeof(Ethernet_Manager_config), 1, file);
+        fclose(file);
+        
+        ETM_LOGDEBUG(F("OK"));
+      }
+      else
+      {
+        ETM_LOGDEBUG(F("failed"));
+      }
+      
+      ETM_LOGDEBUG(F("SaveBkUpCfgFile "));
+      
+      // Trying open redundant Auth file
+      //file = FileFS.open(CONFIG_FILENAME_BACKUP, "w");
+      file = fopen(CONFIG_FILENAME_BACKUP, "w");
 
+      if (file)
+      {
+        //file.seek(0);
+        //file.write((uint8_t *) &Ethernet_Manager_config, sizeof(Ethernet_Manager_config));        
+        //file.close();
+        
+        fseek(file, 0, SEEK_SET);
+        //fwrite((uint8_t *) &Ethernet_Manager_config, 1, sizeof(Ethernet_Manager_config), file);
+        fwrite((uint8_t *) &Ethernet_Manager_config, sizeof(Ethernet_Manager_config), 1, file);
+        fclose(file);
+        
+        ETM_LOGDEBUG(F("OK"));
+      }
+      else
+      {
+        ETM_LOGDEBUG(F("failed"));
+      }
+      
 #if USE_DYNAMIC_PARAMETERS      
-      dueFlashStorage_putDynamicData();
-#endif      
+      saveDynamicData();
+#endif 
+
+      delay(5000);
     }
     
     //////////////////////////////////////////////
-        
+    
     void loadAndSaveDefaultConfigData()
     {
       // Load Default Config Data from Sketch
@@ -920,16 +1212,14 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
     }
     
     //////////////////////////////////////////////
- 
+    
+    // Return false if init new EEPROM or SPIFFS. No more need trying to connect. Go directly to config mode
     bool getConfigData()
     {
-      bool dynamicDataValid = true;
-      int calChecksum;
+      bool dynamicDataValid = true; 
+      int calChecksum; 
       
-      hadConfigData = false;    
-          
-      // For DUE, DATA_LENGTH = ((IFLASH1_PAGE_SIZE/sizeof(byte))*4) = 1KBytes
-      ETM_LOGERROR1(F("Simulate EEPROM, Sz:"), DATA_LENGTH);
+      hadConfigData = false;
 
       // Use new LOAD_DEFAULT_CONFIG_DATA logic
       if (LOAD_DEFAULT_CONFIG_DATA)
@@ -942,31 +1232,35 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
       }
       else
       {   
-        // Load stored config / dynamic data from dueFlashStorage
-        // Verify ChkSum
-        dueFlashStorage_get();
+        // Load stored config data from LittleFS
+        if (!loadConfigData())
+        {
+          return false;
+        }
         
-            
+        // Verify ChkSum        
         calChecksum = calcChecksum();
 
         ETM_LOGERROR3(F("CCSum=0x"), String(calChecksum, HEX),
                    F(",RCSum=0x"), String(Ethernet_Manager_config.checkSum, HEX));
-                   
+        
 #if USE_DYNAMIC_PARAMETERS        
-        // Load stored dynamic data from dueFlashStorage
+        // Load stored dynamic data from LittleFS
         dynamicDataValid = checkDynamicData();
 #endif
-        // If checksum = 0 => DueFlashStorage has been cleared (by uploading new FW, etc) => force to CP
+        
+        // If checksum = 0 => LittleFS has been cleared (by uploading new FW, etc) => force to CP
         // If bad checksum = 0 => force to CP
         if ( (calChecksum != 0) && (calChecksum == Ethernet_Manager_config.checkSum) )
-        {
+        {       
           if (dynamicDataValid)
-          {   
-  #if USE_DYNAMIC_PARAMETERS  
-            dueFlashStorage_getDynamicData();
+          {
+  #if USE_DYNAMIC_PARAMETERS        
+            loadDynamicData();
             
             ETM_LOGERROR(F("Valid Stored Dynamic Data"));
-  #endif        
+  #endif 
+         
             ETM_LOGERROR(F("======= Start Stored Config Data ======="));
             displayConfigData(Ethernet_Manager_config);
             
@@ -986,11 +1280,11 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
             return false;
           }
         }   
-      }     
+      }   
 
       if ( (strncmp(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE, strlen(ETHERNET_BOARD_TYPE)) != 0) ||
            (calChecksum != Ethernet_Manager_config.checkSum) || !dynamicDataValid || 
-           ( (calChecksum == 0) && (Ethernet_Manager_config.checkSum == 0) ) )
+           ( (calChecksum == 0) && (Ethernet_Manager_config.checkSum == 0) ) )   
       {
         // Including Credentials CSum
         ETM_LOGERROR1(F("InitCfgFile,sz="), sizeof(Ethernet_Manager_config));
@@ -1036,8 +1330,8 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
         Ethernet_Manager_config.checkSum = 0;
 
         saveConfigData();
-
-        return false;
+        
+        return false;        
       }
       else
       {
@@ -1159,7 +1453,7 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
             // Or replace only if board_name is valid.  Otherwise, keep intact
             result.replace("Ethernet_ESP32_Manager", Ethernet_Manager_config.board_name);
           }
-
+          
           if (hadConfigData)
           {
             result.replace("[[ip]]", Ethernet_Manager_config.static_IP);
@@ -1284,7 +1578,7 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
         if (number_items_Updated == NUM_CONFIGURABLE_ITEMS)
 #endif 
         {
-          ETM_LOGERROR(F("h:Updating DueFlash. Please wait for reset"));
+          ETM_LOGERROR1(F("h:Updating LittleFS:"), CONFIG_FILENAME);        
 
           saveConfigData();
           
@@ -1424,4 +1718,5 @@ uint16_t EEPROM_SIZE = (IFLASH1_PAGE_SIZE / sizeof(byte)) * 4;
     byte macAddress[6];
 
 };
-#endif    // Ethernet_DUE_Manager_h
+
+#endif    // Ethernet_RP2040_Manager_h

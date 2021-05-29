@@ -1,8 +1,8 @@
 {
   "name": "Ethernet_Manager",
-  "version": "1.3.0",
-  "description": "Simple Ethernet Manager for Teensy, SAM DUE, SAMD21/51, nRF52, ESP32 (including ESP32-S2, ESP32-C3), ESP8266, RP2040-based, etc. boards. Config data saved in ESP LittleFS, SPIFFS or EEPROM, nRF52 LittleFS/InternalFS, EEPROM, DueFlashStorage or SAMD FlashStorage. For configuring/auto(re)connecting Ethernet W5x00, ENC28J60 and Teensy4.1 NativeEthernet at runtime. Use much less memory compared to full-fledge WiFiManager. Config Portal (CP) will be auto-adjusted to match the number of dynamic custom parameters. Optional default Credentials to be autoloaded into CP to use or change instead of manually input. Credentials are saved in LittleFS, (emulated-)EEPROM, FlashStorage_SAMD or DueFlashStorage. New powerful-yet-simple-to-use feature to enable adding dynamic parameters from sketch and input using the same CP. DoubleDetectDetector as well as Virtual Switches feature permits entering CP as requested. Configurable HTML Headers, including Customs Style, Head Elements, CORS Header",
-  "keywords": "communication, ethernet, esp8266, esp32, esp32-s2, esp32-c3, rpi-pico, rp2040, W5x00, ENC28J60, Teensy, SAM DUE, SAMD21, SAMD51, STM32, nRF52, Credentials, Manager, config-portal, Double-Reset, MQTT, DynamicParameters, dynamic-params, customs-header",
+  "version": "1.4.0",
+  "description": "Simple Ethernet Manager for Teensy, SAM DUE, SAMD21/51, nRF52, ESP32 (including ESP32-S2, ESP32-C3), ESP8266, RP2040-based Nano_RP2040_Connect, RASPBERRY_PI_PICO, etc. boards. Config data saved in ESP LittleFS, SPIFFS or EEPROM, nRF52 LittleFS/InternalFS, EEPROM, DueFlashStorage or SAMD FlashStorage. For configuring/auto(re)connecting Ethernet W5x00, ENC28J60 and Teensy4.1 NativeEthernet at runtime. Use much less memory compared to full-fledge WiFiManager. Config Portal (CP) will be auto-adjusted to match the number of dynamic custom parameters. Optional default Credentials to be autoloaded into CP to use or change instead of manually input. Credentials are saved in LittleFS, (emulated-)EEPROM, FlashStorage_SAMD or DueFlashStorage. New powerful-yet-simple-to-use feature to enable adding dynamic parameters from sketch and input using the same CP. DoubleDetectDetector as well as Virtual Switches feature permits entering CP as requested. Configurable HTML Headers, including Customs Style, Head Elements, CORS Header",
+  "keywords": "communication, ethernet, esp8266, esp32, esp32-s2, esp32-c3, rpi-pico, rp2040, nano-rp2040-connect, W5x00, ENC28J60, Teensy, SAM DUE, SAMD, STM32, nRF52, Credentials, config-portal, Double-Reset, MQTT, SAMD51, DynamicParameters, dynamic-params, customs-header, Manager",
   "authors":
   {
     "name":  "Khoi Hoang",
@@ -39,7 +39,7 @@
     {
       "owner": "khoih.prog",
       "name": "DoubleResetDetector_Generic",
-      "version": ">=1.2.0",
+      "version": ">=1.3.0",
       "platforms": ["*"]
     },
     {
@@ -59,12 +59,6 @@
       "name": "DueFlashStorage",
       "version": "^1.0.0",
       "platforms": ["*"]
-    },
-    {
-      "owner": "lorol",
-      "name": "LittleFS_esp32",
-      "version": ">=1.0.6",
-      "platforms": ["espressif32"]
     }
   ],
   "frameworks": "*",

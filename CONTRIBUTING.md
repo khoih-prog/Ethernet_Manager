@@ -15,7 +15,7 @@ If you don't find anything, please [open a new issue](https://github.com/khoih-p
 Please ensure to specify the following:
 
 * Arduino IDE version (e.g. 1.8.13) or Platform.io version
-* Board Core Version (e.g. Arduino SAMDUE core v1.6.12, ESP8266 core v2.7.4, etc.)
+* Board Core Version (e.g. Arduino SAMDUE core v1.6.12, ESP8266 core v3.0.0, etc.)
 * Contextual information (e.g. what you were trying to achieve)
 * Simplest possible steps to reproduce
 * Anything that might be relevant in your opinion, such as:

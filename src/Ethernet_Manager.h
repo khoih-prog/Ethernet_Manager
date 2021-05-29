@@ -8,7 +8,7 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
-  Version: 1.3.0
+  Version: 1.4.0
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -18,6 +18,7 @@
   1.2.0     K Hoang     22/02/2021 Optimize code and use better FlashStorage_SAMD and FlashStorage_STM32. 
                                    Add customs HTML header feature. Fix bug.
   1.3.0     K Hoang     16/05/2021 Add support to RP2040-based boards such as RASPBERRY_PI_PICO
+  1.4.0     K Hoang     28/05/2021 Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core
  *****************************************************************************************************************************/
 
 #pragma once
@@ -25,7 +26,7 @@
 #ifndef Ethernet_Manager_h
 #define Ethernet_Manager_h
 
-#define ETHERNET_MANAGER_VERSION      "Ethernet_Manager v1.3.0"
+#define ETHERNET_MANAGER_VERSION      "Ethernet_Manager v1.4.0"
 
 #if ( USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE || USE_ETHERNET_ESP8266 || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
   #ifdef USE_CUSTOM_ETHERNET
@@ -148,7 +149,8 @@
   #endif
   #define ETHERNET_USE_NRF528XX         true
 
-#elif ( defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) || defined(ARDUINO_GENERIC_RP2040) )  
+#elif ( defined(NANO_RP2040_CONNECT)    || defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_RASPBERRY_PI_PICO) || \
+        defined(ARDUINO_GENERIC_RP2040) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) ) 
   #if defined(ETHERNET_USE_RPIPICO)
     #undef ETHERNET_USE_RPIPICO
   #endif
@@ -168,8 +170,10 @@
   #include <Adapters/Ethernet_ESP8266_Manager.h>
 #elif (ETHERNET_USE_NRF528XX)
   #include <Adapters/Ethernet_NRF52_Manager.h>
-#elif (ETHERNET_USE_RPIPICO)
+#elif (ETHERNET_USE_RPIPICO)  && !defined(ARDUINO_ARCH_MBED)
   #include <Adapters/Ethernet_RP2040_Manager.h>  
+#elif (ETHERNET_USE_RPIPICO)  && defined(ARDUINO_ARCH_MBED)
+  #include <Adapters/Ethernet_MBED_RP2040_Manager.h>  
 #else
   #error This code for SAMD21, SAMD51, SAM-DUE, Teensy (4.1/4.0, 3.x), ESP8266, ESP32, nRF52, RP2040 boards, not AVR Mega nor STM32! Please check your Tools->Board setting.
 #endif

@@ -17,6 +17,7 @@
   * [Currently supported Boards](#currently-supported-boards)
   * [Currently supported Ethernet shields/modules](#currently-supported-ethernet-shieldsmodules)
 * [Changelog](#changelog)
+  * [Major Releases v1.4.0](#major-releases-v140)
   * [Major Releases v1.3.0](#major-releases-v130)
   * [Major Releases v1.2.0](#major-releases-v120)
   * [Releases v1.1.1](#releases-v111)
@@ -41,7 +42,7 @@
     * [7.2. For STM32 boards to use Serial1](#72-for-stm32-boards-to-use-serial1)
   * [8. For RP2040-based boards using Earle Philhower arduino-pico core](#8-for-rp2040-based-boards-using-earle-philhower-arduino-pico-core)
     * [8.1. To use BOARD_NAME](#81-to-use-board_name)
-    * [8.2. To avoid compile error relating to microsecondsToClockCycles](#82-to-avoid-compile-error-relating-to-microsecondstoclockcycles)
+    * [8.2. To avoid compile error relating to microsecondsToClockCycles](#82-to-avoid-compile-error-relating-to-microsecondstoclockcycles) 
 * [Libraries' Patches](#libraries-patches)
   * [1. For application requiring 2K+ HTML page](#1-for-application-requiring-2k-html-page)
   * [2. For Ethernet library](#2-for-ethernet-library)
@@ -77,6 +78,8 @@
   * [3. Note for Adafruit SAMD21 and SAMD51](#3-note-for-adafruit-samd21-and-samd51)
   * [4. Note for Arduino SAM DUE](#4-note-for-arduino-sam-due)
   * [5. Note for RP2040-based boards](#5-note-for-rp2040-based-boards)
+  * [6. Note for MBED RP2040-based boards](#6-note-for-mbed-rp2040-based-boards)
+  * [7. Note for MBED RP2040-based boards LittleFS usage](#7-note-for-mbed-rp2040-based-boards-littlefs-usage). **Important**
 * [Configuration Notes](#configuration-notes)
   * [1. How to select which built-in Ethernet or shield to use](#1-how-to-select-which-built-in-ethernet-or-shield-to-use)
   * [2. How to select another CS/SS pin to use](#2-how-to-select-another-csss-pin-to-use)
@@ -128,9 +131,12 @@
   * [5. MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER with ENC28J60 using EthernetENC Library](#5-mqtt_thingstream_ethernet_generic-on-nrf52840_feather-with-enc28j60-using-ethernetenc-library)
     * [5.1. Normal run without correct ThingStream MQTT Credentials](#51-normal-run-without-correct-thingstream-mqtt-credentials)
     * [5.2. Got correct ThingStream MQTT Credentials from Config Portal](#52-got-correct-thingstream-mqtt-credentials-from-config-portal)
-  * [6. MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO with W5x00 using Ethernet Library](#6-mqtt_thingstream_ethernet_rp2040-on-raspberry_pi_pico-with-w5x00-using-ethernet-Library)
+  * [6. MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO with W5x00 using Ethernet Library](#6-mqtt_thingstream_ethernet_rp2040-on-raspberry_pi_pico-with-w5x00-using-ethernet-library)
     * [6.1. Normal run without correct ThingStream MQTT Credentials or DRD](#61-normal-run-without-correct-thingstream-mqtt-credentials-or-drd)
     * [6.2. Got correct ThingStream MQTT Credentials from Config Portal](#62-got-correct-thingstream-mqtt-credentials-from-config-portal)
+  * [7. Ethernet_RP2040 on MBED RASPBERRY_PI_PICO with W5500 using EthernetLarge Library](#7-ethernet_rp040-on-mbed-raspberry_pi_pico-with-w5500-using-ethernetlarge-library)
+    * [7.1. DRD => Config Portal](#71-drd--config-portal)
+    * [7.2. Data Saved => Exit Config Portal](#72-data-saved--exit-config-portal)
 * [Debug](#debug)
 * [Troubleshooting](#troubleshooting)
 * [Releases](#releases)
@@ -151,6 +157,7 @@
 #### Features
 
 - This is the new library, adding to the current WiFiManager sets of libraries. It's designed to help you eliminate `hardcoding` your Credentials in **Teensy, SAM DUE, SAMD21, SAMD51, nRF52,RP2040-based, etc. boards using Ethernet shields (W5100, W5200, W5500, ENC28J60, Teensy 4.1 NativeEthernet, etc)**. It's currently **not supporting SSL**. Will support soon.
+
 - It's not supporting UNO/Nano/Mega and other AVR boards for not enough memory.
 - You can update Credentials any time you need to change via Configure Portal. Data are saved in configurable locations in EEPROM, DueFlashStorage or FlashStorage
 - Teensy LC, 2.0++ and 2.0 not supported.
@@ -158,7 +165,7 @@
 - Configurable **Config Portal Title** to be either BoardName or default undistinguishable names.
 - Examples are redesigned to separate Credentials / Defines / Dynamic Params / Code so that you can change Credentials / Dynamic Params quickly for each device
 
-The **RP2040-based boards, such as RASPBERRY_PI_PICO**, are currently supported using [**Earle Philhower's arduino-pico** core v1.3.1+](https://github.com/earlephilhower/arduino-pico) and LittleFS. The support to [**Arduino-mbed RP2040** core](https://github.com/arduino/ArduinoCore-mbed), which has **no LittleFS support yet**, will be added in the future using **simulated-EEPROM** if LittleFS not ready then.
+The **RP2040-based boards, such as Nano RP2040 Connect, RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, are currently supported using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico) or [**Arduino mbed OS for RP2040/Nano boards**](https://github.com/arduino/ArduinoCore-mbed).
 
 New recent features:
 
@@ -191,7 +198,11 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
  
  7. **ESP8266**
  
- 8. RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Earle Philhower's arduino-pico** core v1.3.1+](https://github.com/earlephilhower/arduino-pico) and LittleFS.
+ 8. RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico).
+
+ 9. RP2040-based boards, such as **Nano RP2040 Connect**, using [**Arduino mbed OS for Nano boards**](https://github.com/arduino/ArduinoCore-mbed).
+ 
+10. RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-mbed RP2040** v2.1.0+ core](https://github.com/arduino/ArduinoCore-mbed)
  
  ---
  
@@ -205,6 +216,11 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
 ---
 
 ## Changelog
+
+### Major Releases v1.4.0
+
+1. Add support to RP2040-based boards, such as **Nano RP2040 Connect**, using [**Arduino mbed OS for Nano boards**](https://github.com/arduino/ArduinoCore-mbed) and LittleFS.
+1. Add support to RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-mbed RP2040** v2.1.0+ core](https://github.com/arduino/ArduinoCore-mbed) and LittleFS.
 
 ### Major Releases v1.3.0
 
@@ -248,30 +264,31 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
  2. [`Teensy core v1.51`](https://www.pjrc.com/teensy/td_download.html) for Teensy (4.0, 3.6, 3.5, 3,2, 3.1, 3.0) boards and [`Teensy core v1.53+`](https://www.pjrc.com/teensy/td_download.html) for Teensy 4.1 boards using NativeEthernet.
  3. [`Arduino SAM DUE core v1.6.12+`](https://www.arduino.cc/en/Guide/ArduinoDue) for SAM DUE ARM Cortex-M3 boards.
  4. [`Arduino SAMD core 1.8.11+`](https://www.arduino.cc/en/Guide/ArduinoM0) for SAMD ARM Cortex-M0+ boards. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-samd.svg)](https://github.com/arduino/ArduinoCore-samd/releases/latest)
- 5. [`Adafruit SAMD core 1.6.8+`](https://www.adafruit.com/) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
+ 5. [`Adafruit SAMD core 1.7.2+`](https://www.adafruit.com/) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
  6. [`Seeeduino SAMD core 1.8.1+`](https://github.com/Seeed-Studio/ArduinoCore-samd) for SAMD21/SAMD51 boards (XIAO M0, Wio Terminal, etc.). [![Latest release](https://img.shields.io/github/release/Seeed-Studio/ArduinoCore-samd.svg)](https://github.com/Seeed-Studio/ArduinoCore-samd/releases/latest/)
- 7. [`Adafruit nRF52 v0.21.0+`](https://www.adafruit.com) for nRF52 boards such as Adafruit NRF52840_FEATHER, NRF52832_FEATHER, NRF52840_FEATHER_SENSE, NRF52840_ITSYBITSY, NRF52840_CIRCUITPLAY, NRF52840_CLUE, NRF52840_METRO, NRF52840_PCA10056, PARTICLE_XENON, **NINA_B302_ublox**, etc. [![GitHub release](https://img.shields.io/github/release/adafruit/Adafruit_nRF52_Arduino.svg)](https://github.com/adafruit/Adafruit_nRF52_Arduino/releases/latest)
+ 7. [`Adafruit nRF52 v0.22.1+`](https://www.adafruit.com) for nRF52 boards such as Adafruit NRF52840_FEATHER, NRF52832_FEATHER, NRF52840_FEATHER_SENSE, NRF52840_ITSYBITSY, NRF52840_CIRCUITPLAY, NRF52840_CLUE, NRF52840_METRO, NRF52840_PCA10056, PARTICLE_XENON, **NINA_B302_ublox**, etc. [![GitHub release](https://img.shields.io/github/release/adafruit/Adafruit_nRF52_Arduino.svg)](https://github.com/adafruit/Adafruit_nRF52_Arduino/releases/latest)
  8. [`ESP8266 Core 3.0.0+`](https://github.com/esp8266/Arduino) for ESP8266-based boards. [![Latest release](https://img.shields.io/github/release/esp8266/Arduino.svg)](https://github.com/esp8266/Arduino/releases/latest/). To use ESP8266 core 2.7.1+ for LittleFS.
  9. [`ESP32 Core 1.0.6+`](https://github.com/espressif/arduino-esp32) for ESP32-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/)
 10. [`ESP32S2 Core 1.0.6+`](https://github.com/espressif/arduino-esp32/tree/esp32s2) for ESP32S2-based boards.
-11. [`Earle Philhower's arduino-pico core v1.4.0+`](https://github.com/earlephilhower/arduino-pico) for RP2040-based boards such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, etc. [![GitHub release](https://img.shields.io/github/release/earlephilhower/arduino-pico.svg)](https://github.com/earlephilhower/arduino-pico/releases/latest)
-12. Depending on which Ethernet card you're using:
+11. [`Earle Philhower's arduino-pico core v1.6.2+`](https://github.com/earlephilhower/arduino-pico) for RP2040-based boards such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, etc. [![GitHub release](https://img.shields.io/github/release/earlephilhower/arduino-pico.svg)](https://github.com/earlephilhower/arduino-pico/releases/latest)
+12. [`Arduino mbed_rp2040 core 2.1.0+`](https://github.com/arduino/ArduinoCore-mbed) for Arduino (Use Arduino Board Manager) RP2040-based boards, such as **Arduino Nano RP2040 Connect, RASPBERRY_PI_PICO, etc.**. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-mbed.svg)](https://github.com/arduino/ArduinoCore-mbed/releases/latest) 
+13. Depending on which Ethernet card you're using:
    - [`Ethernet library v2.0.0+`](https://github.com/arduino-libraries/Ethernet) for W5100, W5200 and W5500.  [![GitHub release](https://img.shields.io/github/release/arduino-libraries/Ethernet.svg)](https://github.com/arduino-libraries/Ethernet/releases/latest)
    - [`EthernetLarge library v2.0.0+`](https://github.com/OPEnSLab-OSU/EthernetLarge) for W5100, W5200 and W5500.
    - [`Ethernet2 library v1.0.4+`](https://github.com/khoih-prog/Ethernet2) for W5500. [![GitHub release](https://img.shields.io/github/release/adafruit/Ethernet2.svg)](https://github.com/adafruit/Ethernet2/releases/latest)
    - [`Ethernet3 library v1.5.5+`](https://github.com/sstaub/Ethernet3) for W5500/WIZ550io/WIZ850io/USR-ES1 with Wiznet W5500 chip. [![GitHub release](https://img.shields.io/github/release/sstaub/Ethernet3.svg)](https://github.com/sstaub/Ethernet3/releases/latest)
    - [`EthernetENC library v2.0.1+`](https://github.com/jandrassy/EthernetENC) for ENC28J60. [![GitHub release](https://img.shields.io/github/release/jandrassy/EthernetENC.svg)](https://github.com/jandrassy/EthernetENC/releases/latest). **New and Better**
-   - [`UIPEthernet library v2.0.9+`](https://github.com/UIPEthernet/UIPEthernet) for ENC28J60. [![GitHub release](https://img.shields.io/github/release/UIPEthernet/UIPEthernet.svg)](https://github.com/UIPEthernet/UIPEthernet/releases/latest)
+   - [`UIPEthernet library v2.0.10+`](https://github.com/UIPEthernet/UIPEthernet) for ENC28J60. [![GitHub release](https://img.shields.io/github/release/UIPEthernet/UIPEthernet.svg)](https://github.com/UIPEthernet/UIPEthernet/releases/latest)
    - [`NativeEthernet Library version stable111+`](https://github.com/vjmuzik/NativeEthernet) for Teensy 4.1 built-in NativeEthernet.
-13. Depending on which board you're using:
+14. Depending on which board you're using:
    - [`DueFlashStorage library v1.0.0+`](https://github.com/sebnil/DueFlashStorage) for SAM DUE. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/DueFlashStorage.svg?)](https://www.ardu-badge.com/DueFlashStorage)
    - [`FlashStorage_SAMD library v1.1.0+`](https://github.com/khoih-prog/FlashStorage_SAMD) for SAMD21 and SAMD51 boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit Itsy-Bitsy M4, etc.). [![GitHub release](https://img.shields.io/github/release/khoih-prog/FlashStorage_SAMD.svg)](https://github.com/khoih-prog/FlashStorage_SAMD/releases/latest)
    - [`Adafruit's LittleFS/InternalFS`](www.adafruit.com) for nRF52
-14. [`EthernetWebServer library v1.5.0+`](https://github.com/khoih-prog/EthernetWebServer). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/EthernetWebServer.svg?)](https://www.ardu-badge.com/EthernetWebServer).
-15. [`ESP_DoubleResetDetector library v1.1.1+`](https://github.com/khoih-prog/ESP_DoubleResetDetector) for ESP32 and ESP8266.  To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_DoubleResetDetector.svg?)](https://www.ardu-badge.com/ESP_DoubleResetDetector).
-16. [`DoubleResetDetector_Generic library v1.2.0+`](https://github.com/khoih-prog/DoubleResetDetector_Generic) for other boards (not ESP32 or ESP8266). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic).
-17. [`Functional-VLPP library v1.0.2+`](https://github.com/khoih-prog/functional-vlpp) to use server's lambda function. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/Functional-Vlpp.svg?)](https://www.ardu-badge.com/Functional-Vlpp)
-18. [`LittleFS_esp32 v1.0.6+`](https://github.com/lorol/LITTLEFS) for ESP32-based boards using LittleFS. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/LittleFS_esp32.svg?)](https://www.ardu-badge.com/LittleFS_esp32). **Notice**: This [`LittleFS_esp32 library`](https://github.com/lorol/LITTLEFS) has been integrated to Arduino [esp32 core v1.0.6](https://github.com/espressif/arduino-esp32/tree/master/libraries/LITTLEFS).
+15. [`EthernetWebServer library v1.5.0+`](https://github.com/khoih-prog/EthernetWebServer). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/EthernetWebServer.svg?)](https://www.ardu-badge.com/EthernetWebServer).
+16. [`ESP_DoubleResetDetector library v1.1.1+`](https://github.com/khoih-prog/ESP_DoubleResetDetector) for ESP32 and ESP8266.  To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_DoubleResetDetector.svg?)](https://www.ardu-badge.com/ESP_DoubleResetDetector).
+17. [`DoubleResetDetector_Generic library v1.2.0+`](https://github.com/khoih-prog/DoubleResetDetector_Generic) for other boards (not ESP32 or ESP8266). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic).
+18. [`Functional-VLPP library v1.0.2+`](https://github.com/khoih-prog/functional-vlpp) to use server's lambda function. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/Functional-Vlpp.svg?)](https://www.ardu-badge.com/Functional-Vlpp)
+19. [`LittleFS_esp32 v1.0.6+`](https://github.com/lorol/LITTLEFS) for ESP32-based boards using LittleFS. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/LittleFS_esp32.svg?)](https://www.ardu-badge.com/LittleFS_esp32). **Notice**: This [`LittleFS_esp32 library`](https://github.com/lorol/LITTLEFS) has been integrated to Arduino [esp32 core v1.0.6](https://github.com/espressif/arduino-esp32/tree/master/libraries/LITTLEFS).
 
 ---
 
@@ -305,16 +322,16 @@ The best way is to use `Arduino Library Manager`. Search for `Ethernet_Manager`,
 
 #### 1. For Adafruit nRF52840 and nRF52832 boards
 
-**To be able to compile, run and automatically detect and display BOARD_NAME on nRF52840/nRF52832 boards**, you have to copy the whole [nRF52 0.21.0](Packages_Patches/adafruit/hardware/nrf52/0.21.0) directory into Adafruit nRF52 directory (~/.arduino15/packages/adafruit/hardware/nrf52/0.21.0). 
+**To be able to compile, run and automatically detect and display BOARD_NAME on nRF52840/nRF52832 boards**, you have to copy the whole [nRF52 0.21.1](Packages_Patches/adafruit/hardware/nrf52/0.21.1) directory into Adafruit nRF52 directory (~/.arduino15/packages/adafruit/hardware/nrf52/0.21.1). 
 
-Supposing the Adafruit nRF52 version is 0.21.0. These files must be copied into the directory:
-- `~/.arduino15/packages/adafruit/hardware/nrf52/0.21.0/platform.txt`
-- `~/.arduino15/packages/adafruit/hardware/nrf52/0.21.0/boards.txt`
-- `~/.arduino15/packages/adafruit/hardware/nrf52/0.21.0/variants/NINA_B302_ublox/variant.h`
-- `~/.arduino15/packages/adafruit/hardware/nrf52/0.21.0/variants/NINA_B302_ublox/variant.cpp`
-- `~/.arduino15/packages/adafruit/hardware/nrf52/0.21.0/variants/NINA_B112_ublox/variant.h`
-- `~/.arduino15/packages/adafruit/hardware/nrf52/0.21.0/variants/NINA_B112_ublox/variant.cpp`
-- **`~/.arduino15/packages/adafruit/hardware/nrf52/0.21.0/cores/nRF5/Udp.h`**
+Supposing the Adafruit nRF52 version is 0.21.1. These files must be copied into the directory:
+- `~/.arduino15/packages/adafruit/hardware/nrf52/0.21.1/platform.txt`
+- `~/.arduino15/packages/adafruit/hardware/nrf52/0.21.1/boards.txt`
+- `~/.arduino15/packages/adafruit/hardware/nrf52/0.21.1/variants/NINA_B302_ublox/variant.h`
+- `~/.arduino15/packages/adafruit/hardware/nrf52/0.21.1/variants/NINA_B302_ublox/variant.cpp`
+- `~/.arduino15/packages/adafruit/hardware/nrf52/0.21.1/variants/NINA_B112_ublox/variant.h`
+- `~/.arduino15/packages/adafruit/hardware/nrf52/0.21.1/variants/NINA_B112_ublox/variant.cpp`
+- **`~/.arduino15/packages/adafruit/hardware/nrf52/0.21.1/cores/nRF5/Udp.h`**
 
 Whenever a new version is installed, remember to copy these files into the new version directory. For example, new version is x.yy.z
 These files must be copied into the directory:
@@ -361,9 +378,9 @@ This file must be copied into the directory:
 
 #### 4. For Arduino SAMD boards
  
- ***To be able to compile without error and automatically detect and display BOARD_NAME on Arduino SAMD (Nano-33-IoT, etc) boards***, you have to copy the whole [Arduino SAMD cores 1.8.10](Packages_Patches/arduino/hardware/samd/1.8.10) directory into Arduino SAMD directory (~/.arduino15/packages/arduino/hardware/samd/1.8.10).
+ ***To be able to compile without error and automatically detect and display BOARD_NAME on Arduino SAMD (Nano-33-IoT, etc) boards***, you have to copy the whole [Arduino SAMD cores 1.8.11](Packages_Patches/arduino/hardware/samd/1.8.11) directory into Arduino SAMD directory (~/.arduino15/packages/arduino/hardware/samd/1.8.11).
  
-#### For core version v1.8.11+
+#### For core version v1.8.10+
 
 Supposing the Arduino SAMD version is 1.8.11. Now only one file must be copied into the directory:
 
@@ -400,11 +417,11 @@ Whenever the above-mentioned compiler error issue is fixed with the new Arduino 
 
 #### 5. For Adafruit SAMD boards
  
- ***To be able to automatically detect and display BOARD_NAME on Adafruit SAMD (Itsy-Bitsy M4, etc) boards***, you have to copy the file [Adafruit SAMD platform.txt](Packages_Patches/adafruit/hardware/samd/1.6.8) into Adafruit samd directory (~/.arduino15/packages/adafruit/hardware/samd/1.6.8). 
+ ***To be able to automatically detect and display BOARD_NAME on Adafruit SAMD (Itsy-Bitsy M4, etc) boards***, you have to copy the file [Adafruit SAMD platform.txt](Packages_Patches/adafruit/hardware/samd/1.7.2) into Adafruit samd directory (~/.arduino15/packages/adafruit/hardware/samd/1.7.2). 
 
-Supposing the Adafruit SAMD core version is 1.6.8. This file must be copied into the directory:
+Supposing the Adafruit SAMD core version is 1.7.2. This file must be copied into the directory:
 
-- `~/.arduino15/packages/adafruit/hardware/samd/1.6.8/platform.txt`
+- `~/.arduino15/packages/adafruit/hardware/samd/1.7.2/platform.txt`
 
 Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz
 This file must be copied into the directory:
@@ -478,7 +495,7 @@ This file must be copied into the directory:
 
 - `~/.arduino15/packages/rp2040/hardware/rp2040/x.yy.zz/platform.txt`
 
-With core after v1.4.0, this step is not necessary anymore thanks to the PR [Add -DBOARD_NAME="{build.board}" #136](https://github.com/earlephilhower/arduino-pico/pull/136).
+With core after v1.5.1, this step is not necessary anymore thanks to the PR [Add -DBOARD_NAME="{build.board}" #136](https://github.com/earlephilhower/arduino-pico/pull/136).
 
 #### 8.2 To avoid compile error relating to microsecondsToClockCycles
 
@@ -493,7 +510,7 @@ This file must be copied to replace:
 
 - `~/.arduino15/packages/rp2040/hardware/rp2040/x.yy.zz/cores/rp2040/Arduino.h`
 
-With core after v1.4.0, this step is not necessary anymore thanks to the PR [Add defs for compatibility #142](https://github.com/earlephilhower/arduino-pico/pull/142).
+With core after v1.5.1, this step is not necessary anymore thanks to the PR [Add defs for compatibility #142](https://github.com/earlephilhower/arduino-pico/pull/142).
 ---
 
 ### Libraries' Patches
@@ -823,13 +840,61 @@ For **Arduino SAM DUE**, use the SPI's pins as follows:
   
 #### 5. Note for RP2040-based boards
 
-For **RP2040-based** boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-pico core** v1.3.1+](https://github.com/earlephilhower/arduino-pico), use the SPI's pins as follows:
+For **RP2040-based** boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico), use the SPI's pins as follows:
 
   - SS/CS     = 17
   - SPI_MOSI  = 19
   - SPI_MISO  = 16
   - SPI_SCK   = 18
 
+#### 6. Note for MBED RP2040-based boards
+
+For **RP2040-based** boards, such as **Nano RP2040 Connect, RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino mbed OS for RP2040/Nano boards**](https://github.com/arduino/ArduinoCore-mbed), use the SPI's pins as follows:
+
+  - SS/CS     = 5
+  - SPI_MOSI  = 3
+  - SPI_MISO  = 4
+  - SPI_SCK   = 2
+  
+  
+#### 7. Note for MBED RP2040-based boards LittleFS usage
+
+Currently, the MBED RP2040-based boards share the LittleFS usage and settings with the [**DoubleResetDetector_Generic** Library](https://github.com/khoih-prog/DoubleResetDetector_Generic). Check the `LittleFS` definitions at [DoubleResetDetector_Generic.h#L196-L204](https://github.com/khoih-prog/DoubleResetDetector_Generic/blob/master/src/DoubleResetDetector_Generic.h#L196-L204)
+
+```
+#if !defined(RP2040_FS_SIZE_KB)
+  // Using default 16KB for LittleFS
+  #define RP2040_FS_SIZE_KB       (64)
+#endif
+
+#if !defined(RP2040_FS_START)
+  #define RP2040_FS_START           (RP2040_FLASH_SIZE - (RP2040_FS_SIZE_KB * 1024))
+#endif
+
+FlashIAPBlockDevice bd(XIP_BASE + RP2040_FS_START, (RP2040_FS_SIZE_KB * 1024));
+```
+
+You can change the `LittleFS` size from default 64KB to any size (from 1KB to 1MB = 1024KB) by adding a definition in your code to override the default, such as
+
+```
+#define RP2040_FS_SIZE_KB       (512)
+```
+  
+Be sure to have the above definition before the first inclusion of `Ethernet_Manager.h`
+
+```
+#define RP2040_FS_SIZE_KB       (512)
+
+...
+
+#include <Ethernet_Manager.h>
+```
+  
+The end of `LittleFS` is set at the end of RP2040 Flash, currently 2MB
+
+```
+#define RP2040_FS_START           (RP2040_FLASH_SIZE - (RP2040_FS_SIZE_KB * 1024))
+```
   
 ---
 ---
@@ -1736,7 +1801,8 @@ void loop()
   #define USE_DYNAMIC_PARAMETERS        true
 #endif
 
-#if ( defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) || defined(ARDUINO_GENERIC_RP2040) )
+#if ( defined(NANO_RP2040_CONNECT)    || defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_RASPBERRY_PI_PICO) || \
+      defined(ARDUINO_GENERIC_RP2040) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) )
   // For RPI Pico
   #if defined(ETHERNET_USE_RPIPICO)
     #undef ETHERNET_USE_RPIPICO
@@ -1963,25 +2029,31 @@ void loop()
   // Default pin 5 (in Mbed) or 17 to SS/CS
   #if defined(ARDUINO_ARCH_MBED)
     // For RPI Pico using Arduino Mbed RP2040 core
-    // SCK: GPIO2,  MOSI: GPIO3, MISO: GPIO4, SS/CS: GPIO5 
+    // SCK: GPIO2,  MOSI: GPIO3, MISO: GPIO4, SS/CS: GPIO5
     #define USE_THIS_SS_PIN       5
-  
-    #if defined(BOARD_NAME)
+    
+    #if ( defined(NANO_RP2040_CONNECT)    || defined(ARDUINO_RASPBERRY_PI_PICO) || \
+          defined(ARDUINO_GENERIC_RP2040) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) )
+      // Only undef known BOARD_NAME to use better one
       #undef BOARD_NAME
     #endif
-  
-    #if defined(ARDUINO_RASPBERRY_PI_PICO) 
-      #define BOARD_TYPE      "MBED RASPBERRY_PI_PICO"
-    #elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2040)
-      #define BOARD_TYPE      "MBED DAFRUIT_FEATHER_RP2040"
-    #elif defined(ARDUINO_GENERIC_RP2040)
-      #define BOARD_TYPE      "MBED GENERIC_RP2040"
-    #else
-      #define BOARD_TYPE      "MBED Unknown RP2040"
-    #endif
     
-  #else
+    #if defined(ARDUINO_RASPBERRY_PI_PICO)
+      #define BOARD_NAME      "MBED RASPBERRY_PI_PICO"
+    #elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2040)
+      #define BOARD_NAME      "MBED ADAFRUIT_FEATHER_RP2040"
+    #elif defined(ARDUINO_GENERIC_RP2040)
+      #define BOARD_NAME      "MBED GENERIC_RP2040"
+    #elif defined(NANO_RP2040_CONNECT) 
+      #define BOARD_NAME      "MBED NANO_RP2040_CONNECT" 
+    #else
+      // Use default BOARD_NAME if exists
+      #if !defined(BOARD_NAME)
+        #define BOARD_NAME      "MBED Unknown RP2040"
+      #endif
+    #endif
   
+  #else
     // For RPI Pico using E. Philhower RP2040 core
     // SCK: GPIO18,  MOSI: GPIO19, MISO: GPIO16, SS/CS: GPIO17
     #define USE_THIS_SS_PIN       17
@@ -2339,8 +2411,8 @@ This is the terminal output of an Adafruit NRF52840_FEATHER board with W5500 Eth
 ```
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type W5x00 using Ethernet2 Library
-Ethernet_Manager v1.3.0
-DoubleResetDetector_Generic Version v1.2.0
+Ethernet_Manager v1.4.0
+DoubleResetDetector_Generic v1.3.0
 [ETHERNET_WEBSERVER] =========== USE_ETHERNET2 ===========
 [ETHERNET_WEBSERVER] Default SPI pinout:
 [ETHERNET_WEBSERVER] MOSI: 25
@@ -2431,8 +2503,8 @@ Pubs Topics = old-mqtt-PubTopic
 ```cpp
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.3.0
-DoubleResetDetector_Generic Version v1.2.0
+Ethernet_Manager v1.4.0
+DoubleResetDetector_Generic v1.3.0
 [ETHERNET_WEBSERVER] =========== USE_ETHERNET2 ===========
 [ETHERNET_WEBSERVER] Default SPI pinout:
 [ETHERNET_WEBSERVER] MOSI: 25
@@ -2614,8 +2686,8 @@ This is the terminal output of an SeeedStudio SAMD21 SEEED_XIAO_M0 board with W5
 ```
 Start Ethernet_SAMD on SEEED_XIAO_M0
 Ethernet Shield type : W5x00 using Ethernet Library
-Ethernet_Manager v1.3.0
-DoubleResetDetector_Generic Version v1.2.0
+Ethernet_Manager v1.4.0
+DoubleResetDetector_Generic v1.3.0
 Flag read = 0xffffffff
 No doubleResetDetected
 SetFlag write = 0xd0d01234
@@ -2691,8 +2763,8 @@ This is the terminal output of an Arduino SAM DUE board with W5100 Ethernet shie
 ```
 Start Ethernet_SAM_DUE on SAM DUE
 Ethernet Shield type : W5x00 using EthernetLarge Library
-Ethernet_Manager v1.3.0
-DoubleResetDetector_Generic Version v1.2.0
+Ethernet_Manager v1.4.0
+DoubleResetDetector_Generic v1.3.0
 Flag read = 0xd0d01234
 doubleResetDetected
 ClearFlag write = 0xd0d04321
@@ -2777,7 +2849,7 @@ If no valid config data are stored in EEPROM, it will switch to `Configuration M
 ```
 Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.3.0
+Ethernet_Manager v1.4.0
 ESP_DoubleResetDetector Version v1.1.1
 =========================
 Currently Used SPI pinout:
@@ -2825,7 +2897,7 @@ Enter your credentials (Blynk Servers/Tokens and Port). If you prefer static IP,
 ```
 Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.3.0
+Ethernet_Manager v1.4.0
 ESP_DoubleResetDetector Version v1.1.1
 =========================
 Currently Used SPI pinout:
@@ -2885,8 +2957,8 @@ This is the terminal output of NRF52840_FEATHER board with ENC28J60 using Ethern
 ```
 Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
 Ethernet Shield type : ENC28J60 using EthernetENC Library
-Ethernet_Manager v1.3.0
-DoubleResetDetector_Generic Version v1.2.0
+Ethernet_Manager v1.4.0
+DoubleResetDetector_Generic v1.3.0
 LittleFS Flag read = 0xd0d01234
 Flag read = 0xd0d01234
 doubleResetDetected
@@ -2923,8 +2995,8 @@ esp32-sniffer/12345678/ble
 ```
 Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
 Ethernet Shield type : ENC28J60 using EthernetENC Library
-Ethernet_Manager v1.3.0
-DoubleResetDetector_Generic Version v1.2.0
+Ethernet_Manager v1.4.0
+DoubleResetDetector_Generic v1.3.0
 LittleFS Flag read = 0xd0d04321
 Flag read = 0xd0d04321
 No doubleResetDetected
@@ -2980,8 +3052,8 @@ This is the terminal output of RASPBERRY_PI_PICO board with W5x00 using Ethernet
 ```
 Start MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO
 Ethernet Shield type : W5x00 using Ethernet Library
-Ethernet_Manager v1.3.0
-DoubleResetDetector_Generic v1.2.0
+Ethernet_Manager v1.4.0
+DoubleResetDetector_Generic v1.3.0
 [EWS] =========== USE_ETHERNET ===========
 [EWS] Default SPI pinout:
 [EWS] MOSI: 19
@@ -3037,8 +3109,8 @@ esp32-sniffer/12345678/ble
 ```
 Start MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO
 Ethernet Shield type : W5x00 using Ethernet Library
-Ethernet_Manager v1.3.0
-DoubleResetDetector_Generic v1.2.0
+Ethernet_Manager v1.4.0
+DoubleResetDetector_Generic v1.3.0
 [EWS] =========== USE_ETHERNET ===========
 [EWS] Default SPI pinout:
 [EWS] MOSI: 19
@@ -3100,6 +3172,147 @@ H
 ```
 
 ---
+
+#### 7. Ethernet_RP2040 on MBED RASPBERRY_PI_PICO with W5500 using EthernetLarge Library
+
+This is the terminal output of an MBED RASPBERRY_PI_PICO board with W5500 Ethernet shield using EthernetLarge Library, running [Ethernet_RP2040](examples/Ethernet_RP2040) example with **doubleResetDetected**.
+
+#### 7.1 DRD => Config Portal
+
+```
+Start Ethernet_RP2040 on MBED RASPBERRY_PI_PICO
+Ethernet Shield type : W5x00 using EthernetLarge Library
+Ethernet_Manager v1.4.0
+DoubleResetDetector_Generic v1.3.0
+[EWS] =========== USE_ETHERNET_LARGE ===========
+[EWS] Default SPI pinout:
+[EWS] MOSI: 3
+[EWS] MISO: 4
+[EWS] SCK: 2
+[EWS] SS: 5
+[EWS] =========================
+[EWS] Board : MBED RASPBERRY_PI_PICO , setCsPin: 5
+[EWS] =========================
+[EWS] Currently Used SPI pinout:
+[EWS] MOSI: 3
+[EWS] MISO: 4
+[EWS] SCK: 2
+[EWS] SS: 5
+[EWS] =========================
+LittleFS size (KB) = 64
+LittleFS Mount OK
+LittleFS Flag read = 0xd0d01234
+Flag read = 0xd0d01234
+doubleResetDetected
+Saving to DRD file : 0xd0d04321
+Saving DRD file OK
+LittleFS Flag read = 0xd0d04321
+ClearFlag write = 0xd0d04321
+[ETM] =====================
+[ETM] DRD. Run ConfigPortal
+[ETM] =====================
+[ETM] CCSum=0x 477 ,RCSum=0x 477
+[ETM] CrCCsum=0x 219f ,CrRCsum=0x 219f
+[ETM] CrCCsum=0x 219f ,CrRCsum=0x 219f
+[ETM] Valid Stored Dynamic Data
+[ETM] ======= Start Stored Config Data =======
+[ETM] Header= RP2040 , BoardName= MBED_RP2040
+[ETM] StaticIP= 0
+[ETM] Start connectEthernet using DHCP
+[ETM] MAC:FE-99-FD-D7-DA-BA
+_pinCS = 0
+W5100 init, using SS_PIN_DEFAULT = 5, new ss_pin = 10, W5100Class::ss_pin = 5
+W5100::init: W5500, SSIZE =8192
+[ETM] IP: 192.168.2.185
+[ETM] bg: isForcedConfigPortal = false
+[ETM] bg:Stay forever in CP: DRD/MRD
+[ETM] clearForcedCP
+[ETM] SaveCPFile 
+[ETM] OK
+[ETM] SaveBkUpCPFile 
+[ETM] OK
+[ETM] CfgIP= 192.168.2.185
+Connected! IP address: 192.168.2.185
+Ethernet type is W5500
+
+Your stored Credentials :
+MQTT Server = new-mqtt-server
+Port = 1883
+MQTT UserName = new-mqtt-username
+MQTT PWD = new-mqtt-password
+Subs Topics = new-mqtt-SubTopic
+Pubs Topics = new-mqtt-PubTopic
+HHHH[ETM] h:Updating LittleFS: /fs/etm_config.dat
+[ETM] WCSum=0x 477
+[ETM] CrWCSum=0x 219f
+[ETM] h:Rst
+
+```
+
+#### 7.2 Data Saved => Exit Config Portal
+
+
+```
+Start Ethernet_RP2040 on MBED RASPBERRY_PI_PICO
+Ethernet Shield type : W5x00 using EthernetLarge Library
+Ethernet_Manager v1.4.0
+DoubleResetDetector_Generic v1.3.0
+[EWS] =========== USE_ETHERNET_LARGE ===========
+[EWS] Default SPI pinout:
+[EWS] MOSI: 3
+[EWS] MISO: 4
+[EWS] SCK: 2
+[EWS] SS: 5
+[EWS] =========================
+[EWS] Board : MBED RASPBERRY_PI_PICO , setCsPin: 5
+[EWS] =========================
+[EWS] Currently Used SPI pinout:
+[EWS] MOSI: 3
+[EWS] MISO: 4
+[EWS] SCK: 2
+[EWS] SS: 5
+[EWS] =========================
+LittleFS size (KB) = 64
+LittleFS Mount OK
+LittleFS Flag read = 0xd0d04321
+Flag read = 0xd0d04321
+No doubleResetDetected
+Saving DOUBLERESETDETECTOR_FLAG to DRD file : 0xd0d01234
+Saving DRD file OK
+SetFlag write = 0xd0d01234
+[ETM] CCSum=0x 477 ,RCSum=0x 477
+[ETM] CrCCsum=0x 219f ,CrRCsum=0x 219f
+[ETM] CrCCsum=0x 219f ,CrRCsum=0x 219f
+[ETM] Valid Stored Dynamic Data
+[ETM] ======= Start Stored Config Data =======
+[ETM] Header= RP2040 , BoardName= MBED_RP2040
+[ETM] StaticIP= 0
+[ETM] Start connectEthernet using DHCP
+[ETM] MAC:FE-9A-FB-D7-D8-BA
+_pinCS = 0
+W5100 init, using SS_PIN_DEFAULT = 5, new ss_pin = 10, W5100Class::ss_pin = 5
+W5100::init: W5500, SSIZE =8192
+[ETM] IP: 192.168.2.183
+[ETM] begin:Ethernet Connected.
+Connected! IP address: 192.168.2.183
+Ethernet type is W5500
+
+Your stored Credentials :
+MQTT Server = new-mqtt-server
+Port = 1883
+MQTT UserName = new-mqtt-username
+MQTT PWD = new-mqtt-password
+Subs Topics = new-mqtt-SubTopic
+Pubs Topics = new-mqtt-PubTopic
+HStop doubleResetDetecting
+Saving to DRD file : 0xd0d04321
+Saving DRD file OK
+LittleFS Flag read = 0xd0d04321
+ClearFlag write = 0xd0d04321
+HHHHHH
+```
+
+---
 ---
 
 ### Debug
@@ -3129,6 +3342,11 @@ Sometimes, the library will only work if you update the board core to the latest
 ---
 
 ## Releases
+
+### Major Releases v1.4.0
+
+1. Add support to RP2040-based boards, such as **Nano RP2040 Connect**, using [**Arduino mbed OS for Nano boards**](https://github.com/arduino/ArduinoCore-mbed) and LittleFS.
+1. Add support to RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-mbed RP2040** v2.1.0+ core](https://github.com/arduino/ArduinoCore-mbed) and LittleFS.
 
 ### Major Releases v1.3.0
 
@@ -3182,7 +3400,9 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
  5. **Teensy (4.1, 4.0, 3.6, 3.5, 3,2, 3.1, 3.0, LC)**
  6. **ESP32 including ESP32-S2 (ESP32-S2 Saola, AI-Thinker ESP-12K, etc.)**
  7. **ESP8266**
- 8. RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Earle Philhower's arduino-pico** core v1.3.1+](https://github.com/earlephilhower/arduino-pico) and LittleFS.
+ 8. RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico).
+ 9. RP2040-based boards, such as **Nano RP2040 Connect**, using [**Arduino mbed OS for Nano boards**](https://github.com/arduino/ArduinoCore-mbed).
+10. RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-mbed RP2040** v2.1.0+ core](https://github.com/arduino/ArduinoCore-mbed)
  
 #### Supported Ethernet shields/modules:
 
@@ -3206,7 +3426,6 @@ Submit issues to: [Ethernet_Manager issues](https://github.com/khoih-prog/Ethern
 2. Add SSL/TLS feature.
 3. Bug Searching and Killing
 4. Support more non-compatible Ethernet Libraries such as Ethernet_Shield_W5200, EtherCard, EtherSia.
-5. Add support to RP2040-based boards such as RASPBERRY_PI_PICO, using [**Arduino-mbed RP2040** core](https://github.com/arduino/ArduinoCore-mbed)
 
 ### DONE
 
@@ -3233,7 +3452,9 @@ Default Credentials and dynamic parameters
 20. Add Table of Contents and Version String
 21. Configurable **Customs HTML Headers**, including Customs Style, Customs Head Elements, CORS Header
 22. Add support to **ESP32-S2 (ESP32-S2 Saola, AI-Thinker ESP-12K, etc.)**
-23. Add support to RP2040-based boards such as RASPBERRY_PI_PICO, using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico) using LittleFS
+23. Add support to RP2040-based boards such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico) and LittleFS.
+24. Add support to RP2040-based boards, such as **Nano RP2040 Connect**, using [**Arduino mbed OS for Nano boards**](https://github.com/arduino/ArduinoCore-mbed) and LittleFS.
+25. Add support to RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-mbed RP2040** v2.1.0+ core](https://github.com/arduino/ArduinoCore-mbed) and LittleFS.
 
 ---
 ---
