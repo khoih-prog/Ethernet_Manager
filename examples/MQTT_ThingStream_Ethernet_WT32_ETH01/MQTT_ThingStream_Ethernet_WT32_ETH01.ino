@@ -54,10 +54,7 @@ void mqtt_receive_callback(char* topic, byte* payload, unsigned int length);
 unsigned long lastMsg = 0;
 
 // Initialize the SSL client library
-// Arguments: EthernetClient, our trust anchors
-
-
-EthernetClient    ethClient;
+WiFiClient ethClient;
 
 PubSubClient* client = NULL;
 
@@ -86,8 +83,14 @@ void reconnect()
     Serial.print("Attempting MQTT connection to ");
     Serial.println(MQTT_SERVER);
 
-    // Attempt to connect
+    Serial.print("MQTT_CLIENT_ID = ");
+    Serial.println(MQTT_CLIENT_ID);
+    Serial.print("MQTT_USER = ");
+    Serial.println(MQTT_USER);
+    Serial.print("MQTT_PASS = ");
+    Serial.println(MQTT_PASS);
 
+    // Attempt to connect
     int connect_status = client->connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS, topic.c_str(), 2, false, "");
 
     if (connect_status)                                
@@ -123,32 +126,13 @@ void reconnect()
 
 ///////////// End MQTT ThingStream ///////////////
 
-// Use to detect W5100 shield. The linkStatus() is not working with W5100 
-// in Ethernet and EthernetLarge libraries
-bool isW5500 = true;
-
 void heartBeatPrint()
 {
   static int num        = 1;
-  static int linkStatus = 0;
   
-  localEthernetIP = Ethernet.localIP();
-  
-#if ( (USE_ETHERNET2 || USE_ETHERNET3) && !(USE_NATIVE_ETHERNET) )
-  // To modify Ethernet2 library
-  linkStatus = Ethernet.link();
-  ET_LOGINFO3("localEthernetIP = ", localEthernetIP, ", linkStatus = ", (linkStatus == 1) ? "LinkON" : "LinkOFF" );
-  
-  if ( ( linkStatus == 1 ) && ((uint32_t) localEthernetIP != 0) )
-#else
-
-  // The linkStatus() is not working with W5100. Just using IP != 0.0.0.0
-  // Better to use ping for W5100
-  linkStatus = (int) Ethernet.linkStatus();
-  ET_LOGINFO3("localEthernetIP = ", localEthernetIP, ", linkStatus = ", (linkStatus == LinkON) ? "LinkON" : "LinkOFF" );
-  
-  if ( ( (linkStatus == LinkON) || !isW5500 ) && ((uint32_t) localEthernetIP != 0) )
-#endif
+  localEthernetIP = ETH.localIP();
+ 
+  if ( ( (uint32_t) localEthernetIP != 0 ) )
   {
     Serial.print(F("H"));
   }
@@ -185,103 +169,70 @@ const char NewCustomsStyle[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-si
 button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
 #endif
 
+void WiFiEvent(WiFiEvent_t event)
+{
+  switch (event)
+  {
+    case SYSTEM_EVENT_ETH_START:
+      ETM_LOGERROR(F("ETH Started"));
+      //set eth hostname here
+      ETH.setHostname("WT32-ETH01");
+      break;
+    case SYSTEM_EVENT_ETH_CONNECTED:
+      ETM_LOGERROR(F("ETH Connected"));
+      break;
+
+    case SYSTEM_EVENT_ETH_GOT_IP:
+      if (!ethernet_manager.ethernetConnected)
+      {
+        ETM_LOGERROR3(F("ETH MAC:"), ETH.macAddress(), F(", IPv4:"), ETH.localIP());
+
+        if (ETH.fullDuplex())
+        {
+          ETM_LOGERROR1(F("FULL_DUPLEX, Link Speed (Mbps)"), ETH.linkSpeed());
+        }
+        else
+        {
+          ETM_LOGERROR1(F("HALF_DUPLEX, Link Speed (Mbps)"), ETH.linkSpeed());
+        }
+
+        ethernet_manager.ethernetConnected = true;
+      }
+
+      break;
+
+    case SYSTEM_EVENT_ETH_DISCONNECTED:
+      ETM_LOGERROR(F("ETH Disconnected"));
+      ethernet_manager.ethernetConnected = false;
+      break;
+
+    case SYSTEM_EVENT_ETH_STOP:
+      ETM_LOGERROR(F("\nETH Stopped"));
+      ethernet_manager.ethernetConnected = false;
+      break;
+
+    default:
+      break;
+  }
+}
+
 void setup()
 {
   // Debug console
   Serial.begin(115200);
   while (!Serial);
 
-  Serial.println("\nStart MQTT_ThingStream_Ethernet_RP2040 on " + String(BOARD_NAME)); 
-  Serial.println("Ethernet Shield type : " + String(SHIELD_TYPE));
+  // Using this if Serial debugging is not necessary or not using Serial port
+  //while (!Serial && (millis() < 3000));
+
+  Serial.print("\nStart MQTT_ThingStream_Ethernet_WT32_ETH01 on "); Serial.println(BOARD_NAME); 
+  Serial.print("Ethernet Shield type : "); Serial.println(SHIELD_TYPE);
+  Serial.println(WEBSERVER_WT32_ETH01_VERSION);
   Serial.println(ETHERNET_MANAGER_VERSION);
-  Serial.println(DOUBLERESETDETECTOR_GENERIC_VERSION);
+  Serial.println(ESP_DOUBLE_RESET_DETECTOR_VERSION);
 
-  pinMode(SDCARD_CS, OUTPUT);
-  digitalWrite(SDCARD_CS, HIGH); // Deselect the SD card
-  
-#if USE_ETHERNET_WRAPPER
+  WiFi.onEvent(WiFiEvent);
 
-  EthernetInit();
-
-#else
-
-  #if ( defined(USE_UIP_ETHERNET) && USE_UIP_ETHERNET )
-    ET_LOGWARN(F("======== USE_UIP_ETHERNET ========"));
-  #elif USE_NATIVE_ETHERNET
-    ET_LOGWARN(F("======== USE_NATIVE_ETHERNET ========"));
-  #elif USE_ETHERNET
-    ET_LOGWARN(F("=========== USE_ETHERNET ==========="));
-  #elif USE_ETHERNET2
-    ET_LOGWARN(F("=========== USE_ETHERNET2 ==========="));
-  #elif USE_ETHERNET3
-    ET_LOGWARN(F("=========== USE_ETHERNET3 ==========="));
-  #elif USE_ETHERNET_LARGE
-    ET_LOGWARN(F("=========== USE_ETHERNET_LARGE ==========="));
-  #elif USE_ETHERNET_ESP8266
-    ET_LOGWARN(F("=========== USE_ETHERNET_ESP8266 ==========="));
-  #elif USE_ETHERNET_ENC
-    ET_LOGWARN(F("=========== USE_ETHERNET_ENC ==========="));  
-  #else
-    ET_LOGWARN(F("========================="));
-  #endif
-  
-  ET_LOGWARN(F("Default SPI pinout:"));
-  ET_LOGWARN1(F("MOSI:"), MOSI);
-  ET_LOGWARN1(F("MISO:"), MISO);
-  ET_LOGWARN1(F("SCK:"),  SCK);
-  ET_LOGWARN1(F("SS:"),   SS);
-  ET_LOGWARN(F("========================="));
-  
-  
-  // unknown board, do nothing, use default SS = 10
-  #ifndef USE_THIS_SS_PIN
-    #define USE_THIS_SS_PIN   10    // For other boards
-  #endif
-  
-  #if defined(BOARD_NAME)
-    ET_LOGWARN3(F("Board :"), BOARD_NAME, F(", setCsPin:"), USE_THIS_SS_PIN);
-  #else
-    ET_LOGWARN1(F("Unknown board setCsPin:"), USE_THIS_SS_PIN);
-  #endif
-  
-  // For other boards, to change if necessary
-  #if ( USE_ETHERNET || USE_ETHERNET_LARGE || USE_ETHERNET2  || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
-    // Must use library patch for Ethernet, Ethernet2, EthernetLarge libraries
-  
-    Ethernet.init (USE_THIS_SS_PIN);
-  
-  #elif USE_ETHERNET3
-    // Use  MAX_SOCK_NUM = 4 for 4K, 2 for 8K, 1 for 16K RX/TX buffer
-    #ifndef ETHERNET3_MAX_SOCK_NUM
-      #define ETHERNET3_MAX_SOCK_NUM      4
-    #endif
-  
-    Ethernet.setCsPin (USE_THIS_SS_PIN);
-    Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
-  
-  #elif USE_CUSTOM_ETHERNET
-  
-    // You have to add initialization for your Custom Ethernet here
-    // This is just an example to setCSPin to USE_THIS_SS_PIN, and can be not correct and enough
-    Ethernet.init(USE_THIS_SS_PIN);
-    
-  #endif  //( USE_ETHERNET || USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE )
-  
-#endif  //USE_ETHERNET_WRAPPER
-
-  // Just info to know how to connect correctly
-  ET_LOGWARN(F("========================="));
-  ET_LOGWARN(F("Currently Used SPI pinout:"));
-  ET_LOGWARN1(F("MOSI:"), MOSI);
-  ET_LOGWARN1(F("MISO:"), MISO);
-  ET_LOGWARN1(F("SCK:"), SCK);
-  ET_LOGWARN1(F("SS:"), SS);
-  
-#if USE_ETHERNET3
-  ET_LOGWARN1(F("SPI_CS:"), SPI_CS);
-#endif
-  ET_LOGWARN(F("========================="));
- 
   //////////////////////////////////////////////
   
 #if USING_CUSTOMS_STYLE
@@ -300,14 +251,9 @@ void setup()
 
   //////////////////////////////////////////////
 
-  localEthernetIP = Ethernet.localIP();
+  localEthernetIP = ETH.localIP();
 
-#if (USE_ETHERNET2 || USE_ETHERNET3)
-  // To modify Ethernet2 library
   if ( (uint32_t) localEthernetIP != 0 )
-#else
-  if ( (uint32_t) localEthernetIP != 0 )
-#endif
   {
     Serial.print(F("Connected! IP address: "));
     Serial.println(localEthernetIP);
@@ -316,14 +262,7 @@ void setup()
   {
     Serial.println(F("Ethernet not Connected! Please check."));
   }
-
-// Detect W5100 only in Ethernet and EthernetLarge libraries
-#if ( USE_ETHERNET || USE_ETHERNET_LARGE)
-  isW5500 = (Ethernet.hardwareStatus() == EthernetW5500);
-  Serial.print(F("Ethernet type is "));
-  Serial.println(isW5500 ? "W5500" : "W5100");
-#endif
-  
+ 
   Serial.println("***************************************");
   Serial.println(topic);
   Serial.println("***************************************");
@@ -372,7 +311,6 @@ void loop()
 {
   static bool           inConfigMode = true;
   static unsigned long  currentMillis;
-
   
   inConfigMode = ethernet_manager.run();
 
@@ -380,6 +318,11 @@ void loop()
   {
     if (!client)
     {
+       Serial.print("Connecting to MQTT_SERVER = ");
+       Serial.print(MQTT_SERVER);
+       Serial.print(", MQTT_PORT= ");
+       Serial.println(atoi(MQTT_PORT));
+    
        client = new PubSubClient(MQTT_SERVER, atoi(MQTT_PORT), mqtt_receive_callback, ethClient);
 
       // Note - the default maximum packet size is 256 bytes. If the

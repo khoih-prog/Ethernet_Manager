@@ -17,6 +17,7 @@
   * [Currently supported Boards](#currently-supported-boards)
   * [Currently supported Ethernet shields/modules](#currently-supported-ethernet-shieldsmodules)
 * [Changelog](#changelog)
+  * [Major Releases v1.5.0](#major-releases-v150)
   * [Major Releases v1.4.0](#major-releases-v140)
   * [Major Releases v1.3.0](#major-releases-v130)
   * [Major Releases v1.2.0](#major-releases-v120)
@@ -105,12 +106,14 @@
   * [ 5. Ethernet_SAMD](examples/Ethernet_SAMD)
   * [ 6. Ethernet_SAM_DUE](examples/Ethernet_SAM_DUE)
   * [ 7. Ethernet_Teensy](examples/Ethernet_Teensy)
-  * [ 8. **MQTT_ThingStream_Ethernet_Generic**](examples/MQTT_ThingStream_Ethernet_Generic)
-  * [ 9. **MQTT_ThingStream_Ethernet_nRF52**](examples/MQTT_ThingStream_Ethernet_nRF52)
-  * [10. **MQTT_ThingStream_Ethernet_RP2040**](examples/MQTT_ThingStream_Ethernet_RP2040). **New**
-  * [11. **MQTT_ThingStream_Ethernet_SAMD**](examples/MQTT_ThingStream_Ethernet_SAMD)
-  * [12. **MQTT_ThingStream_Ethernet_SAM_DUE**](examples/MQTT_ThingStream_Ethernet_SAM_DUE)
-  * [13. **MQTT_ThingStream_Ethernet_Teensy**](examples/MQTT_ThingStream_Ethernet_Teensy)
+  * [ 8. Ethernet_WT32_ETH01](examples/Ethernet_WT32_ETH01). **New**
+  * [ 9. **MQTT_ThingStream_Ethernet_Generic**](examples/MQTT_ThingStream_Ethernet_Generic)
+  * [10. **MQTT_ThingStream_Ethernet_nRF52**](examples/MQTT_ThingStream_Ethernet_nRF52)
+  * [11. **MQTT_ThingStream_Ethernet_RP2040**](examples/MQTT_ThingStream_Ethernet_RP2040). **New**
+  * [12. **MQTT_ThingStream_Ethernet_SAMD**](examples/MQTT_ThingStream_Ethernet_SAMD)
+  * [13. **MQTT_ThingStream_Ethernet_SAM_DUE**](examples/MQTT_ThingStream_Ethernet_SAM_DUE)
+  * [14. **MQTT_ThingStream_Ethernet_Teensy**](examples/MQTT_ThingStream_Ethernet_Teensy)
+  * [15. **MQTT_ThingStream_Ethernet_WT32_ETH01**](examples/MQTT_ThingStream_Ethernet_WT32_ETH01). **New**
 * [So, how it works?](#so-how-it-works)
 * [Example Ethernet_Generic](#example-ethernet_generic)
   * [1. File Ethernet_Generic.ino](#1-file-ethernet_genericino)
@@ -137,6 +140,10 @@
   * [7. Ethernet_RP2040 on MBED RASPBERRY_PI_PICO with W5500 using EthernetLarge Library](#7-ethernet_rp2040-on-mbed-raspberry_pi_pico-with-w5500-using-ethernetlarge-library)
     * [7.1. DRD => Config Portal](#71-drd--config-portal)
     * [7.2. Data Saved => Exit Config Portal](#72-data-saved--exit-config-portal)
+  * [8. MQTT_ThingStream_Ethernet_WT32_ETH01 on WT32-ETH01](#8-mqtt_thingstream_ethernet_wt32_eth01-on-wt32-eth01)
+    * [8.1. Normal run with correct ThingStream MQTT Credentials](#81-normal-run-with-correct-thingstream-mqtt-credentials) 
+  
+  
 * [Debug](#debug)
 * [Troubleshooting](#troubleshooting)
 * [Releases](#releases)
@@ -203,19 +210,26 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
  9. RP2040-based boards, such as **Nano RP2040 Connect**, using [**Arduino mbed OS for Nano boards**](https://github.com/arduino/ArduinoCore-mbed).
  
 10. RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-mbed RP2040** v2.1.0+ core](https://github.com/arduino/ArduinoCore-mbed)
+
+11. **WT32_ETH01 boards** using ESP32-based boards and LAN8720 Ethernet
+
+---
  
- ---
- 
-#### Currently Supported Ethernet shields/modules:
+#### Supported Ethernet shields/modules:
 
 1. W5x00 using [`Ethernet`](https://www.arduino.cc/en/Reference/Ethernet), [`EthernetLarge`](https://github.com/OPEnSLab-OSU/EthernetLarge), [`Ethernet2`](https://github.com/adafruit/Ethernet2) or [`Ethernet3`](https://github.com/sstaub/Ethernet3) library
 2. ENC28J60 using [`EthernetENC`](https://github.com/jandrassy/EthernetENC) or [`UIPEthernet`](https://github.com/UIPEthernet/UIPEthernet) library
 3. Teensy 4.1 NativeEthernet using [`NativeEthernet Library version stable111+`](https://github.com/vjmuzik/NativeEthernet).
+4. LAN8720 Ethernet used in WT32_ETH01 boards
 
 ---
 ---
 
 ## Changelog
+
+### Major Releases v1.5.0
+
+1. Add support to ESP32-based WT32-ETH01 (ESP32 + LAN8720) boards, using EEPROM, SPIFFS or LittleFS
 
 ### Major Releases v1.4.0
 
@@ -260,18 +274,18 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
 
 ## Prerequisites
 
- 1. [`Arduino IDE 1.8.13+` for Arduino](https://www.arduino.cc/en/Main/Software)
+ 1. [`Arduino IDE 1.8.15+` for Arduino](https://www.arduino.cc/en/Main/Software)
  2. [`Teensy core v1.51`](https://www.pjrc.com/teensy/td_download.html) for Teensy (4.0, 3.6, 3.5, 3,2, 3.1, 3.0) boards and [`Teensy core v1.53+`](https://www.pjrc.com/teensy/td_download.html) for Teensy 4.1 boards using NativeEthernet.
  3. [`Arduino SAM DUE core v1.6.12+`](https://www.arduino.cc/en/Guide/ArduinoDue) for SAM DUE ARM Cortex-M3 boards.
  4. [`Arduino SAMD core 1.8.11+`](https://www.arduino.cc/en/Guide/ArduinoM0) for SAMD ARM Cortex-M0+ boards. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-samd.svg)](https://github.com/arduino/ArduinoCore-samd/releases/latest)
- 5. [`Adafruit SAMD core 1.7.2+`](https://www.adafruit.com/) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
+ 5. [`Adafruit SAMD core 1.7.3+`](https://www.adafruit.com/) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
  6. [`Seeeduino SAMD core 1.8.1+`](https://github.com/Seeed-Studio/ArduinoCore-samd) for SAMD21/SAMD51 boards (XIAO M0, Wio Terminal, etc.). [![Latest release](https://img.shields.io/github/release/Seeed-Studio/ArduinoCore-samd.svg)](https://github.com/Seeed-Studio/ArduinoCore-samd/releases/latest/)
- 7. [`Adafruit nRF52 v0.22.1+`](https://www.adafruit.com) for nRF52 boards such as Adafruit NRF52840_FEATHER, NRF52832_FEATHER, NRF52840_FEATHER_SENSE, NRF52840_ITSYBITSY, NRF52840_CIRCUITPLAY, NRF52840_CLUE, NRF52840_METRO, NRF52840_PCA10056, PARTICLE_XENON, **NINA_B302_ublox**, etc. [![GitHub release](https://img.shields.io/github/release/adafruit/Adafruit_nRF52_Arduino.svg)](https://github.com/adafruit/Adafruit_nRF52_Arduino/releases/latest)
- 8. [`ESP8266 Core 3.0.0+`](https://github.com/esp8266/Arduino) for ESP8266-based boards. [![Latest release](https://img.shields.io/github/release/esp8266/Arduino.svg)](https://github.com/esp8266/Arduino/releases/latest/). To use ESP8266 core 2.7.1+ for LittleFS.
+ 7. [`Adafruit nRF52 v0.24.0+`](https://www.adafruit.com) for nRF52 boards such as Adafruit NRF52840_FEATHER, NRF52832_FEATHER, NRF52840_FEATHER_SENSE, NRF52840_ITSYBITSY, NRF52840_CIRCUITPLAY, NRF52840_CLUE, NRF52840_METRO, NRF52840_PCA10056, PARTICLE_XENON, **NINA_B302_ublox**, etc. [![GitHub release](https://img.shields.io/github/release/adafruit/Adafruit_nRF52_Arduino.svg)](https://github.com/adafruit/Adafruit_nRF52_Arduino/releases/latest)
+ 8. [`ESP8266 Core 3.0.1+`](https://github.com/esp8266/Arduino) for ESP8266-based boards. [![Latest release](https://img.shields.io/github/release/esp8266/Arduino.svg)](https://github.com/esp8266/Arduino/releases/latest/). To use ESP8266 core 2.7.1+ for LittleFS.
  9. [`ESP32 Core 1.0.6+`](https://github.com/espressif/arduino-esp32) for ESP32-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/)
 10. [`ESP32S2 Core 1.0.6+`](https://github.com/espressif/arduino-esp32/tree/esp32s2) for ESP32S2-based boards.
-11. [`Earle Philhower's arduino-pico core v1.6.2+`](https://github.com/earlephilhower/arduino-pico) for RP2040-based boards such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, etc. [![GitHub release](https://img.shields.io/github/release/earlephilhower/arduino-pico.svg)](https://github.com/earlephilhower/arduino-pico/releases/latest)
-12. [`Arduino mbed_rp2040 core 2.1.0+`](https://github.com/arduino/ArduinoCore-mbed) for Arduino (Use Arduino Board Manager) RP2040-based boards, such as **Arduino Nano RP2040 Connect, RASPBERRY_PI_PICO, etc.**. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-mbed.svg)](https://github.com/arduino/ArduinoCore-mbed/releases/latest) 
+11. [`Earle Philhower's arduino-pico core v1.9.1+`](https://github.com/earlephilhower/arduino-pico) for RP2040-based boards such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, etc. [![GitHub release](https://img.shields.io/github/release/earlephilhower/arduino-pico.svg)](https://github.com/earlephilhower/arduino-pico/releases/latest)
+12. [`Arduino mbed_rp2040 core 2.2.0+`](https://github.com/arduino/ArduinoCore-mbed) for Arduino (Use Arduino Board Manager) RP2040-based boards, such as **Arduino Nano RP2040 Connect, RASPBERRY_PI_PICO, etc.**. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-mbed.svg)](https://github.com/arduino/ArduinoCore-mbed/releases/latest) 
 13. Depending on which Ethernet card you're using:
    - [`Ethernet library v2.0.0+`](https://github.com/arduino-libraries/Ethernet) for W5100, W5200 and W5500.  [![GitHub release](https://img.shields.io/github/release/arduino-libraries/Ethernet.svg)](https://github.com/arduino-libraries/Ethernet/releases/latest)
    - [`EthernetLarge library v2.0.0+`](https://github.com/OPEnSLab-OSU/EthernetLarge) for W5100, W5200 and W5500.
@@ -285,10 +299,11 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
    - [`FlashStorage_SAMD library v1.1.0+`](https://github.com/khoih-prog/FlashStorage_SAMD) for SAMD21 and SAMD51 boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit Itsy-Bitsy M4, etc.). [![GitHub release](https://img.shields.io/github/release/khoih-prog/FlashStorage_SAMD.svg)](https://github.com/khoih-prog/FlashStorage_SAMD/releases/latest)
    - [`Adafruit's LittleFS/InternalFS`](www.adafruit.com) for nRF52
 15. [`EthernetWebServer library v1.5.0+`](https://github.com/khoih-prog/EthernetWebServer). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/EthernetWebServer.svg?)](https://www.ardu-badge.com/EthernetWebServer).
-16. [`ESP_DoubleResetDetector library v1.1.1+`](https://github.com/khoih-prog/ESP_DoubleResetDetector) for ESP32 and ESP8266.  To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_DoubleResetDetector.svg?)](https://www.ardu-badge.com/ESP_DoubleResetDetector).
-17. [`DoubleResetDetector_Generic library v1.3.0+`](https://github.com/khoih-prog/DoubleResetDetector_Generic) for other boards (not ESP32 or ESP8266). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic).
-18. [`Functional-VLPP library v1.0.2+`](https://github.com/khoih-prog/functional-vlpp) to use server's lambda function. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/Functional-Vlpp.svg?)](https://www.ardu-badge.com/Functional-Vlpp)
-19. [`LittleFS_esp32 v1.0.6+`](https://github.com/lorol/LITTLEFS) for ESP32-based boards using LittleFS. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/LittleFS_esp32.svg?)](https://www.ardu-badge.com/LittleFS_esp32). **Notice**: This [`LittleFS_esp32 library`](https://github.com/lorol/LITTLEFS) has been integrated to Arduino [esp32 core v1.0.6](https://github.com/espressif/arduino-esp32/tree/master/libraries/LITTLEFS).
+16. [`WebServer_WT32_ETH01 library v1.1.0+`](https://github.com/khoih-prog/WebServer_WT32_ETH01) for WT32_ETH01 boards. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/WebServer_WT32_ETH01.svg?)](https://www.ardu-badge.com/WebServer_WT32_ETH01).
+17. [`ESP_DoubleResetDetector library v1.1.1+`](https://github.com/khoih-prog/ESP_DoubleResetDetector) for ESP32 and ESP8266.  To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_DoubleResetDetector.svg?)](https://www.ardu-badge.com/ESP_DoubleResetDetector).
+18. [`DoubleResetDetector_Generic library v1.4.0+`](https://github.com/khoih-prog/DoubleResetDetector_Generic) for other boards (not ESP32 or ESP8266). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic).
+19. [`Functional-VLPP library v1.0.2+`](https://github.com/khoih-prog/functional-vlpp) to use server's lambda function. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/Functional-Vlpp.svg?)](https://www.ardu-badge.com/Functional-Vlpp)
+20. [`LittleFS_esp32 v1.0.6+`](https://github.com/lorol/LITTLEFS) for ESP32-based boards using LittleFS. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/LittleFS_esp32.svg?)](https://www.ardu-badge.com/LittleFS_esp32). **Notice**: This [`LittleFS_esp32 library`](https://github.com/lorol/LITTLEFS) has been integrated to Arduino [esp32 core v1.0.6](https://github.com/espressif/arduino-esp32/tree/master/libraries/LITTLEFS).
 
 ---
 
@@ -1325,12 +1340,14 @@ Please be noted that the following **reserved names are already used in library*
  5. [Ethernet_SAMD](examples/Ethernet_SAMD)
  6. [Ethernet_SAM_DUE](examples/Ethernet_SAM_DUE)
  7. [Ethernet_Teensy](examples/Ethernet_Teensy)
- 8. [**MQTT_ThingStream_Ethernet_Generic**](examples/MQTT_ThingStream_Ethernet_Generic).
- 9. [**MQTT_ThingStream_Ethernet_nRF52**](examples/MQTT_ThingStream_Ethernet_nRF52).
-10. [**MQTT_ThingStream_Ethernet_RP2040**](examples/MQTT_ThingStream_Ethernet_RP2040). **New**
-11. [**MQTT_ThingStream_Ethernet_SAMD**](examples/MQTT_ThingStream_Ethernet_SAMD).
-12. [**MQTT_ThingStream_Ethernet_SAM_DUE**](examples/MQTT_ThingStream_Ethernet_SAM_DUE).
-13. [**MQTT_ThingStream_Ethernet_Teensy**](examples/MQTT_ThingStream_Ethernet_Teensy).
+ 8. [Ethernet_WT32_ETH01](examples/Ethernet_WT32_ETH01). **New**
+ 9. [**MQTT_ThingStream_Ethernet_Generic**](examples/MQTT_ThingStream_Ethernet_Generic).
+10. [**MQTT_ThingStream_Ethernet_nRF52**](examples/MQTT_ThingStream_Ethernet_nRF52).
+11. [**MQTT_ThingStream_Ethernet_RP2040**](examples/MQTT_ThingStream_Ethernet_RP2040). **New**
+12. [**MQTT_ThingStream_Ethernet_SAMD**](examples/MQTT_ThingStream_Ethernet_SAMD).
+13. [**MQTT_ThingStream_Ethernet_SAM_DUE**](examples/MQTT_ThingStream_Ethernet_SAM_DUE).
+14. [**MQTT_ThingStream_Ethernet_Teensy**](examples/MQTT_ThingStream_Ethernet_Teensy).
+15. [**MQTT_ThingStream_Ethernet_WT32_ETH01**](examples/MQTT_ThingStream_Ethernet_WT32_ETH01). **New**
 
 ---
 ---
@@ -2413,8 +2430,8 @@ This is the terminal output of an Adafruit NRF52840_FEATHER board with W5500 Eth
 ```
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type W5x00 using Ethernet2 Library
-Ethernet_Manager v1.4.0
-DoubleResetDetector_Generic v1.3.0
+Ethernet_Manager v1.5.0
+DoubleResetDetector_Generic v1.4.0
 [ETHERNET_WEBSERVER] =========== USE_ETHERNET2 ===========
 [ETHERNET_WEBSERVER] Default SPI pinout:
 [ETHERNET_WEBSERVER] MOSI: 25
@@ -2505,8 +2522,8 @@ Pubs Topics = old-mqtt-PubTopic
 ```cpp
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.4.0
-DoubleResetDetector_Generic v1.3.0
+Ethernet_Manager v1.5.0
+DoubleResetDetector_Generic v1.4.0
 [ETHERNET_WEBSERVER] =========== USE_ETHERNET2 ===========
 [ETHERNET_WEBSERVER] Default SPI pinout:
 [ETHERNET_WEBSERVER] MOSI: 25
@@ -2688,8 +2705,8 @@ This is the terminal output of an SeeedStudio SAMD21 SEEED_XIAO_M0 board with W5
 ```
 Start Ethernet_SAMD on SEEED_XIAO_M0
 Ethernet Shield type : W5x00 using Ethernet Library
-Ethernet_Manager v1.4.0
-DoubleResetDetector_Generic v1.3.0
+Ethernet_Manager v1.5.0
+DoubleResetDetector_Generic v1.4.0
 Flag read = 0xffffffff
 No doubleResetDetected
 SetFlag write = 0xd0d01234
@@ -2765,8 +2782,8 @@ This is the terminal output of an Arduino SAM DUE board with W5100 Ethernet shie
 ```
 Start Ethernet_SAM_DUE on SAM DUE
 Ethernet Shield type : W5x00 using EthernetLarge Library
-Ethernet_Manager v1.4.0
-DoubleResetDetector_Generic v1.3.0
+Ethernet_Manager v1.5.0
+DoubleResetDetector_Generic v1.4.0
 Flag read = 0xd0d01234
 doubleResetDetected
 ClearFlag write = 0xd0d04321
@@ -2851,7 +2868,7 @@ If no valid config data are stored in EEPROM, it will switch to `Configuration M
 ```
 Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.4.0
+Ethernet_Manager v1.5.0
 ESP_DoubleResetDetector Version v1.1.1
 =========================
 Currently Used SPI pinout:
@@ -2899,7 +2916,7 @@ Enter your credentials (Blynk Servers/Tokens and Port). If you prefer static IP,
 ```
 Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.4.0
+Ethernet_Manager v1.5.0
 ESP_DoubleResetDetector Version v1.1.1
 =========================
 Currently Used SPI pinout:
@@ -2959,8 +2976,8 @@ This is the terminal output of NRF52840_FEATHER board with ENC28J60 using Ethern
 ```
 Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
 Ethernet Shield type : ENC28J60 using EthernetENC Library
-Ethernet_Manager v1.4.0
-DoubleResetDetector_Generic v1.3.0
+Ethernet_Manager v1.5.0
+DoubleResetDetector_Generic v1.4.0
 LittleFS Flag read = 0xd0d01234
 Flag read = 0xd0d01234
 doubleResetDetected
@@ -2997,8 +3014,8 @@ esp32-sniffer/12345678/ble
 ```
 Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
 Ethernet Shield type : ENC28J60 using EthernetENC Library
-Ethernet_Manager v1.4.0
-DoubleResetDetector_Generic v1.3.0
+Ethernet_Manager v1.5.0
+DoubleResetDetector_Generic v1.4.0
 LittleFS Flag read = 0xd0d04321
 Flag read = 0xd0d04321
 No doubleResetDetected
@@ -3054,8 +3071,8 @@ This is the terminal output of RASPBERRY_PI_PICO board with W5x00 using Ethernet
 ```
 Start MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO
 Ethernet Shield type : W5x00 using Ethernet Library
-Ethernet_Manager v1.4.0
-DoubleResetDetector_Generic v1.3.0
+Ethernet_Manager v1.5.0
+DoubleResetDetector_Generic v1.4.0
 [EWS] =========== USE_ETHERNET ===========
 [EWS] Default SPI pinout:
 [EWS] MOSI: 19
@@ -3111,8 +3128,8 @@ esp32-sniffer/12345678/ble
 ```
 Start MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO
 Ethernet Shield type : W5x00 using Ethernet Library
-Ethernet_Manager v1.4.0
-DoubleResetDetector_Generic v1.3.0
+Ethernet_Manager v1.5.0
+DoubleResetDetector_Generic v1.4.0
 [EWS] =========== USE_ETHERNET ===========
 [EWS] Default SPI pinout:
 [EWS] MOSI: 19
@@ -3184,8 +3201,8 @@ This is the terminal output of an MBED RASPBERRY_PI_PICO board with W5500 Ethern
 ```
 Start Ethernet_RP2040 on MBED RASPBERRY_PI_PICO
 Ethernet Shield type : W5x00 using EthernetLarge Library
-Ethernet_Manager v1.4.0
-DoubleResetDetector_Generic v1.3.0
+Ethernet_Manager v1.5.0
+DoubleResetDetector_Generic v1.4.0
 [EWS] =========== USE_ETHERNET_LARGE ===========
 [EWS] Default SPI pinout:
 [EWS] MOSI: 3
@@ -3257,8 +3274,8 @@ HHHH[ETM] h:Updating LittleFS: /fs/etm_config.dat
 ```
 Start Ethernet_RP2040 on MBED RASPBERRY_PI_PICO
 Ethernet Shield type : W5x00 using EthernetLarge Library
-Ethernet_Manager v1.4.0
-DoubleResetDetector_Generic v1.3.0
+Ethernet_Manager v1.5.0
+DoubleResetDetector_Generic v1.4.0
 [EWS] =========== USE_ETHERNET_LARGE ===========
 [EWS] Default SPI pinout:
 [EWS] MOSI: 3
@@ -3315,6 +3332,92 @@ HHHHHH
 ```
 
 ---
+
+
+#### 8. MQTT_ThingStream_Ethernet_WT32_ETH01 on WT32-ETH01
+
+This is the terminal output of WT32-ETH01 board with LAN8720 Ethernet, running complex [MQTT_ThingStream_Ethernet_WT32_ETH01](examples/MQTT_ThingStream_Ethernet_WT32_ETH01) example to demonstrate how to use dynamic parameters, entered via Config Portal, to connect to [**ThingStream MQTT Server**](mqtt.thingstream.io).
+
+#### 8.1. Normal run with correct ThingStream MQTT Credentials
+
+```
+Start MQTT_ThingStream_Ethernet_WT32_ETH01 on WT32-ETH01
+Ethernet Shield type : ETH_PHY_LAN8720
+WebServer_WT32_ETH01 v1.1.0
+Ethernet_Manager v1.5.0
+ESP_DoubleResetDetector v1.1.1
+[ETM] Set CustomsStyle to :  <style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>
+[ETM] Set CustomsHeadElement to :  <style>html{filter: invert(10%);}</style>
+[ETM] Set CORS Header to :  Your Access-Control-Allow-Origin
+LittleFS Flag read = 0xD0D04321
+No doubleResetDetected
+Saving config file...
+Saving config file OK
+[ETM] LoadCfgFile 
+[ETM] OK
+[ETM] ======= Start Stored Config Data =======
+[ETM] Header= WT32_ETH01 , BoardName= WT32_ETH01
+[ETM] StaticIP= 192.168.2.232
+[ETM] i= 0 ,id= mqtt
+[ETM] data= default-mqtt-server
+[ETM] i= 1 ,id= mqpt
+[ETM] data= 1883
+[ETM] i= 2 ,id= user
+[ETM] data= default-mqtt-username
+[ETM] i= 3 ,id= mqpw
+[ETM] data= default-mqtt-password
+[ETM] i= 4 ,id= clid
+[ETM] data= default-mqtt-clientID
+[ETM] CCSum=0x 7f0 ,RCSum=0x 7f0
+[ETM] LoadCredFile 
+[ETM] CrR:pdata= mqtt.thingstream.io ,len= 48
+[ETM] CrR:pdata= 1883 ,len= 6
+[ETM] CrR:pdata= mqtt_user ,len= 34
+[ETM] CrR:pdata= mqtt_pass ,len= 48
+[ETM] CrR:pdata= client_ID ,len= 48
+[ETM] OK
+[ETM] CrCCsum=0x 2785 ,CrRCsum=0x 2785
+[ETM] Valid Stored Dynamic Data
+[ETM] Start connectEthernet using Static IP = 192.168.2.232
+[ETM] myGW IP = 192.168.2.1
+[ETM] ETH Started
+[ETM] ETH MAC: A8:03:2A:A1:61:73 , IPv4: 192.168.2.232
+[ETM] FULL_DUPLEX, Link Speed (Mbps) 100
+[ETM] IP: 192.168.2.232
+[ETM] Check if isForcedCP
+[ETM] LoadCPFile 
+[ETM] OK
+[ETM] begin:Ethernet Connected.
+Connected! IP address: 192.168.2.232
+***************************************
+esp32-sniffer/12345678/ble
+***************************************
+Connecting to MQTT_SERVER = mqtt.thingstream.io, MQTT_PORT= 1883
+Attempting MQTT connection to mqtt.thingstream.io
+MQTT_CLIENT_ID = client_ID
+MQTT_USER = mqtt_user
+MQTT_PASS = mqtt_pass
+...connected
+Published connection message successfully!
+Subcribed to: esp32-sniffer/12345678/ble
+
+Your stored Credentials :
+MQTT Server = mqtt.thingstream.io
+Port = 1883
+MQTT UserName = mqtt_user
+MQTT PWD = mqtt_pass
+Client ID = client_ID
+HStop doubleResetDetecting
+Saving config file...
+Saving config file OK
+
+MQTT Message Send : esp32-sniffer/12345678/ble => Hello from MQTT_ThingStream on WT32-ETH01 with ETH_PHY_LAN8720
+H
+MQTT Message receive [esp32-sniffer/12345678/ble] Hello from MQTT_ThingStream on WT32-ETH01 with ETH_PHY_LAN8720
+H
+```
+
+---
 ---
 
 ### Debug
@@ -3344,6 +3447,10 @@ Sometimes, the library will only work if you update the board core to the latest
 ---
 
 ## Releases
+
+### Major Releases v1.5.0
+
+1. Add support to ESP32-based WT32-ETH01 (ESP32 + LAN8720) boards, using EEPROM, SPIFFS or LittleFS
 
 ### Major Releases v1.4.0
 
@@ -3405,12 +3512,15 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
  8. RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico).
  9. RP2040-based boards, such as **Nano RP2040 Connect**, using [**Arduino mbed OS for Nano boards**](https://github.com/arduino/ArduinoCore-mbed).
 10. RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-mbed RP2040** v2.1.0+ core](https://github.com/arduino/ArduinoCore-mbed)
+
+11. **WT32_ETH01 boards** using ESP32-based boards and LAN8720 Ethernet
  
 #### Supported Ethernet shields/modules:
 
 1. W5x00 using [`Ethernet`](https://www.arduino.cc/en/Reference/Ethernet), [`EthernetLarge`](https://github.com/OPEnSLab-OSU/EthernetLarge), [`Ethernet2`](https://github.com/adafruit/Ethernet2) or [`Ethernet3`](https://github.com/sstaub/Ethernet3) library
 2. ENC28J60 using [`EthernetENC`](https://github.com/jandrassy/EthernetENC) or [`UIPEthernet`](https://github.com/UIPEthernet/UIPEthernet) library
 3. Teensy 4.1 NativeEthernet using [`NativeEthernet Library version stable111+`](https://github.com/vjmuzik/NativeEthernet).
+4. LAN8720 Ethernet used in WT32_ETH01 boards
 
 ---
 ---
@@ -3457,6 +3567,8 @@ Default Credentials and dynamic parameters
 23. Add support to RP2040-based boards such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico) and LittleFS.
 24. Add support to RP2040-based boards, such as **Nano RP2040 Connect**, using [**Arduino mbed OS for Nano boards**](https://github.com/arduino/ArduinoCore-mbed) and LittleFS.
 25. Add support to RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-mbed RP2040** v2.1.0+ core](https://github.com/arduino/ArduinoCore-mbed) and LittleFS.
+26. Add support to **WT32_ETH01 boards** using ESP32-based boards and LAN8720 Ethernet
+
 
 ---
 ---

@@ -1,8 +1,8 @@
 /****************************************************************************************************************************
   dynamicParams.h
-  For W5x00 and ENC28J60 Ethernet shields.
+  For W5x00, LAN8720 and ENC28J60 Ethernet shields.
 
-  Ethernet_Manager is a library for nRF52, Teensy, STM32, SAM DUE and SAMD boards, with Ethernet W5x00 or ENC28J60 shields,
+  Ethernet_Manager is a library for nRF52, Teensy, STM32, SAM DUE and SAMD boards, with Ethernet W5x00, LAN8720 or ENC28J60 shields,
   to enable easy configuration/reconfiguration of Credentials and autoconnect/autoreconnect of Ethernet.
   AVR Mega is not supported.
 

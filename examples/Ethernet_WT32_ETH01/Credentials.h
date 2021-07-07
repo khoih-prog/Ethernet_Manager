@@ -27,7 +27,7 @@ typedef struct Configuration
 } Ethernet_Configuration;
 */
 
-#define TO_LOAD_DEFAULT_CONFIG_DATA      true
+#define TO_LOAD_DEFAULT_CONFIG_DATA      false
 
 #if TO_LOAD_DEFAULT_CONFIG_DATA
 
@@ -43,11 +43,11 @@ Ethernet_Configuration defaultConfig =
 #endif
 
   // char static_IP      [16];
-  //"192.168.2.230",
+  //"192.168.2.232",
   // Use dynamic DHCP IP
   "",
   //char board_name     [24];
-  "SAMD-Ethernet",
+  "WT32-ETH01",
   // terminate the list
   //int  checkSum, dummy, not used
   0

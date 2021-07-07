@@ -1,15 +1,15 @@
 /****************************************************************************************************************************
   MQTT_ThingStream_Ethernet_Teensy.ino
-  For W5x00 and ENC28J60 Ethernet shields.
+  For W5x00, LAN8720 and ENC28J60 Ethernet shields.
 
-  Ethernet_Manager is a library for nRF52, Teensy, STM32, SAM DUE and SAMD boards, with Ethernet W5x00 or ENC28J60 shields,
+  Ethernet_Manager is a library for nRF52, Teensy, STM32, SAM DUE and SAMD boards, with Ethernet W5x00, LAN8720 or ENC28J60 shields,
   to enable easy configuration/reconfiguration of Credentials and autoconnect/autoreconnect of Ethernet.
   AVR Mega is not supported.
 
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
 
-  Version: 1.4.0
+  Version: 1.5.0
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -20,6 +20,7 @@
                                    Add customs HTML header feature. Fix bug.
   1.3.0     K Hoang     16/05/2021 Add support to RP2040-based boards such as RASPBERRY_PI_PICO
   1.4.0     K Hoang     28/05/2021 Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core
+  1.5.0     K Hoang     06/07/2021 Add support to WT32_ETH01 (ESP32 + LAN8720) boards
  *****************************************************************************************************************************/
 
 #include "defines.h"
