@@ -1,5 +1,5 @@
 /****************************************************************************************************************************
-  Ethernet_nRF52.ino
+  QNEthernet_Teensy.ino
   For W5x00, LAN8720 and ENC28J60 Ethernet shields.
 
   Ethernet_Manager is a library for nRF52, Teensy, STM32, SAM DUE and SAMD boards, with Ethernet W5x00, LAN8720 or ENC28J60 shields,
@@ -32,32 +32,11 @@ Ethernet_Manager ethernet_manager;
 
 IPAddress localEthernetIP;
 
-// Use to detect W5100 shield. The linkStatus() is not working with W5100, only W5200 and W5500
-// To check if W5100 using Ethernet and EthernetLarge libraries
-bool isW5500 = true;
-
 void heartBeatPrint()
 {
-  static int num        = 1;
-  static int linkStatus = 0;
+  static int num = 1;
   
-  localEthernetIP = Ethernet.localIP();
-  
-#if ( (USE_ETHERNET2 || USE_ETHERNET3) && !(USE_NATIVE_ETHERNET) )
-  // To modify Ethernet2 library
-  linkStatus = Ethernet.link();
-  ET_LOGINFO3("localEthernetIP = ", localEthernetIP, ", linkStatus = ", (linkStatus == 1) ? "LinkON" : "LinkOFF" );
-  
-  if ( ( linkStatus == 1 ) && ((uint32_t) localEthernetIP != 0) )
-#else
-
-  // The linkStatus() is not working with W5100. Just using IP != 0.0.0.0
-  // Better to use ping for W5100
-  linkStatus = (int) Ethernet.linkStatus();
-  ET_LOGINFO3("localEthernetIP = ", localEthernetIP, ", linkStatus = ", (linkStatus == LinkON) ? "LinkON" : "LinkOFF" );
-  
-  if ( ( (linkStatus == LinkON) || !isW5500 ) && ((uint32_t) localEthernetIP != 0) )
-#endif
+  if (linkStatus)
   {
     Serial.print(F("H"));
   }
@@ -100,97 +79,46 @@ void setup()
   Serial.begin(115200);
   while (!Serial);
 
-  Serial.println("\nStart Ethernet_nRF52 on " + String(BOARD_NAME)); 
-  Serial.println("Ethernet Shield type : " + String(SHIELD_TYPE));
+  Serial.print("\nStarting QNEthernet_Teensy on "); Serial.print(BOARD_NAME);
+  Serial.print(" " ); Serial.println(SHIELD_TYPE);
   Serial.println(ETHERNET_MANAGER_VERSION);
   Serial.println(DOUBLERESETDETECTOR_GENERIC_VERSION);
 
-  pinMode(SDCARD_CS, OUTPUT);
-  digitalWrite(SDCARD_CS, HIGH); // Deselect the SD card
+#if USE_NATIVE_ETHERNET
+  ET_LOGWARN(F("======== USE_NATIVE_ETHERNET ========"));
+#elif USE_QN_ETHERNET
+  ET_LOGWARN(F("=========== USE_QN_ETHERNET ==========="));
+#else
+  ET_LOGWARN(F("========================="));
+#endif
 
+#if USE_NATIVE_ETHERNET
 
-#if USE_ETHERNET_WRAPPER
+  // start the ethernet connection and the server:
+  // Use DHCP dynamic IP and random mac
+  uint16_t index = millis() % NUMBER_OF_MAC;
+  // Use Static IP
+  //Ethernet.begin(mac[index], ip);
+  Ethernet.begin(mac[index]);
 
-  EthernetInit();
+  Serial.println(F("========================="));
+
+  Serial.print(F("Using mac index = "));
+  Serial.println(index);
+
+  Serial.print(F("Connected! IP address: "));
+  Serial.println(Ethernet.localIP());
 
 #else
 
-  #if ( defined(USE_UIP_ETHERNET) && USE_UIP_ETHERNET )
-    ET_LOGWARN(F("======== USE_UIP_ETHERNET ========"));
-  #elif USE_NATIVE_ETHERNET
-    ET_LOGWARN(F("======== USE_NATIVE_ETHERNET ========"));
-  #elif USE_ETHERNET
-    ET_LOGWARN(F("=========== USE_ETHERNET ==========="));
-  #elif USE_ETHERNET2
-    ET_LOGWARN(F("=========== USE_ETHERNET2 ==========="));
-  #elif USE_ETHERNET3
-    ET_LOGWARN(F("=========== USE_ETHERNET3 ==========="));
-  #elif USE_ETHERNET_LARGE
-    ET_LOGWARN(F("=========== USE_ETHERNET_LARGE ==========="));
-  #elif USE_ETHERNET_ESP8266
-    ET_LOGWARN(F("=========== USE_ETHERNET_ESP8266 ==========="));
-  #elif USE_ETHERNET_ENC
-    ET_LOGWARN(F("=========== USE_ETHERNET_ENC ==========="));  
-  #else
-    ET_LOGWARN(F("========================="));
+  #if USING_DHCP
+    // Start the Ethernet connection, using DHCP
+    Serial.println("QNEthernet using DHCP");
+  #else   
+    // Start the Ethernet connection, using static IP
+    Serial.println("QNEthernet using static IP"); 
   #endif
-  
-  ET_LOGWARN(F("Default SPI pinout:"));
-  ET_LOGWARN1(F("MOSI:"), MOSI);
-  ET_LOGWARN1(F("MISO:"), MISO);
-  ET_LOGWARN1(F("SCK:"),  SCK);
-  ET_LOGWARN1(F("SS:"),   SS);
-  ET_LOGWARN(F("========================="));
-  
-  
-  // unknown board, do nothing, use default SS = 10
-  #ifndef USE_THIS_SS_PIN
-    #define USE_THIS_SS_PIN   10    // For other boards
-  #endif
-  
-  #if defined(BOARD_NAME)
-    ET_LOGWARN3(F("Board :"), BOARD_NAME, F(", setCsPin:"), USE_THIS_SS_PIN);
-  #else
-    ET_LOGWARN1(F("Unknown board setCsPin:"), USE_THIS_SS_PIN);
-  #endif
-  
-  // For other boards, to change if necessary
-  #if ( USE_ETHERNET || USE_ETHERNET_LARGE || USE_ETHERNET2  || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
-    // Must use library patch for Ethernet, Ethernet2, EthernetLarge libraries
-  
-    Ethernet.init (USE_THIS_SS_PIN);
-  
-  #elif USE_ETHERNET3
-    // Use  MAX_SOCK_NUM = 4 for 4K, 2 for 8K, 1 for 16K RX/TX buffer
-    #ifndef ETHERNET3_MAX_SOCK_NUM
-      #define ETHERNET3_MAX_SOCK_NUM      4
-    #endif
-  
-    Ethernet.setCsPin (USE_THIS_SS_PIN);
-    Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
-  
-  #elif USE_CUSTOM_ETHERNET
-  
-    // You have to add initialization for your Custom Ethernet here
-    // This is just an example to setCSPin to USE_THIS_SS_PIN, and can be not correct and enough
-    Ethernet.init(USE_THIS_SS_PIN);
-    
-  #endif  //( USE_ETHERNET || USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE )
-  
-#endif  //USE_ETHERNET_WRAPPER
-
-  // Just info to know how to connect correctly
-  ET_LOGWARN(F("========================="));
-  ET_LOGWARN(F("Currently Used SPI pinout:"));
-  ET_LOGWARN1(F("MOSI:"), MOSI);
-  ET_LOGWARN1(F("MISO:"), MISO);
-  ET_LOGWARN1(F("SCK:"), SCK);
-  ET_LOGWARN1(F("SS:"), SS);
-  
-#if USE_ETHERNET3
-  ET_LOGWARN1(F("SPI_CS:"), SPI_CS);
 #endif
-  ET_LOGWARN(F("========================="));
  
   //////////////////////////////////////////////
   
@@ -212,12 +140,7 @@ void setup()
 
   localEthernetIP = Ethernet.localIP();
 
-#if (USE_ETHERNET2 || USE_ETHERNET3)
-  // To modify Ethernet2 library
   if ( (uint32_t) localEthernetIP != 0 )
-#else
-  if ( (uint32_t) localEthernetIP != 0 )
-#endif
   {
     Serial.print(F("Connected! IP address: "));
     Serial.println(localEthernetIP);
@@ -226,13 +149,6 @@ void setup()
   {
     Serial.println(F("Ethernet not Connected! Please check."));
   }
-
-// Detect W5100 only in Ethernet and EthernetLarge libraries
-#if ( USE_ETHERNET || USE_ETHERNET_LARGE)
-  isW5500 = (Ethernet.hardwareStatus() == EthernetW5500);
-  Serial.print(F("Ethernet type is "));
-  Serial.println(isW5500 ? "W5500" : "W5100");
-#endif
 }
 
 #if (USE_DYNAMIC_PARAMETERS)

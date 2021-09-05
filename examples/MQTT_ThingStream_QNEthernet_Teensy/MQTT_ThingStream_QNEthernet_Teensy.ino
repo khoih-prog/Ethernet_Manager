@@ -1,5 +1,5 @@
 /****************************************************************************************************************************
-  MQTT_ThingStream_Ethernet_RP2040.ino
+  MQTT_ThingStream_QNEthernet_Teensy.ino
   For W5x00, LAN8720 and ENC28J60 Ethernet shields.
 
   Ethernet_Manager is a library for nRF52, Teensy, STM32, SAM DUE and SAMD boards, with Ethernet W5x00, LAN8720 or ENC28J60 shields,
@@ -55,7 +55,10 @@ void mqtt_receive_callback(char* topic, byte* payload, unsigned int length);
 unsigned long lastMsg = 0;
 
 // Initialize the SSL client library
-WiFiClient ethClient;
+// Arguments: EthernetClient, our trust anchors
+
+
+EthernetClient    ethClient;
 
 PubSubClient* client = NULL;
 
@@ -84,14 +87,8 @@ void reconnect()
     Serial.print("Attempting MQTT connection to ");
     Serial.println(MQTT_SERVER);
 
-    Serial.print("MQTT_CLIENT_ID = ");
-    Serial.println(MQTT_CLIENT_ID);
-    Serial.print("MQTT_USER = ");
-    Serial.println(MQTT_USER);
-    Serial.print("MQTT_PASS = ");
-    Serial.println(MQTT_PASS);
-
     // Attempt to connect
+
     int connect_status = client->connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS, topic.c_str(), 2, false, "");
 
     if (connect_status)                                
@@ -127,13 +124,12 @@ void reconnect()
 
 ///////////// End MQTT ThingStream ///////////////
 
+
 void heartBeatPrint()
 {
-  static int num        = 1;
+  static int num = 1;
   
-  localEthernetIP = ETH.localIP();
- 
-  if ( ( (uint32_t) localEthernetIP != 0 ) )
+  if (linkStatus)
   {
     Serial.print(F("H"));
   }
@@ -170,70 +166,53 @@ const char NewCustomsStyle[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-si
 button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
 #endif
 
-void WiFiEvent(WiFiEvent_t event)
-{
-  switch (event)
-  {
-    case SYSTEM_EVENT_ETH_START:
-      ETM_LOGERROR(F("ETH Started"));
-      //set eth hostname here
-      ETH.setHostname("WT32-ETH01");
-      break;
-    case SYSTEM_EVENT_ETH_CONNECTED:
-      ETM_LOGERROR(F("ETH Connected"));
-      break;
-
-    case SYSTEM_EVENT_ETH_GOT_IP:
-      if (!ethernet_manager.ethernetConnected)
-      {
-        ETM_LOGERROR3(F("ETH MAC:"), ETH.macAddress(), F(", IPv4:"), ETH.localIP());
-
-        if (ETH.fullDuplex())
-        {
-          ETM_LOGERROR1(F("FULL_DUPLEX, Link Speed (Mbps)"), ETH.linkSpeed());
-        }
-        else
-        {
-          ETM_LOGERROR1(F("HALF_DUPLEX, Link Speed (Mbps)"), ETH.linkSpeed());
-        }
-
-        ethernet_manager.ethernetConnected = true;
-      }
-
-      break;
-
-    case SYSTEM_EVENT_ETH_DISCONNECTED:
-      ETM_LOGERROR(F("ETH Disconnected"));
-      ethernet_manager.ethernetConnected = false;
-      break;
-
-    case SYSTEM_EVENT_ETH_STOP:
-      ETM_LOGERROR(F("\nETH Stopped"));
-      ethernet_manager.ethernetConnected = false;
-      break;
-
-    default:
-      break;
-  }
-}
-
 void setup()
 {
   // Debug console
   Serial.begin(115200);
   while (!Serial);
 
-  // Using this if Serial debugging is not necessary or not using Serial port
-  //while (!Serial && (millis() < 3000));
-
-  Serial.print("\nStart MQTT_ThingStream_Ethernet_WT32_ETH01 on "); Serial.println(BOARD_NAME); 
-  Serial.print("Ethernet Shield type : "); Serial.println(SHIELD_TYPE);
-  Serial.println(WEBSERVER_WT32_ETH01_VERSION);
+  Serial.print("\nStarting MQTT_ThingStream_QNEthernet_Teensy on "); Serial.print(BOARD_NAME);
+  Serial.print(" " ); Serial.println(SHIELD_TYPE);
   Serial.println(ETHERNET_MANAGER_VERSION);
-  Serial.println(ESP_DOUBLE_RESET_DETECTOR_VERSION);
+  Serial.println(DOUBLERESETDETECTOR_GENERIC_VERSION);
 
-  WiFi.onEvent(WiFiEvent);
+#if USE_NATIVE_ETHERNET
+  ET_LOGWARN(F("======== USE_NATIVE_ETHERNET ========"));
+#elif USE_QN_ETHERNET
+  ET_LOGWARN(F("=========== USE_QN_ETHERNET ==========="));
+#else
+  ET_LOGWARN(F("========================="));
+#endif
 
+#if USE_NATIVE_ETHERNET
+
+  // start the ethernet connection and the server:
+  // Use DHCP dynamic IP and random mac
+  uint16_t index = millis() % NUMBER_OF_MAC;
+  // Use Static IP
+  //Ethernet.begin(mac[index], ip);
+  Ethernet.begin(mac[index]);
+
+  Serial.println(F("========================="));
+
+  Serial.print(F("Using mac index = "));
+  Serial.println(index);
+
+  Serial.print(F("Connected! IP address: "));
+  Serial.println(Ethernet.localIP());
+
+#else
+
+  #if USING_DHCP
+    // Start the Ethernet connection, using DHCP
+    Serial.println("QNEthernet using DHCP");
+  #else   
+    // Start the Ethernet connection, using static IP
+    Serial.println("QNEthernet using static IP"); 
+  #endif
+#endif
+ 
   //////////////////////////////////////////////
   
 #if USING_CUSTOMS_STYLE
@@ -252,7 +231,7 @@ void setup()
 
   //////////////////////////////////////////////
 
-  localEthernetIP = ETH.localIP();
+  localEthernetIP = Ethernet.localIP();
 
   if ( (uint32_t) localEthernetIP != 0 )
   {
@@ -263,7 +242,7 @@ void setup()
   {
     Serial.println(F("Ethernet not Connected! Please check."));
   }
- 
+  
   Serial.println("***************************************");
   Serial.println(topic);
   Serial.println("***************************************");
@@ -312,6 +291,7 @@ void loop()
 {
   static bool           inConfigMode = true;
   static unsigned long  currentMillis;
+
   
   inConfigMode = ethernet_manager.run();
 
@@ -319,11 +299,6 @@ void loop()
   {
     if (!client)
     {
-       Serial.print("Connecting to MQTT_SERVER = ");
-       Serial.print(MQTT_SERVER);
-       Serial.print(", MQTT_PORT= ");
-       Serial.println(atoi(MQTT_PORT));
-    
        client = new PubSubClient(MQTT_SERVER, atoi(MQTT_PORT), mqtt_receive_callback, ethClient);
 
       // Note - the default maximum packet size is 256 bytes. If the

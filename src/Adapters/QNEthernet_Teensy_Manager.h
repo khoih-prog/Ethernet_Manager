@@ -1,6 +1,6 @@
 /****************************************************************************************************************************
-  Ethernet_Teensy_Manager.h
-  For W5x00, LAN8720 and ENC28J60 Ethernet shields.
+  QNEthernet_Teensy_Manager.h
+  For Teensy 4.1 built-in Ethernet using QNEthernet library.
 
   Ethernet_Manager is a library for nRF52, Teensy, STM32, SAM DUE and SAMD boards, with Ethernet W5x00, LAN8720 or ENC28J60 shields,
   to enable easy configuration/reconfiguration of Credentials and autoconnect/autoreconnect of Ethernet.
@@ -26,18 +26,17 @@
 
 #pragma once
 
-#ifndef Ethernet_Teensy_Manager_h
-#define Ethernet_Teensy_Manager_h
+#ifndef QNEthernet_Teensy_Manager_h
+#define QNEthernet_Teensy_Manager_h
 
-#if ( defined(CORE_TEENSY) && !( defined(__MKL26Z64__) || defined(__AVR_AT90USB1286__) || defined(__AVR_ATmega32U4__) ) )
-  // Don't support Teensy 2.x, LC
+#if ( defined(CORE_TEENSY) && defined(__IMXRT1062__) && defined(ARDUINO_TEENSY41) ) 
   #if defined(ETHERNET_USE_TEENSY)
     #undef ETHERNET_USE_TEENSY
   #endif
   #warning ETHERNET_USE_TEENSY from Ethernet_Teensy_Manager.h
   #define ETHERNET_USE_TEENSY         true
 #else
-  #error This code is designed to run on Teensy 4.0 and 3.x boards! Please check your Tools->Board setting.
+  #error This code is designed to run on Teensy 4.1 and QNEthernet Library! Please check your Tools->Board setting.
 #endif
 
 // Increase HTTP_UPLOAD_BUFLEN to 4K, instead of default 2K in <EthernetWebServer.h>
@@ -166,6 +165,19 @@ const char WM_HTTP_EXPIRES[]         PROGMEM = "Expires";
 
 const char WM_HTTP_CORS[]            PROGMEM = "Access-Control-Allow-Origin";
 const char WM_HTTP_CORS_ALLOW_ALL[]  PROGMEM = "*";
+
+//////////////////////////////////////////
+
+static int linkStatus = 0;
+
+static void link_status_callback(struct netif *netif) 
+{
+  //linkStatus = netif_is_link_up(netif);
+  linkStatus = netif->flags & NETIF_FLAG_LINK_UP;
+  
+  //Serial.print("enet link status: ");
+  //Serial.print(linkStatus ? "up" : "down");
+}
 
 //////////////////////////////////////////
 
@@ -1348,7 +1360,7 @@ class Ethernet_Manager
     }
 
     //////////////////////////////////////////////
-
+       
     bool connectEthernet()
     {
       // Check go see if static IP is required
@@ -1358,21 +1370,22 @@ class Ethernet_Manager
       {
         // Use static IP
         ETM_LOGWARN1(F("Start connectEthernet using Static IP ="), staticIP);
-        
-        Ethernet.begin(SelectMacAddress(NULL), staticIP);
-        ethernetConnected = true;
+               
+        Ethernet.begin(myIP, myNetmask, myGW);
+        Ethernet.setDNSServerIP(mydnsServer);
       }
       else
       {
         // If static_IP ="nothing"  or NULL, use DHCP dynamic IP
         ETM_LOGWARN(F("Start connectEthernet using DHCP"));
         
-        ethernetConnected = ( Ethernet.begin(SelectMacAddress(NULL)) == 1);
+        Ethernet.begin();
       }
     
-      // give the Ethernet shield a second to initialize:
-      //delay(1000);
-     
+      ethernetConnected = Ethernet.waitForLocalIP(10000);
+      
+      netif_set_link_callback(netif_default, link_status_callback);
+          
       if (ethernetConnected)
       {
         ETM_LOGWARN1(F("IP:"), Ethernet.localIP());
@@ -1384,49 +1397,7 @@ class Ethernet_Manager
 
       return ethernetConnected;
     }
-
-    byte* SelectMacAddress(const byte mac[])
-    {
-      if (mac != NULL) 
-      {
-        return (byte*)mac;
-      }
-
-      macAddress[0] = 0xFE;
-      macAddress[1] = 0xAB;
-      macAddress[2] = 0xCD;
-      macAddress[3] = 0xEF;
-      macAddress[4] = 0xED;
-      macAddress[5] = 0xBA;
-      
-      const char* token = String(millis()).c_str();
-
-      int len = strlen(token);
-      int mac_index = 1;
-
-      for (uint16_t i = 0; i < len; i++)
-      {
-        macAddress[mac_index] ^= token[i];
-
-        if (++mac_index > 5) {
-          mac_index = 1;
-        }
-      }
-      
-      char localBuffer[24];
-      
-      snprintf(localBuffer, sizeof(localBuffer), "MAC:%02X-%02X-%02X-%02X-%02X-%02X",
-                macAddress[0], macAddress[1],
-                macAddress[2], macAddress[3],
-                macAddress[4], macAddress[5]);
-                
-      ETM_LOGWARN(localBuffer);
-
-      return macAddress;
-    }
-
-    byte macAddress[6];
-
 };
 
-#endif    // Ethernet_Teensy_Manager_h
+
+#endif    // QNEthernet_Teensy_Manager_h
