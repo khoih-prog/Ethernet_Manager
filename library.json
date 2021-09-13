@@ -27,7 +27,7 @@
     {
       "owner": "khoih-prog",
       "name": "EthernetWebServer",
-      "version": ">=1.5.0",
+      "version": ">=1.7.0",
       "platforms": ["*"]
     },
     {
@@ -39,7 +39,7 @@
     {
       "owner": "khoih.prog",
       "name": "DoubleResetDetector_Generic",
-      "version": ">=1.4.0",
+      "version": ">=1.7.0",
       "platforms": ["*"]
     },
     {
@@ -51,13 +51,13 @@
     {
       "owner": "khoih.prog",
       "name": "FlashStorage_SAMD",
-      "version": "^1.1.0",
+      "version": "^1.2.0",
       "platforms": ["*"]
     },
     {
       "owner": "khoih.prog",
       "name": "WebServer_WT32_ETH01",
-      "version": "^1.1.0",
+      "version": "^1.2.0",
       "platforms": ["espressif32"]
     },
     {
