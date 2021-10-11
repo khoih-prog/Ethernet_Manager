@@ -9,7 +9,7 @@
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
 
-  Version: 1.6.0
+  Version: 1.6.1
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -22,6 +22,7 @@
   1.4.0     K Hoang     28/05/2021 Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core
   1.5.0     K Hoang     06/07/2021 Add support to WT32_ETH01 (ESP32 + LAN8720) boards
   1.6.0     K Hoang     05/09/2021 Add support to QNEthernet Library for Teensy 4.1
+  1.6.1     K Hoang     10/10/2021 Update `platform.ini` and `library.json`
  *****************************************************************************************************************************/
 
 #pragma once
@@ -29,7 +30,7 @@
 #ifndef Ethernet_Manager_h
 #define Ethernet_Manager_h
 
-#define ETHERNET_MANAGER_VERSION      "Ethernet_Manager v1.6.0"
+#define ETHERNET_MANAGER_VERSION      "Ethernet_Manager v1.6.1"
 
 #if ( USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE || USE_ETHERNET_ESP8266 || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
   #ifdef USE_CUSTOM_ETHERNET
