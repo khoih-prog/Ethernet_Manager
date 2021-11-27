@@ -22,7 +22,7 @@ void heartBeatPrint()
 {
   static int num = 1;
   
-  if (linkStatus)
+  if (ethernet_manager.link_status())
   {
     Serial.print(F("H"));
   }

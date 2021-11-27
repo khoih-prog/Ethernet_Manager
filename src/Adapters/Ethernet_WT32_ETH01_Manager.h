@@ -9,7 +9,7 @@
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
 
-  Version: 1.6.1
+  Version: 1.7.0
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -23,6 +23,7 @@
   1.5.0     K Hoang     06/07/2021 Add support to WT32_ETH01 (ESP32 + LAN8720) boards
   1.6.0     K Hoang     05/09/2021 Add support to QNEthernet Library for Teensy 4.1
   1.6.1     K Hoang     10/10/2021 Update `platform.ini` and `library.json`
+  1.7.0     K Hoang     27/11/2021 Auto detect ESP32 core to use correct LittleFS. Fix QNEthernet-related linkStatus.
 *****************************************************************************************************************************/
 
 #pragma once
@@ -48,13 +49,27 @@
 #if USE_LITTLEFS
   // Use LittleFS
   #include "FS.h"
-
-  // The library will be depreciated after being merged to future major Arduino esp32 core release 2.x
-  // At that time, just remove this library inclusion
-  #include <LITTLEFS.h>             // https://github.com/lorol/LITTLEFS
   
-  FS* filesystem =      &LITTLEFS;
-  #define FileFS        LITTLEFS
+  // Check cores/esp32/esp_arduino_version.h and cores/esp32/core_version.h
+  //#if ( ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(2, 0, 0) )  //(ESP_ARDUINO_VERSION_MAJOR >= 2)
+  #if ( defined(ESP_ARDUINO_VERSION_MAJOR) && (ESP_ARDUINO_VERSION_MAJOR >= 2) )
+    #warning Using ESP32 Core 1.0.6 or 2.0.0+
+    // The library has been merged into esp32 core from release 1.0.6
+    #include <LittleFS.h>
+    
+    FS* filesystem =      &LittleFS;
+    #define FileFS        LittleFS
+    #define FS_Name       "LittleFS"
+  #else
+    #warning Using ESP32 Core 1.0.5-. You must install LITTLEFS library
+    // The library has been merged into esp32 core from release 1.0.6
+    #include <LITTLEFS.h>             // https://github.com/lorol/LITTLEFS
+    
+    FS* filesystem =      &LITTLEFS;
+    #define FileFS        LITTLEFS
+    #define FS_Name       "LittleFS"
+  #endif
+  
 #elif USE_SPIFFS
   #include "FS.h"
   #include <SPIFFS.h>

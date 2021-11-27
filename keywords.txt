@@ -24,6 +24,7 @@ setCustomsHeadElement   KEYWORD2
 getCustomsHeadElement   KEYWORD2
 setCORSHeader   KEYWORD2
 getCORSHeader   KEYWORD2
+link_status KEYWORD2
 
 #######################################
 # Literals (LITERAL1)

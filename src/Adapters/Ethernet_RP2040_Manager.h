@@ -9,7 +9,7 @@
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
 
-  Version: 1.6.1
+  Version: 1.7.0
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -23,6 +23,7 @@
   1.5.0     K Hoang     06/07/2021 Add support to WT32_ETH01 (ESP32 + LAN8720) boards
   1.6.0     K Hoang     05/09/2021 Add support to QNEthernet Library for Teensy 4.1
   1.6.1     K Hoang     10/10/2021 Update `platform.ini` and `library.json`
+  1.7.0     K Hoang     27/11/2021 Auto detect ESP32 core to use correct LittleFS. Fix QNEthernet-related linkStatus.
 *****************************************************************************************************************************/
 
 #pragma once
@@ -34,7 +35,11 @@
   #error ARDUINO_ARCH_MBED is not supported yet because of LittleFS or EEPROM not ready.
 #endif
 
-#if ( defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) || defined(ARDUINO_GENERIC_RP2040) )
+#if ( defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) || defined(ARDUINO_GENERIC_RP2040) || \
+      defined(ARDUINO_ADAFRUIT_ITSYBITSY_RP2040) || defined(ARDUINO_ADAFRUIT_QTPY_RP2040) || defined(ARDUINO_ADAFRUIT_STEMMAFRIEND_RP2040) || \
+      defined(ARDUINO_ADAFRUIT_TRINKEYQT_RP2040) || defined(ARDUINO_ADAFRUIT_MACROPAD_RP2040) || defined(ARDUINO_ARDUINO_NANO_RP2040_CONNECT) || \
+      defined(ARDUINO_CYTRON_MAKER_PI_RP2040) || defined(ARDUINO_SPARKFUN_PROMICRO_RP2040) || defined(ARDUINO_CHALLENGER_2040_WIFI_RP2040) || \
+      defined(ARDUINO_CHALLENGER_2040_LTE_RP2040) || defined(ARDUINO_MELOPERO_SHAKE_RP2040) || defined(ARDUINO_UPESY_RP2040_DEVKIT) )
   #if defined(ETHERNET_USE_RPIPICO)
     #undef ETHERNET_USE_RPIPICO
   #endif

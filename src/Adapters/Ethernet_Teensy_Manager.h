@@ -9,7 +9,7 @@
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
 
-  Version: 1.6.1
+  Version: 1.7.0
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -23,6 +23,7 @@
   1.5.0     K Hoang     06/07/2021 Add support to WT32_ETH01 (ESP32 + LAN8720) boards
   1.6.0     K Hoang     05/09/2021 Add support to QNEthernet Library for Teensy 4.1
   1.6.1     K Hoang     10/10/2021 Update `platform.ini` and `library.json`
+  1.7.0     K Hoang     27/11/2021 Auto detect ESP32 core to use correct LittleFS. Fix QNEthernet-related linkStatus.
  *****************************************************************************************************************************/
 
 #pragma once

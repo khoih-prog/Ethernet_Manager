@@ -13,6 +13,7 @@
 
 
 * [Changelog](#changelog)
+  * [Major Releases v1.7.0](#major-releases-v170)
   * [Releases v1.6.1](#releases-v161)
   * [Major Releases v1.6.0](#major-releases-v160)
   * [Major Releases v1.5.0](#major-releases-v150)
@@ -28,6 +29,13 @@
 
 
 ## Changelog
+
+### Major Releases v1.7.0
+
+1. Auto detect ESP32 core and use either built-in LittleFS or [LITTLEFS](https://github.com/lorol/LITTLEFS) library for ESP32 and WT32-ETH01.
+2. Fix QNEthernet-related linkStatus.
+3. Add support to many more new RP2040 boards
+4. Add support to generic SAMD21 : `__SAMD21E1xA__`, `__SAMD21G1xA__` and `__SAMD21J1xA__`
 
 ### Releases v1.6.1
 

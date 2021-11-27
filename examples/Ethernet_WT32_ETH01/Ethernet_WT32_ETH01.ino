@@ -63,6 +63,58 @@ button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;wid
 
 void WiFiEvent(WiFiEvent_t event)
 {
+#if ( ( defined(ESP_ARDUINO_VERSION_MAJOR) && (ESP_ARDUINO_VERSION_MAJOR >= 2) ) && ( ARDUINO_ESP32_GIT_VER != 0x46d5afb1 ) )
+  //#warning Using ESP32 core v2.0.0+
+  // Core v2.0.0+
+  switch (event)
+  {
+    case ARDUINO_EVENT_ETH_START:
+      ETM_LOGERROR(F("ETH Started"));
+      //set eth hostname here
+      ETH.setHostname("WT32-ETH01");
+      break;
+    case ARDUINO_EVENT_ETH_CONNECTED:
+      ETM_LOGERROR(F("ETH Connected"));
+      break;
+
+    case ARDUINO_EVENT_ETH_GOT_IP:
+      if (!ethernet_manager.ethernetConnected)
+      {
+        ETM_LOGERROR3(F("ETH MAC:"), ETH.macAddress(), F(", IPv4:"), ETH.localIP());
+
+        if (ETH.fullDuplex())
+        {
+          ETM_LOGERROR1(F("FULL_DUPLEX, Link Speed (Mbps)"), ETH.linkSpeed());
+        }
+        else
+        {
+          ETM_LOGERROR1(F("HALF_DUPLEX, Link Speed (Mbps)"), ETH.linkSpeed());
+        }
+
+        ethernet_manager.ethernetConnected = true;
+      }
+
+      break;
+
+    case ARDUINO_EVENT_ETH_DISCONNECTED:
+      ETM_LOGERROR(F("ETH Disconnected"));
+      ethernet_manager.ethernetConnected = false;
+      break;
+
+    case ARDUINO_EVENT_ETH_STOP:
+      ETM_LOGERROR(F("\nETH Stopped"));
+      ethernet_manager.ethernetConnected = false;
+      break;
+
+    default:
+      break;
+  }
+  
+#else
+
+  //#warning Using ESP32 core v1.0.6-
+  
+  // Core v1.0.6-
   switch (event)
   {
     case SYSTEM_EVENT_ETH_START:
@@ -106,6 +158,7 @@ void WiFiEvent(WiFiEvent_t event)
     default:
       break;
   }
+#endif  
 }
 
 void setup()

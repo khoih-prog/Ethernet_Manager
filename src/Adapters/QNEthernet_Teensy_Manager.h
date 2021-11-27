@@ -9,7 +9,7 @@
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
 
-  Version: 1.6.1
+  Version: 1.7.0
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -23,6 +23,7 @@
   1.5.0     K Hoang     06/07/2021 Add support to WT32_ETH01 (ESP32 + LAN8720) boards
   1.6.0     K Hoang     05/09/2021 Add support to QNEthernet Library for Teensy 4.1
   1.6.1     K Hoang     10/10/2021 Update `platform.ini` and `library.json`
+  1.7.0     K Hoang     27/11/2021 Auto detect ESP32 core to use correct LittleFS. Fix QNEthernet-related linkStatus.
  *****************************************************************************************************************************/
 
 #pragma once
@@ -167,18 +168,6 @@ const char WM_HTTP_EXPIRES[]         PROGMEM = "Expires";
 const char WM_HTTP_CORS[]            PROGMEM = "Access-Control-Allow-Origin";
 const char WM_HTTP_CORS_ALLOW_ALL[]  PROGMEM = "*";
 
-//////////////////////////////////////////
-
-static int linkStatus = 0;
-
-static void link_status_callback(struct netif *netif) 
-{
-  //linkStatus = netif_is_link_up(netif);
-  linkStatus = netif->flags & NETIF_FLAG_LINK_UP;
-  
-  //Serial.print("enet link status: ");
-  //Serial.print(linkStatus ? "up" : "down");
-}
 
 //////////////////////////////////////////
 
@@ -492,6 +481,11 @@ class Ethernet_Manager
       return _CORS_Header;
     }
 #endif
+
+    bool link_status()
+    {
+      return (Ethernet.linkStatus() == EthernetLinkStatus::LinkON);
+    }
           
     //////////////////////////////////////
 
@@ -1385,7 +1379,7 @@ class Ethernet_Manager
     
       ethernetConnected = Ethernet.waitForLocalIP(10000);
       
-      netif_set_link_callback(netif_default, link_status_callback);
+      //netif_set_link_callback(netif_default, link_status_callback);
           
       if (ethernetConnected)
       {
