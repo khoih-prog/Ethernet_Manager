@@ -57,7 +57,7 @@
     {
       "owner": "khoih-prog",
       "name": "WebServer_WT32_ETH01",
-      "version": "^1.3.0",
+      "version": "^1.4.0",
       "platforms": ["espressif32"]
     },
     {
