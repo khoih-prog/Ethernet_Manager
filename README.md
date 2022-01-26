@@ -139,11 +139,11 @@
 
 ### Important Notes about Nano_RP2040_Connect
 
-The LittleFS of the new **Nano_RP2040_Connect** board ( see [New board](pics/New_Board.png) ), using ISSI Flash chip, is currently not working with [`Arduino mbed_rp2040 core 2.4.1`](https://github.com/arduino/ArduinoCore-mbed/releases/tag/2.4.1). Please downgrade to [`Arduino mbed_rp2040 core 2.3.1`](https://github.com/arduino/ArduinoCore-mbed/releases/tag/2.3.1)
+The LittleFS of the new **Nano_RP2040_Connect** board ( see [New board](pics/New_Board.png) ), using ISSI Flash chip, is currently not working with [`Arduino mbed_rp2040 core 2.4.1+`](https://github.com/arduino/ArduinoCore-mbed/releases/tag/2.4.1). Please downgrade to [`Arduino mbed_rp2040 core 2.3.1`](https://github.com/arduino/ArduinoCore-mbed/releases/tag/2.3.1)
 
 Check [**RP2040 Connect board has faulty components in newest purchase** #318](https://github.com/arduino/ArduinoCore-mbed/issues/318#) for more information of when and how the issue will be fixed.
 
-The old board ( see [Old board](pics/Old_Board.png) ), using Adesto Flash chip, is currently working with [`Arduino mbed_rp2040 core 2.4.1`](https://github.com/arduino/ArduinoCore-mbed/releases/tag/2.4.1).
+The old board ( see [Old board](pics/Old_Board.png) ), using Adesto Flash chip, is currently working with [`Arduino mbed_rp2040 core 2.4.1+`](https://github.com/arduino/ArduinoCore-mbed/releases/tag/2.4.1).
 
 ---
 ---
@@ -218,36 +218,36 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
 
 ## Prerequisites
 
- 1. [`Arduino IDE 1.8.16+` for Arduino](https://www.arduino.cc/en/Main/Software)
+ 1. [`Arduino IDE 1.8.19+` for Arduino](https://github.com/arduino/Arduino). [![GitHub release](https://img.shields.io/github/release/arduino/Arduino.svg)](https://github.com/arduino/Arduino/releases/latest)
  2. [`Arduino AVR core 1.8.4+`](https://github.com/arduino/ArduinoCore-avr) for Arduino (Use Arduino Board Manager) AVR boards. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-avr.svg)](https://github.com/arduino/ArduinoCore-avr/releases/latest)
- 3. [`Teensy core v1.55+`](https://www.pjrc.com/teensy/td_download.html) for Teensy (4.1, 4.0, 3.6, 3.5, 3,2, 3.1, 3.0) boards.
+ 3. [`Teensy core v1.56+`](https://www.pjrc.com/teensy/td_download.html) for Teensy (4.1, 4.0, 3.6, 3.5, 3,2, 3.1, 3.0) boards.
  4. [`Arduino SAM DUE core v1.6.12+`](https://github.com/arduino/ArduinoCore-sam) for SAM DUE ARM Cortex-M3 boards.
  5. [`Arduino SAMD core 1.8.12+`](https://github.com/arduino/ArduinoCore-samd) for SAMD ARM Cortex-M0+ boards. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-samd.svg)](https://github.com/arduino/ArduinoCore-samd/releases/latest)
- 6. [`Adafruit SAMD core 1.7.5+`](https://github.com/adafruit/ArduinoCore-samd) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
+ 6. [`Adafruit SAMD core 1.7.7+`](https://github.com/adafruit/ArduinoCore-samd) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
  7. [`Seeeduino SAMD core 1.8.1+`](https://github.com/Seeed-Studio/ArduinoCore-samd) for SAMD21/SAMD51 boards (XIAO M0, Wio Terminal, etc.). [![Latest release](https://img.shields.io/github/release/Seeed-Studio/ArduinoCore-samd.svg)](https://github.com/Seeed-Studio/ArduinoCore-samd/releases/latest/)
- 8. [`Adafruit nRF52 v1.2.0+`](https://github.com/adafruit/Adafruit_nRF52_Arduino) for nRF52 boards such as Adafruit NRF52840_FEATHER, NRF52832_FEATHER, NRF52840_FEATHER_SENSE, NRF52840_ITSYBITSY, NRF52840_CIRCUITPLAY, NRF52840_CLUE, NRF52840_METRO, NRF52840_PCA10056, PARTICLE_XENON, **NINA_B302_ublox**, etc. [![GitHub release](https://img.shields.io/github/release/adafruit/Adafruit_nRF52_Arduino.svg)](https://github.com/adafruit/Adafruit_nRF52_Arduino/releases/latest)
- 9. [`ESP32 Core 2.0.1+`](https://github.com/espressif/arduino-esp32) for ESP32-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/)
+ 8. [`Adafruit nRF52 v1.3.0+`](https://github.com/adafruit/Adafruit_nRF52_Arduino) for nRF52 boards such as Adafruit NRF52840_FEATHER, NRF52832_FEATHER, NRF52840_FEATHER_SENSE, NRF52840_ITSYBITSY, NRF52840_CIRCUITPLAY, NRF52840_CLUE, NRF52840_METRO, NRF52840_PCA10056, PARTICLE_XENON, **NINA_B302_ublox**, etc. [![GitHub release](https://img.shields.io/github/release/adafruit/Adafruit_nRF52_Arduino.svg)](https://github.com/adafruit/Adafruit_nRF52_Arduino/releases/latest)
+ 9. [`ESP32 Core 2.0.2+`](https://github.com/espressif/arduino-esp32) for ESP32-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/)
 10. [`ESP8266 Core 3.0.2+`](https://github.com/esp8266/Arduino) for ESP8266-based boards. [![Latest release](https://img.shields.io/github/release/esp8266/Arduino.svg)](https://github.com/esp8266/Arduino/releases/latest/). To use ESP8266 core 2.7.1+ for LittleFS.
 11. [`Arduino mbed_rp2040 core 2.6.1+`](https://github.com/arduino/ArduinoCore-mbed) for Arduino (Use Arduino Board Manager) RP2040-based boards, such as RASPBERRY_PI_PICO. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-mbed.svg)](https://github.com/arduino/ArduinoCore-mbed/releases/latest)
-12. [`Earle Philhower's arduino-pico core v1.9.6+`](https://github.com/earlephilhower/arduino-pico) for RP2040-based boards such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, etc. [![GitHub release](https://img.shields.io/github/release/earlephilhower/arduino-pico.svg)](https://github.com/earlephilhower/arduino-pico/releases/latest)
+12. [`Earle Philhower's arduino-pico core v1.9.14+`](https://github.com/earlephilhower/arduino-pico) for RP2040-based boards such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, etc. [![GitHub release](https://img.shields.io/github/release/earlephilhower/arduino-pico.svg)](https://github.com/earlephilhower/arduino-pico/releases/latest)
 13. [`Functional-VLPP library v1.0.2+`](https://github.com/khoih-prog/functional-vlpp) to use server's lambda function. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/Functional-Vlpp.svg?)](https://www.ardu-badge.com/Functional-Vlpp)
 14. Depending on which Ethernet card you're using:
    - [`Ethernet library v2.0.0+`](https://github.com/arduino-libraries/Ethernet) for W5100, W5200 and W5500.  [![GitHub release](https://img.shields.io/github/release/arduino-libraries/Ethernet.svg)](https://github.com/arduino-libraries/Ethernet/releases/latest)
    - [`EthernetLarge library v2.0.0+`](https://github.com/OPEnSLab-OSU/EthernetLarge) for W5100, W5200 and W5500.
    - [`Ethernet2 library v1.0.4+`](https://github.com/khoih-prog/Ethernet2) for W5500. [![GitHub release](https://img.shields.io/github/release/adafruit/Ethernet2.svg)](https://github.com/adafruit/Ethernet2/releases/latest)
    - [`Ethernet3 library v1.5.5+`](https://github.com/sstaub/Ethernet3) for W5500/WIZ550io/WIZ850io/USR-ES1 with Wiznet W5500 chip. [![GitHub release](https://img.shields.io/github/release/sstaub/Ethernet3.svg)](https://github.com/sstaub/Ethernet3/releases/latest)
-   - [`EthernetENC library v2.0.1+`](https://github.com/jandrassy/EthernetENC) for ENC28J60. [![GitHub release](https://img.shields.io/github/release/jandrassy/EthernetENC.svg)](https://github.com/jandrassy/EthernetENC/releases/latest). **New and Better**
-   - [`UIPEthernet library v2.0.10+`](https://github.com/UIPEthernet/UIPEthernet) for ENC28J60. [![GitHub release](https://img.shields.io/github/release/UIPEthernet/UIPEthernet.svg)](https://github.com/UIPEthernet/UIPEthernet/releases/latest)
+   - [`EthernetENC library v2.0.2+`](https://github.com/jandrassy/EthernetENC) for ENC28J60. [![GitHub release](https://img.shields.io/github/release/jandrassy/EthernetENC.svg)](https://github.com/jandrassy/EthernetENC/releases/latest). **New and Better**
+   - [`UIPEthernet library v2.0.11+`](https://github.com/UIPEthernet/UIPEthernet) for ENC28J60. [![GitHub release](https://img.shields.io/github/release/UIPEthernet/UIPEthernet.svg)](https://github.com/UIPEthernet/UIPEthernet/releases/latest)
    - [`NativeEthernet Library version stable111+`](https://github.com/vjmuzik/NativeEthernet) for Teensy 4.1 built-in Ethernet.
-   - [`QNEthernet Library version v0.10.0+`](https://github.com/ssilverman/QNEthernet) for Teensy 4.1 built-in Ethernet. **New**
+   - [`QNEthernet Library version v0.12.0+`](https://github.com/ssilverman/QNEthernet) for Teensy 4.1 built-in Ethernet. **New**
 15. Depending on which board you're using:
    - [`DueFlashStorage library v1.0.0+`](https://github.com/sebnil/DueFlashStorage) for SAM DUE. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/DueFlashStorage.svg?)](https://www.ardu-badge.com/DueFlashStorage)
-   - [`FlashStorage_SAMD library v1.2.0+`](https://github.com/khoih-prog/FlashStorage_SAMD) for SAMD21 and SAMD51 boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit Itsy-Bitsy M4, etc.). [![GitHub release](https://img.shields.io/github/release/khoih-prog/FlashStorage_SAMD.svg)](https://github.com/khoih-prog/FlashStorage_SAMD/releases/latest)
+   - [`FlashStorage_SAMD library v1.3.2+`](https://github.com/khoih-prog/FlashStorage_SAMD) for SAMD21 and SAMD51 boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit Itsy-Bitsy M4, etc.). [![GitHub release](https://img.shields.io/github/release/khoih-prog/FlashStorage_SAMD.svg)](https://github.com/khoih-prog/FlashStorage_SAMD/releases/latest)
    - [`Adafruit's LittleFS/InternalFS`](www.adafruit.com) for nRF52
-16. [`EthernetWebServer library v1.7.1+`](https://github.com/khoih-prog/EthernetWebServer). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/EthernetWebServer.svg?)](https://www.ardu-badge.com/EthernetWebServer).
-17. [`WebServer_WT32_ETH01 library v1.4.0+`](https://github.com/khoih-prog/WebServer_WT32_ETH01) for WT32_ETH01 boards. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/WebServer_WT32_ETH01.svg?)](https://www.ardu-badge.com/WebServer_WT32_ETH01).
+16. [`EthernetWebServer library v2.0.0+`](https://github.com/khoih-prog/EthernetWebServer). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/EthernetWebServer.svg?)](https://www.ardu-badge.com/EthernetWebServer).
+17. [`WebServer_WT32_ETH01 library v1.4.1+`](https://github.com/khoih-prog/WebServer_WT32_ETH01) for WT32_ETH01 boards. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/WebServer_WT32_ETH01.svg?)](https://www.ardu-badge.com/WebServer_WT32_ETH01).
 18. [`ESP_DoubleResetDetector library v1.2.1+`](https://github.com/khoih-prog/ESP_DoubleResetDetector) for ESP32 and ESP8266.  To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_DoubleResetDetector.svg?)](https://www.ardu-badge.com/ESP_DoubleResetDetector).
-19. [`DoubleResetDetector_Generic library v1.7.3+`](https://github.com/khoih-prog/DoubleResetDetector_Generic) for other boards (not ESP32 or ESP8266). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic).
+19. [`DoubleResetDetector_Generic library v1.8.0+`](https://github.com/khoih-prog/DoubleResetDetector_Generic) for other boards (not ESP32 or ESP8266). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic).
 20. [`Functional-VLPP library v1.0.2+`](https://github.com/khoih-prog/functional-vlpp) to use server's lambda function. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/Functional-Vlpp.svg?)](https://www.ardu-badge.com/Functional-Vlpp)
 21. [`LittleFS_esp32 v1.0.6+`](https://github.com/lorol/LITTLEFS) for ESP32-based boards using LittleFS with ESP32 core v1.0.5-. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/LittleFS_esp32.svg?)](https://www.ardu-badge.com/LittleFS_esp32). **Notice**: This [`LittleFS_esp32 library`](https://github.com/lorol/LITTLEFS) has been integrated to Arduino [ESP32 core v1.0.6+](https://github.com/espressif/arduino-esp32/tree/master/libraries/LITTLEFS) and you don't need to install it if using ESP32 core v1.0.6+
 
@@ -283,37 +283,19 @@ The best way is to use `Arduino Library Manager`. Search for `Ethernet_Manager`,
 
 #### 1. For Adafruit nRF52840 and nRF52832 boards
 
----
+**To be able to compile, run and automatically detect and display BOARD_NAME on nRF52840/nRF52832 boards**, you have to copy the whole [nRF52 Packages_Patches](Packages_Patches/adafruit/hardware/nrf52/1.3.0) directory into Adafruit nRF52 directory (~/.arduino15/packages/adafruit/hardware/nrf52/1.3.0). 
 
-#### Note: 
-
-Please be noted that the v1.1.0- `platform.txt` can't be used for v1.2.0. The modification must be
-
-```
-'-DBOARD_NAME="{build.board}"'
-```
-
-instead of
-
-```
--DBOARD_NAME="{build.board}"
-```
-
----
-
-**To be able to compile, run and automatically detect and display BOARD_NAME on nRF52840/nRF52832 boards**, you have to copy the whole [nRF52 Packages_Patches](Packages_Patches/adafruit/hardware/nrf52/1.2.0) directory into Adafruit nRF52 directory (~/.arduino15/packages/adafruit/hardware/nrf52/1.2.0). 
-
-Supposing the Adafruit nRF52 version is 1.2.0. These files must be copied into the directory:
-- `~/.arduino15/packages/adafruit/hardware/nrf52/1.2.0/platform.txt`
-- `~/.arduino15/packages/adafruit/hardware/nrf52/1.2.0/boards.txt`
-- `~/.arduino15/packages/adafruit/hardware/nrf52/1.2.0/cores/nRF5/Udp.h`
-- `~/.arduino15/packages/adafruit/hardware/nrf52/1.2.0/cores/nRF5/Print.h`
-- `~/.arduino15/packages/adafruit/hardware/nrf52/1.2.0/cores/nRF5/Print.cpp`
-- `~/.arduino15/packages/adafruit/hardware/nrf52/1.2.0/variants/NINA_B302_ublox/variant.h`
-- `~/.arduino15/packages/adafruit/hardware/nrf52/1.2.0/variants/NINA_B302_ublox/variant.cpp`
-- `~/.arduino15/packages/adafruit/hardware/nrf52/1.2.0/variants/NINA_B112_ublox/variant.h`
-- `~/.arduino15/packages/adafruit/hardware/nrf52/1.2.0/variants/NINA_B112_ublox/variant.cpp`
-- **`~/.arduino15/packages/adafruit/hardware/nrf52/1.2.0/cores/nRF5/Udp.h`**
+Supposing the Adafruit nRF52 version is 1.3.0. These files must be copied into the directory:
+- `~/.arduino15/packages/adafruit/hardware/nrf52/1.3.0/platform.txt`
+- `~/.arduino15/packages/adafruit/hardware/nrf52/1.3.0/boards.txt`
+- `~/.arduino15/packages/adafruit/hardware/nrf52/1.3.0/cores/nRF5/Udp.h`
+- `~/.arduino15/packages/adafruit/hardware/nrf52/1.3.0/cores/nRF5/Print.h`
+- `~/.arduino15/packages/adafruit/hardware/nrf52/1.3.0/cores/nRF5/Print.cpp`
+- `~/.arduino15/packages/adafruit/hardware/nrf52/1.3.0/variants/NINA_B302_ublox/variant.h`
+- `~/.arduino15/packages/adafruit/hardware/nrf52/1.3.0/variants/NINA_B302_ublox/variant.cpp`
+- `~/.arduino15/packages/adafruit/hardware/nrf52/1.3.0/variants/NINA_B112_ublox/variant.h`
+- `~/.arduino15/packages/adafruit/hardware/nrf52/1.3.0/variants/NINA_B112_ublox/variant.cpp`
+- **`~/.arduino15/packages/adafruit/hardware/nrf52/1.3.0/cores/nRF5/Udp.h`**
 
 Whenever a new version is installed, remember to copy these files into the new version directory. For example, new version is x.yy.z
 These files must be copied into the directory:
@@ -329,18 +311,16 @@ These files must be copied into the directory:
 - `~/.arduino15/packages/adafruit/hardware/nrf52/x.yy.z/variants/NINA_B112_ublox/variant.cpp`
 - **`~/.arduino15/packages/adafruit/hardware/nrf52/x.yy.z/cores/nRF5/Udp.h`**
 
----
-
 #### 2. For Teensy boards
  
- **To be able to compile and run on Teensy boards**, you have to copy the files in [**Packages_Patches for Teensy directory**](Packages_Patches/hardware/teensy/avr) into Teensy hardware directory (./arduino-1.8.16/hardware/teensy/avr/boards.txt). 
+ **To be able to compile and run on Teensy boards**, you have to copy the files in [**Packages_Patches for Teensy directory**](Packages_Patches/hardware/teensy/avr) into Teensy hardware directory (./arduino-1.8.19/hardware/teensy/avr/boards.txt). 
 
-Supposing the Arduino version is 1.8.16. These files must be copied into the directory:
+Supposing the Arduino version is 1.8.19. These files must be copied into the directory:
 
-- `./arduino-1.8.16/hardware/teensy/avr/boards.txt`
-- `./arduino-1.8.16/hardware/teensy/avr/cores/teensy/Stream.h`
-- `./arduino-1.8.16/hardware/teensy/avr/cores/teensy3/Stream.h`
-- `./arduino-1.8.16/hardware/teensy/avr/cores/teensy4/Stream.h`
+- `./arduino-1.8.19/hardware/teensy/avr/boards.txt`
+- `./arduino-1.8.19/hardware/teensy/avr/cores/teensy/Stream.h`
+- `./arduino-1.8.19/hardware/teensy/avr/cores/teensy3/Stream.h`
+- `./arduino-1.8.19/hardware/teensy/avr/cores/teensy4/Stream.h`
 
 Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz
 These files must be copied into the directory:
@@ -349,8 +329,6 @@ These files must be copied into the directory:
 - `./arduino-x.yy.zz/hardware/teensy/avr/cores/teensy/Stream.h`
 - `./arduino-x.yy.zz/hardware/teensy/avr/cores/teensy3/Stream.h`
 - `./arduino-x.yy.zz/hardware/teensy/avr/cores/teensy4/Stream.h`
-
----
 
 #### 3. For Arduino SAM DUE boards
  
@@ -364,8 +342,6 @@ Whenever a new version is installed, remember to copy this file into the new ver
 This file must be copied into the directory:
 
 - `~/.arduino15/packages/arduino/hardware/sam/x.yy.zz/platform.txt`
-
----
 
 #### 4. For Arduino SAMD boards
  
@@ -406,17 +382,15 @@ These files must be copied into the directory:
 
 Whenever the above-mentioned compiler error issue is fixed with the new Arduino SAMD release, you don't need to copy the `Arduino.h` file anymore.
 
----
-
 #### 5. For Adafruit SAMD boards
  
- ***To be able to compile, run and automatically detect and display BOARD_NAME on Adafruit SAMD (Itsy-Bitsy M4, etc) boards***, you have to copy the whole [Adafruit SAMD Packages_Patches](Packages_Patches/adafruit/hardware/samd/1.7.5) directory into Adafruit samd directory (~/.arduino15/packages/adafruit/hardware/samd/1.7.5). 
+ ***To be able to compile, run and automatically detect and display BOARD_NAME on Adafruit SAMD (Itsy-Bitsy M4, etc) boards***, you have to copy the whole [Adafruit SAMD Packages_Patches](Packages_Patches/adafruit/hardware/samd/1.7.7) directory into Adafruit samd directory (~/.arduino15/packages/adafruit/hardware/samd/1.7.7). 
 
-Supposing the Adafruit SAMD core version is 1.7.5. This file must be copied into the directory:
+Supposing the Adafruit SAMD core version is 1.7.7. This file must be copied into the directory:
 
-- `~/.arduino15/packages/adafruit/hardware/samd/1.7.5/platform.txt`
-- `~/.arduino15/packages/adafruit/hardware/samd/1.7.5/cores/arduino/Print.h`
-- `~/.arduino15/packages/adafruit/hardware/samd/1.7.5/cores/arduino/Print.cpp`
+- `~/.arduino15/packages/adafruit/hardware/samd/1.7.7/platform.txt`
+- `~/.arduino15/packages/adafruit/hardware/samd/1.7.7/cores/arduino/Print.h`
+- `~/.arduino15/packages/adafruit/hardware/samd/1.7.7/cores/arduino/Print.cpp`
 
 Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz
 This file must be copied into the directory:
@@ -424,8 +398,6 @@ This file must be copied into the directory:
 - `~/.arduino15/packages/adafruit/hardware/samd/x.yy.zz/platform.txt`
 - `~/.arduino15/packages/adafruit/hardware/samd/x.yy.zz/cores/arduino/Print.h`
 - `~/.arduino15/packages/adafruit/hardware/samd/x.yy.zz/cores/arduino/Print.cpp`
-
----
 
 #### 6. For Seeeduino SAMD boards
  
@@ -446,8 +418,6 @@ This file must be copied into the directory:
 - `~/.arduino15/packages/Seeeduino/hardware/samd/x.yy.zz/cores/arduino/Print.h`
 - `~/.arduino15/packages/Seeeduino/hardware/samd/x.yy.zz/cores/arduino/Print.cpp`
 
----
-
 #### 7. For STM32 boards
 
 #### 7.1 For STM32 boards to use LAN8720
@@ -458,12 +428,12 @@ To use LAN8720 on some STM32 boards
 - **Discovery (DISCO_F746NG)**
 - **STM32F4 boards (BLACK_F407VE, BLACK_F407VG, BLACK_F407ZE, BLACK_F407ZG, BLACK_F407VE_Mini, DIYMORE_F407VGT, FK407M1)**
 
-you have to copy the files [stm32f4xx_hal_conf_default.h](Packages_Patches/STM32/hardware/stm32/2.1.0/system/STM32F4xx) and [stm32f7xx_hal_conf_default.h](Packages_Patches/STM32/hardware/stm32/2.1.0/system/STM32F7xx) into STM32 stm32 directory (~/.arduino15/packages/STM32/hardware/stm32/2.1.0/system) to overwrite the old files.
+you have to copy the files [stm32f4xx_hal_conf_default.h](Packages_Patches/STM32/hardware/stm32/2.2.0/system/STM32F4xx) and [stm32f7xx_hal_conf_default.h](Packages_Patches/STM32/hardware/stm32/2.2.0/system/STM32F7xx) into STM32 stm32 directory (~/.arduino15/packages/STM32/hardware/stm32/2.2.0/system) to overwrite the old files.
 
-Supposing the STM32 stm32 core version is 2.1.0. These files must be copied into the directory:
+Supposing the STM32 stm32 core version is 2.2.0. These files must be copied into the directory:
 
-- `~/.arduino15/packages/STM32/hardware/stm32/2.1.0/system/STM32F4xx/stm32f4xx_hal_conf_default.h` for STM32F4.
-- `~/.arduino15/packages/STM32/hardware/stm32/2.1.0/system/STM32F7xx/stm32f7xx_hal_conf_default.h` for Nucleo-144 STM32F7.
+- `~/.arduino15/packages/STM32/hardware/stm32/2.2.0/system/STM32F4xx/stm32f4xx_hal_conf_default.h` for STM32F4.
+- `~/.arduino15/packages/STM32/hardware/stm32/2.2.0/system/STM32F7xx/stm32f7xx_hal_conf_default.h` for Nucleo-144 STM32F7.
 
 Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz,
 theses files must be copied into the corresponding directory:
@@ -474,20 +444,18 @@ theses files must be copied into the corresponding directory:
 
 #### 7.2 For STM32 boards to use Serial1
 
-**To use Serial1 on some STM32 boards without Serial1 definition (Nucleo-144 NUCLEO_F767ZI, Nucleo-64 NUCLEO_L053R8, etc.) boards**, you have to copy the files [STM32 variant.h](Packages_Patches/STM32/hardware/stm32/2.1.0) into STM32 stm32 directory (~/.arduino15/packages/STM32/hardware/stm32/2.1.0). You have to modify the files corresponding to your boards, this is just an illustration how to do.
+**To use Serial1 on some STM32 boards without Serial1 definition (Nucleo-144 NUCLEO_F767ZI, Nucleo-64 NUCLEO_L053R8, etc.) boards**, you have to copy the files [STM32 variant.h](Packages_Patches/STM32/hardware/stm32/2.2.0) into STM32 stm32 directory (~/.arduino15/packages/STM32/hardware/stm32/2.2.0). You have to modify the files corresponding to your boards, this is just an illustration how to do.
 
-Supposing the STM32 stm32 core version is 2.1.0. These files must be copied into the directory:
+Supposing the STM32 stm32 core version is 2.2.0. These files must be copied into the directory:
 
-- `~/.arduino15/packages/STM32/hardware/stm32/2.1.0/variants/STM32F7xx/F765Z(G-I)T_F767Z(G-I)T_F777ZIT/NUCLEO_F767ZI/variant.h` for Nucleo-144 NUCLEO_F767ZI.
-- `~/.arduino15/packages/STM32/hardware/stm32/2.1.0/variants/STM32L0xx/L052R(6-8)T_L053R(6-8)T_L063R8T/NUCLEO_L053R8/variant.h` for Nucleo-64 NUCLEO_L053R8.
+- `~/.arduino15/packages/STM32/hardware/stm32/2.2.0/variants/STM32F7xx/F765Z(G-I)T_F767Z(G-I)T_F777ZIT/NUCLEO_F767ZI/variant.h` for Nucleo-144 NUCLEO_F767ZI.
+- `~/.arduino15/packages/STM32/hardware/stm32/2.2.0/variants/STM32L0xx/L052R(6-8)T_L053R(6-8)T_L063R8T/NUCLEO_L053R8/variant.h` for Nucleo-64 NUCLEO_L053R8.
 
 Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz,
 theses files must be copied into the corresponding directory:
 
 - `~/.arduino15/packages/STM32/hardware/stm32/x.yy.zz/variants/STM32F7xx/F765Z(G-I)T_F767Z(G-I)T_F777ZIT/NUCLEO_F767ZI/variant.h`
 - `~/.arduino15/packages/STM32/hardware/stm32/x.yy.zz/variants/STM32L0xx/L052R(6-8)T_L053R(6-8)T_L063R8T/NUCLEO_L053R8/variant.h`
-
----
 
 #### 8. For RP2040-based boards using [Earle Philhower arduino-pico core](https://github.com/earlephilhower/arduino-pico)
 
@@ -521,7 +489,6 @@ This file must be copied to replace:
 
 With core after v1.5.0, this step is not necessary anymore thanks to the PR [Add defs for compatibility #142](https://github.com/earlephilhower/arduino-pico/pull/142).
 
----
 
 #### 9. For Portenta_H7 boards using Arduino IDE in Linux
 
@@ -2430,8 +2397,8 @@ This is the terminal output of an Adafruit NRF52840_FEATHER board with W5500 Eth
 ```
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type W5x00 using Ethernet2 Library
-Ethernet_Manager v1.7.0
-DoubleResetDetector_Generic v1.7.3
+Ethernet_Manager v1.7.1
+DoubleResetDetector_Generic v1.8.0
 [ETHERNET_WEBSERVER] =========== USE_ETHERNET2 ===========
 [ETHERNET_WEBSERVER] Default SPI pinout:
 [ETHERNET_WEBSERVER] MOSI: 25
@@ -2522,8 +2489,8 @@ Pubs Topics = old-mqtt-PubTopic
 ```cpp
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.7.0
-DoubleResetDetector_Generic v1.7.3
+Ethernet_Manager v1.7.1
+DoubleResetDetector_Generic v1.8.0
 [ETHERNET_WEBSERVER] =========== USE_ETHERNET2 ===========
 [ETHERNET_WEBSERVER] Default SPI pinout:
 [ETHERNET_WEBSERVER] MOSI: 25
@@ -2705,8 +2672,8 @@ This is the terminal output of an SeeedStudio SAMD21 SEEED_XIAO_M0 board with W5
 ```
 Start Ethernet_SAMD on SEEED_XIAO_M0
 Ethernet Shield type : W5x00 using Ethernet Library
-Ethernet_Manager v1.7.0
-DoubleResetDetector_Generic v1.7.3
+Ethernet_Manager v1.7.1
+DoubleResetDetector_Generic v1.8.0
 Flag read = 0xffffffff
 No doubleResetDetected
 SetFlag write = 0xd0d01234
@@ -2782,8 +2749,8 @@ This is the terminal output of an Arduino SAM DUE board with W5100 Ethernet shie
 ```
 Start Ethernet_SAM_DUE on SAM DUE
 Ethernet Shield type : W5x00 using EthernetLarge Library
-Ethernet_Manager v1.7.0
-DoubleResetDetector_Generic v1.7.3
+Ethernet_Manager v1.7.1
+DoubleResetDetector_Generic v1.8.0
 Flag read = 0xd0d01234
 doubleResetDetected
 ClearFlag write = 0xd0d04321
@@ -2868,7 +2835,7 @@ If no valid config data are stored in EEPROM, it will switch to `Configuration M
 ```
 Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.7.0
+Ethernet_Manager v1.7.1
 ESP_DoubleResetDetector v1.2.1
 =========================
 Currently Used SPI pinout:
@@ -2916,7 +2883,7 @@ Enter your credentials (Blynk Servers/Tokens and Port). If you prefer static IP,
 ```
 Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
 Ethernet Shield type : W5x00 using Ethernet2 Library
-Ethernet_Manager v1.7.0
+Ethernet_Manager v1.7.1
 ESP_DoubleResetDetector v1.2.1
 =========================
 Currently Used SPI pinout:
@@ -2976,8 +2943,8 @@ This is the terminal output of NRF52840_FEATHER board with ENC28J60 using Ethern
 ```
 Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
 Ethernet Shield type : ENC28J60 using EthernetENC Library
-Ethernet_Manager v1.7.0
-DoubleResetDetector_Generic v1.7.3
+Ethernet_Manager v1.7.1
+DoubleResetDetector_Generic v1.8.0
 LittleFS Flag read = 0xd0d01234
 Flag read = 0xd0d01234
 doubleResetDetected
@@ -3014,8 +2981,8 @@ esp32-sniffer/12345678/ble
 ```
 Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
 Ethernet Shield type : ENC28J60 using EthernetENC Library
-Ethernet_Manager v1.7.0
-DoubleResetDetector_Generic v1.7.3
+Ethernet_Manager v1.7.1
+DoubleResetDetector_Generic v1.8.0
 LittleFS Flag read = 0xd0d04321
 Flag read = 0xd0d04321
 No doubleResetDetected
@@ -3071,8 +3038,8 @@ This is the terminal output of RASPBERRY_PI_PICO board with W5x00 using Ethernet
 ```
 Start MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO
 Ethernet Shield type : W5x00 using Ethernet Library
-Ethernet_Manager v1.7.0
-DoubleResetDetector_Generic v1.7.3
+Ethernet_Manager v1.7.1
+DoubleResetDetector_Generic v1.8.0
 [EWS] =========== USE_ETHERNET ===========
 [EWS] Default SPI pinout:
 [EWS] MOSI: 19
@@ -3128,8 +3095,8 @@ esp32-sniffer/12345678/ble
 ```
 Start MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO
 Ethernet Shield type : W5x00 using Ethernet Library
-Ethernet_Manager v1.7.0
-DoubleResetDetector_Generic v1.7.3
+Ethernet_Manager v1.7.1
+DoubleResetDetector_Generic v1.8.0
 [EWS] =========== USE_ETHERNET ===========
 [EWS] Default SPI pinout:
 [EWS] MOSI: 19
@@ -3201,8 +3168,8 @@ This is the terminal output of an MBED RASPBERRY_PI_PICO board with W5500 Ethern
 ```
 Start Ethernet_RP2040 on MBED RASPBERRY_PI_PICO
 Ethernet Shield type : W5x00 using EthernetLarge Library
-Ethernet_Manager v1.7.0
-DoubleResetDetector_Generic v1.7.3
+Ethernet_Manager v1.7.1
+DoubleResetDetector_Generic v1.8.0
 [EWS] =========== USE_ETHERNET_LARGE ===========
 [EWS] Default SPI pinout:
 [EWS] MOSI: 3
@@ -3274,8 +3241,8 @@ HHHH[ETM] h:Updating LittleFS: /fs/etm_config.dat
 ```
 Start Ethernet_RP2040 on MBED RASPBERRY_PI_PICO
 Ethernet Shield type : W5x00 using EthernetLarge Library
-Ethernet_Manager v1.7.0
-DoubleResetDetector_Generic v1.7.3
+Ethernet_Manager v1.7.1
+DoubleResetDetector_Generic v1.8.0
 [EWS] =========== USE_ETHERNET_LARGE ===========
 [EWS] Default SPI pinout:
 [EWS] MOSI: 3
@@ -3343,8 +3310,8 @@ This is the terminal output of WT32-ETH01 board with LAN8720 Ethernet, running c
 ```
 Start MQTT_ThingStream_Ethernet_WT32_ETH01 on WT32-ETH01
 Ethernet Shield type : ETH_PHY_LAN8720
-WebServer_WT32_ETH01 v1.3.0
-Ethernet_Manager v1.7.0
+WebServer_WT32_ETH01 v1.4.1
+Ethernet_Manager v1.7.1
 ESP_DoubleResetDetector v1.2.1
 [ETM] Set CustomsStyle to :  <style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>
 [ETM] Set CustomsHeadElement to :  <style>html{filter: invert(10%);}</style>
@@ -3426,8 +3393,8 @@ This is the terminal output of Teensy 4.1 board with built-in Ethernet, using QN
 
 ```
 Starting QNEthernet_Teensy on TEENSY 4.1 using QNEthernet
-Ethernet_Manager v1.7.0
-DoubleResetDetector_Generic v1.7.3
+Ethernet_Manager v1.7.1
+DoubleResetDetector_Generic v1.8.0
 [EWS] =========== USE_QN_ETHERNET ===========
 QNEthernet using static IP
 
@@ -3540,7 +3507,7 @@ Default Credentials and dynamic parameters
 29. Fix QNEthernet-related linkStatus.
 30. Add support to many more RP2040 boards
 31. Add support to generic SAMD21 : `__SAMD21E1xA__`, `__SAMD21G1xA__` and `__SAMD21J1xA__`
-
+32. Update to be compatible with new `FlashStorage_SAMD` library version
 
 ---
 ---

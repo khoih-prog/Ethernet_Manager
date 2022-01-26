@@ -13,6 +13,7 @@
 
 
 * [Changelog](#changelog)
+  * [Releases v1.7.1](#releases-v171)
   * [Major Releases v1.7.0](#major-releases-v170)
   * [Releases v1.6.1](#releases-v161)
   * [Major Releases v1.6.0](#major-releases-v160)
@@ -29,6 +30,11 @@
 
 
 ## Changelog
+
+### Releases v1.7.1
+
+1. Update to be compatible with new `FlashStorage_SAMD` library version
+2. Update `Packages' Patches`
 
 ### Major Releases v1.7.0
 
