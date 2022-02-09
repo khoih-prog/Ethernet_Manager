@@ -12,7 +12,7 @@
   "repository":
   {
     "type": "git",
-    "url": "//https://github.com/khoih-prog/Ethernet_Manager"
+    "url": "https://github.com/khoih-prog/Ethernet_Manager"
   },
   "homepage": "https://github.com/khoih-prog/Ethernet_Manager",
   "export": {
@@ -69,7 +69,7 @@
     {
       "owner": "ssilverman",
       "name": "QNEthernet",
-      "version": ">=0.12.0",
+      "version": ">=0.13.0",
       "platforms": ["teensy"]
     }
   ],
