@@ -47,7 +47,7 @@ Ethernet_Configuration defaultConfig =
   // Use dynamic DHCP IP
   "",
   //char board_name     [24];
-  "nRF52-Ethernet",
+  "RP2040-Ethernet",
   // terminate the list
   //int  checkSum, dummy, not used
   0

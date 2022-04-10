@@ -21,7 +21,7 @@
 #define DEBUG_ETHERNET_WEBSERVER_PORT       Serial
 
 // Debug Level from 0 to 4
-#define _ETHERNET_WEBSERVER_LOGLEVEL_       0
+#define _ETHERNET_WEBSERVER_LOGLEVEL_       2
 #define _ETHERNET_MANAGER_LOGLEVEL_         2
 
 #define DRD_GENERIC_DEBUG                   true
@@ -44,7 +44,7 @@
 #if ( defined(NRF52840_FEATHER) || defined(NRF52832_FEATHER) || defined(NRF52_SERIES) || defined(ARDUINO_NRF52_ADAFRUIT) || \
         defined(NRF52840_FEATHER_SENSE) || defined(NRF52840_ITSYBITSY) || defined(NRF52840_CIRCUITPLAY) || defined(NRF52840_CLUE) || \
         defined(NRF52840_METRO) || defined(NRF52840_PCA10056) || defined(PARTICLE_XENON) || defined(NINA_B302_ublox) || defined(NINA_B112_ublox) )
-  #if defined(ETHERNET_USE_NRF528XX)
+  #if defined(ETHERNET_USE_NRF52)
     #undef ETHERNET_USE_NRF528XX
   #endif
   #define ETHERNET_USE_NRF528XX         true
@@ -274,13 +274,14 @@
   
   #define W5500_RST_PORT   21
 
-#elif (ETHERNET_USE_RP2040)
+#elif (ETHERNET_USE_RPIPICO)
+  #warning Using ETHERNET_USE_RPIPICO
 
   // Default pin 5 (in Mbed) or 17 to SS/CS
   #if defined(ARDUINO_ARCH_MBED)
     // For RPI Pico using Arduino Mbed RP2040 core
     // SCK: GPIO2,  MOSI: GPIO3, MISO: GPIO4, SS/CS: GPIO5
-    #define USE_THIS_SS_PIN       5
+    #define USE_THIS_SS_PIN       17
     
     #if ( defined(NANO_RP2040_CONNECT)    || defined(ARDUINO_RASPBERRY_PI_PICO) || \
           defined(ARDUINO_GENERIC_RP2040) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) )
@@ -307,28 +308,18 @@
     // For RPI Pico using E. Philhower RP2040 core
     // SCK: GPIO18,  MOSI: GPIO19, MISO: GPIO16, SS/CS: GPIO17
     #define USE_THIS_SS_PIN       17
-  
+    #warning Using SS pin 17 For RPI Pico
   #endif
   
-#elif (__AVR__)
+#else
   // For Mega
   // Default pin 10 to SS/CS
   #define USE_THIS_SS_PIN       10
-  #define BOARD_TYPE            "AVR"
 
-  #error Not supporting AVR Mega, Nano, UNO, etc. yet.
-  // Currently not OK. See https://github.com/mike-matera/ArduinoSTL/issues/56
-  // Hopefully will be fixed in Arduino IDE 1.8.14
-  #include "ArduinoSTL.h"                                   // https://github.com/mike-matera/ArduinoSTL
-
-#else
-
-  // Default pin 10 to SS/CS
-  #define USE_THIS_SS_PIN       10
-  #define BOARD_TYPE            "Unknown"
-
-  //#error Not supporting yet.
+  // Reduce size for Mega
+  #define SENDCONTENT_P_BUFFER_SZ     512
   
+  #define BOARD_TYPE            "AVR Mega"
 #endif
 
 #ifndef BOARD_NAME
@@ -337,8 +328,6 @@
 
 #include <SPI.h>
 
-//#define USE_ETHERNET_WRAPPER    true
-#define USE_ETHERNET_WRAPPER    false
 
 // Use true  for ENC28J60 and UIPEthernet library (https://github.com/UIPEthernet/UIPEthernet)
 // Use false for W5x00 and Ethernetx library      (https://www.arduino.cc/en/Reference/Ethernet)
@@ -356,67 +345,67 @@
   //#define USE_THIS_SS_PIN   22  //21  //5 //4 //2 //15
   
   // Only one if the following to be true
-  #define USE_ETHERNET          false
-  #define USE_ETHERNET2         false
-  #define USE_ETHERNET3         false
-  #define USE_ETHERNET_LARGE    true
+  #define USE_ETHERNET_GENERIC  true
   #define USE_ETHERNET_ESP8266  false 
   #define USE_ETHERNET_ENC      false
   #define USE_CUSTOM_ETHERNET   false
-  
-  #if !USE_ETHERNET_WRAPPER
-  
-    #if ( USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE || USE_ETHERNET_ESP8266 || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
-      #ifdef USE_CUSTOM_ETHERNET
-        #undef USE_CUSTOM_ETHERNET
-      #endif
-      #define USE_CUSTOM_ETHERNET   false
+ 
+  #if ( USE_ETHERNET_GENERIC || USE_ETHERNET_ESP8266 || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
+    #ifdef USE_CUSTOM_ETHERNET
+      #undef USE_CUSTOM_ETHERNET
     #endif
+    #define USE_CUSTOM_ETHERNET   false
+  #endif
 
-    #if USE_NATIVE_ETHERNET
-      #include "NativeEthernet.h"
-      #warning Using NativeEthernet lib for Teensy 4.1. Must also use Teensy Packages Patch or error
-      #define SHIELD_TYPE           "Custom Ethernet using Teensy 4.1 NativeEthernet Library"
-    #elif USE_ETHERNET3
-      #include "Ethernet3.h"
-      #warning Using Ethernet3 lib
-      #define SHIELD_TYPE           "W5x00 using Ethernet3 Library"
-    #elif USE_ETHERNET2
-      #include "Ethernet2.h"
-      #warning Using Ethernet2 lib
-      #define SHIELD_TYPE           "W5x00 using Ethernet2 Library"
-    #elif USE_ETHERNET_LARGE
-      #include "EthernetLarge.h"
-      #warning Using EthernetLarge lib
-      #define SHIELD_TYPE           "W5x00 using EthernetLarge Library"
-    #elif USE_ETHERNET_ESP8266
-      #include "Ethernet_ESP8266.h"
-      #warning Using Ethernet_ESP8266 lib 
-      #define SHIELD_TYPE           "W5x00 using Ethernet_ESP8266 Library" 
-    #elif USE_ETHERNET_ENC
-      #include "EthernetENC.h"
-      #warning Using EthernetENC lib
-      #define SHIELD_TYPE           "ENC28J60 using EthernetENC Library"
-    #elif USE_CUSTOM_ETHERNET
-      //#include "Ethernet_XYZ.h"
-      #include "EthernetENC.h"
-      #warning Using Custom Ethernet library. You must include a library and initialize.
-      #define SHIELD_TYPE           "Custom Ethernet using Ethernet_XYZ Library"
-    #else
-      #ifdef USE_ETHERNET
-        #undef USE_ETHERNET
-      #endif
-      #define USE_ETHERNET   true
-      #include "Ethernet.h"
-      #warning Using Ethernet lib
-      #define SHIELD_TYPE           "W5x00 using Ethernet Library"
-    #endif
-    
-    // Ethernet_Shield_W5200, EtherCard, EtherSia not supported
-    // Select just 1 of the following #include if uncomment #define USE_CUSTOM_ETHERNET
-    // Otherwise, standard Ethernet library will be used for W5x00
+  #if USE_NATIVE_ETHERNET
+    #include "NativeEthernet.h"
+    #warning Using NativeEthernet lib for Teensy 4.1. Must also use Teensy Packages Patch or error
+    #define SHIELD_TYPE           "Custom Ethernet using Teensy 4.1 NativeEthernet Library"
+  #elif USE_ETHERNET_GENERIC
+
+  #if USING_SPI2
+    #define SHIELD_TYPE           "W5x00 using Ethernet_Generic Library on SPI1"
+  #else
+    #define SHIELD_TYPE           "W5x00 using Ethernet_Generic Library on SPI0/SPI"
+  #endif 
   
-  #endif    //  USE_ETHERNET_WRAPPER
+  #define ETHERNET_LARGE_BUFFERS
+  
+  #define _ETG_LOGLEVEL_                      1
+  
+  #include "Ethernet_Generic.h"
+  #warning Using Ethernet_Generic lib
+  
+  #elif USE_ETHERNET_ESP8266
+    #include "Ethernet_ESP8266.h"
+    #warning Using Ethernet_ESP8266 lib 
+    #define SHIELD_TYPE           "W5x00 using Ethernet_ESP8266 Library" 
+    
+  #elif USE_ETHERNET_ENC
+    #include "EthernetENC.h"
+    #warning Using EthernetENC lib
+    #define SHIELD_TYPE           "ENC28J60 using EthernetENC Library"
+    
+  #elif USE_CUSTOM_ETHERNET
+    //#include "Ethernet_XYZ.h"
+    #include "EthernetENC.h"
+    #warning Using Custom Ethernet library. You must include a library and initialize.
+    #define SHIELD_TYPE           "Custom Ethernet using Ethernet_XYZ Library"
+    
+  #else
+    #ifdef USE_ETHERNET_GENERIC
+      #undef USE_ETHERNET_GENERIC
+    #endif
+    #define USE_ETHERNET_GENERIC   true
+    #include "Ethernet_Generic.h"
+    #warning Using default Ethernet_Generic lib
+    #define SHIELD_TYPE           "W5x00 using default Ethernet_Generic Library"
+  #endif
+  
+  // Ethernet_Shield_W5200, EtherCard, EtherSia not supported
+  // Select just 1 of the following #include if uncomment #define USE_CUSTOM_ETHERNET
+  // Otherwise, standard Ethernet library will be used for W5x00
+  
 #elif USE_UIP_ETHERNET
     #include "UIPEthernet.h"
     #warning Using UIPEthernet library
@@ -449,7 +438,7 @@
     // From ESP8266 core 2.7.1, SPIFFS will be deprecated and to be replaced by LittleFS
     // Select USE_LITTLEFS (higher priority) or USE_SPIFFS
     
-    #define USE_LITTLEFS                true
+    #define USE_LITTLEFS                false
     #define USE_SPIFFS                  false
     
     #if USE_LITTLEFS
@@ -513,7 +502,6 @@
 #define USE_DYNAMIC_PARAMETERS              true
 
 //////////////////////////////////////////
-
 
 #include <Ethernet_Manager.h>
 

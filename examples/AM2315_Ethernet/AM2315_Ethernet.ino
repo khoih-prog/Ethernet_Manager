@@ -119,59 +119,14 @@ void check_status()
   }
 }
 
-#if USING_CUSTOMS_STYLE
-const char NewCustomsStyle[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}\
-button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
-#endif
-
-void setup()
+void initEthernet()
 {
-  Serial.begin(115200);
-  while (!Serial);
-
-  delay(200);
-
-#if ( USE_LITTLEFS || USE_SPIFFS)
-  Serial.println("\nStart AM2315_Ethernet using " + String(CurrentFileFS) + " on " + String(BOARD_NAME));
-#else
-  Serial.println("\nStart AM2315_Ethernet on " + String(BOARD_NAME));
-#endif
-
-  Serial.println("Ethernet Shield type : " + String(SHIELD_TYPE));
-  Serial.println(ETHERNET_MANAGER_VERSION);
-  
-#if (ESP32 || ESP8266)
-  Serial.println(ESP_DOUBLE_RESET_DETECTOR_VERSION);
-#else  
-  Serial.println(DOUBLERESETDETECTOR_GENERIC_VERSION);
-#endif
-  
-  pinMode(SDCARD_CS, OUTPUT);
-  digitalWrite(SDCARD_CS, HIGH); // Deselect the SD card
-
-  if (!AM2315.begin())
-  {
-    Serial.println(F("Sensor not found, check wiring & pullups!"));
-  }
-
-#if USE_ETHERNET_WRAPPER
-
-  EthernetInit();
-
-#else
-
 #if ( defined(USE_UIP_ETHERNET) && USE_UIP_ETHERNET )
   ET_LOGWARN(F("======== USE_UIP_ETHERNET ========"));
 #elif USE_NATIVE_ETHERNET
   ET_LOGWARN(F("======== USE_NATIVE_ETHERNET ========"));
-#elif USE_ETHERNET
-  ET_LOGWARN(F("=========== USE_ETHERNET ==========="));
-#elif USE_ETHERNET2
-  ET_LOGWARN(F("=========== USE_ETHERNET2 ==========="));
-#elif USE_ETHERNET3
-  ET_LOGWARN(F("=========== USE_ETHERNET3 ==========="));
-#elif USE_ETHERNET_LARGE
-  ET_LOGWARN(F("=========== USE_ETHERNET_LARGE ==========="));
+#elif USE_ETHERNET_GENERIC
+  ET_LOGWARN(F("=========== USE_ETHERNET_GENERIC ==========="));
 #elif USE_ETHERNET_ESP8266
   ET_LOGWARN(F("=========== USE_ETHERNET_ESP8266 ==========="));
 #elif USE_ETHERNET_ENC
@@ -203,7 +158,7 @@ void setup()
 
   ET_LOGWARN1(F("ESP8266 setCsPin:"), USE_THIS_SS_PIN);
 
-  #if ( USE_ETHERNET || USE_ETHERNET_LARGE || USE_ETHERNET2 || USE_ETHERNET_ENC )
+  #if ( USE_ETHERNET_GENERIC || USE_ETHERNET_ENC )
     // For ESP8266
     // Pin                D0(GPIO16)    D1(GPIO5)    D2(GPIO4)    D3(GPIO0)    D4(GPIO2)    D8
     // Ethernet           0                 X            X            X            X        0
@@ -214,15 +169,6 @@ void setup()
     // D2 is safe to used for Ethernet, Ethernet2, Ethernet3, EthernetLarge libs
     // Must use library patch for Ethernet, EthernetLarge libraries
     Ethernet.init (USE_THIS_SS_PIN);
-
-  #elif USE_ETHERNET3
-    // Use  MAX_SOCK_NUM = 4 for 4K, 2 for 8K, 1 for 16K RX/TX buffer
-    #ifndef ETHERNET3_MAX_SOCK_NUM
-      #define ETHERNET3_MAX_SOCK_NUM      4
-    #endif
-  
-    Ethernet.setCsPin (USE_THIS_SS_PIN);
-    Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
 
   #elif USE_CUSTOM_ETHERNET
   
@@ -262,7 +208,7 @@ void setup()
   ET_LOGWARN1(F("ESP32 setCsPin:"), USE_THIS_SS_PIN);
 
   // For other boards, to change if necessary
-  #if ( USE_ETHERNET || USE_ETHERNET_LARGE || USE_ETHERNET2 || USE_ETHERNET_ENC )
+  #if ( USE_ETHERNET_GENERIC || USE_ETHERNET_ENC )
     // Must use library patch for Ethernet, EthernetLarge libraries
     // ESP32 => GPIO2,4,5,13,15,21,22 OK with Ethernet, Ethernet2, EthernetLarge
     // ESP32 => GPIO2,4,5,15,21,22 OK with Ethernet3
@@ -270,22 +216,13 @@ void setup()
     //Ethernet.setCsPin (USE_THIS_SS_PIN);
     Ethernet.init (USE_THIS_SS_PIN);
   
-  #elif USE_ETHERNET3
-    // Use  MAX_SOCK_NUM = 4 for 4K, 2 for 8K, 1 for 16K RX/TX buffer
-    #ifndef ETHERNET3_MAX_SOCK_NUM
-      #define ETHERNET3_MAX_SOCK_NUM      4
-    #endif
-  
-    Ethernet.setCsPin (USE_THIS_SS_PIN);
-    Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
-
   #elif USE_CUSTOM_ETHERNET
   
     // You have to add initialization for your Custom Ethernet here
     // This is just an example to setCSPin to USE_THIS_SS_PIN, and can be not correct and enough
     Ethernet.init(USE_THIS_SS_PIN); 
   
-  #endif  //( USE_ETHERNET || USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE )
+  #endif  //( USE_ETHERNET_GENERIC || USE_ETHERNET_LARGE )
 
 #else   //defined(ESP8266)
   // unknown board, do nothing, use default SS = 10
@@ -300,49 +237,75 @@ void setup()
   #endif
 
   // For other boards, to change if necessary
-  #if ( USE_ETHERNET || USE_ETHERNET_LARGE || USE_ETHERNET2  || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
+  #if ( USE_ETHERNET_GENERIC || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
     // Must use library patch for Ethernet, Ethernet2, EthernetLarge libraries
   
     Ethernet.init (USE_THIS_SS_PIN);
   
-  #elif USE_ETHERNET3
-    // Use  MAX_SOCK_NUM = 4 for 4K, 2 for 8K, 1 for 16K RX/TX buffer
-    #ifndef ETHERNET3_MAX_SOCK_NUM
-      #define ETHERNET3_MAX_SOCK_NUM      4
-    #endif
-  
-    Ethernet.setCsPin (USE_THIS_SS_PIN);
-    Ethernet.init (ETHERNET3_MAX_SOCK_NUM);
-
   #elif USE_CUSTOM_ETHERNET
   
     // You have to add initialization for your Custom Ethernet here
     // This is just an example to setCSPin to USE_THIS_SS_PIN, and can be not correct and enough
     Ethernet.init(USE_THIS_SS_PIN);
     
-  #endif  //( USE_ETHERNET || USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE )
+  #endif  //( USE_ETHERNET_GENERIC || USE_ETHERNET_LARGE )
 
 #endif    //defined(ESP8266)
 
-
-#endif  //USE_ETHERNET_WRAPPER
-
   // Just info to know how to connect correctly
-  Serial.println(F("========================="));
-  Serial.println(F("Currently Used SPI pinout:"));
-  Serial.print(F("MOSI:"));
-  Serial.println(MOSI);
-  Serial.print(F("MISO:"));
-  Serial.println(MISO);
-  Serial.print(F("SCK:"));
-  Serial.println(SCK);
-  Serial.print(F("SS:"));
-  Serial.println(SS);
-#if USE_ETHERNET3
-  Serial.print(F("SPI_CS:"));
-  Serial.println(SPI_CS);
+  #if defined(CUR_PIN_MISO)
+    ET_LOGWARN(F("Currently Used SPI pinout:"));
+    ET_LOGWARN1(F("MOSI:"), CUR_PIN_MOSI);
+    ET_LOGWARN1(F("MISO:"), CUR_PIN_MISO);
+    ET_LOGWARN1(F("SCK:"),  CUR_PIN_SCK);
+    ET_LOGWARN1(F("SS:"),   CUR_PIN_SS);
+  #else
+    ET_LOGWARN(F("Currently Used SPI pinout:"));
+    ET_LOGWARN1(F("MOSI:"), MOSI);
+    ET_LOGWARN1(F("MISO:"), MISO);
+    ET_LOGWARN1(F("SCK:"),  SCK);
+    ET_LOGWARN1(F("SS:"),   SS);
+  #endif
+  
+  ET_LOGWARN(F("========================="));
+}
+
+#if USING_CUSTOMS_STYLE
+const char NewCustomsStyle[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}\
+button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
 #endif
-  Serial.println(F("========================="));
+
+void setup()
+{
+  Serial.begin(115200);
+  while (!Serial);
+
+  delay(200);
+
+#if ( USE_LITTLEFS || USE_SPIFFS)
+  Serial.println("\nStart AM2315_Ethernet using " + String(CurrentFileFS) + " on " + String(BOARD_NAME));
+#else
+  Serial.println("\nStart AM2315_Ethernet on " + String(BOARD_NAME));
+#endif
+
+  Serial.println("Ethernet Shield type : " + String(SHIELD_TYPE));
+  Serial.println(ETHERNET_MANAGER_VERSION);
+  
+#if (ESP32 || ESP8266)
+  Serial.println(ESP_DOUBLE_RESET_DETECTOR_VERSION);
+#else  
+  Serial.println(DOUBLERESETDETECTOR_GENERIC_VERSION);
+#endif
+  
+  pinMode(SDCARD_CS, OUTPUT);
+  digitalWrite(SDCARD_CS, HIGH); // Deselect the SD card
+
+  if (!AM2315.begin())
+  {
+    Serial.println(F("Sensor not found, check wiring & pullups!"));
+  }
+
+  initEthernet();
 
   //////////////////////////////////////////////
   
@@ -364,12 +327,7 @@ void setup()
 
   localEthernetIP = Ethernet.localIP();
 
-#if (USE_ETHERNET2 || USE_ETHERNET3)
-  // To modify Ethernet2 library
   if ( (uint32_t) localEthernetIP != 0 )
-#else
-  if ( (uint32_t) localEthernetIP != 0 )
-#endif
   {
     Serial.print(F("Connected! IP address: "));
     Serial.println(localEthernetIP);
@@ -380,7 +338,7 @@ void setup()
   }
 
   // Detect W5100 only in Ethernet and EthernetLarge libraries
-#if ( USE_ETHERNET || USE_ETHERNET_LARGE)
+#if (USE_ETHERNET_GENERIC)
   isW5500 = (Ethernet.hardwareStatus() == EthernetW5500);
   Serial.print(F("Ethernet type is "));
   Serial.println(isW5500 ? "W5500" : "W5100");
