@@ -9,7 +9,7 @@
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
 
-  Version: 1.7.1
+  Version: 1.7.2
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -25,6 +25,7 @@
   1.6.1     K Hoang     10/10/2021 Update `platform.ini` and `library.json`
   1.7.0     K Hoang     27/11/2021 Auto detect ESP32 core to use correct LittleFS. Fix QNEthernet-related linkStatus.
   1.7.1     K Hoang     26/01/2022 Update to be compatible with new FlashStorage libraries.
+  1.7.2     K Hoang     10/04/2022 Use Ethernet_Generic library as default. Support SPI1/SPI2 for RP2040/ESP32
  *****************************************************************************************************************************/
 
 #pragma once
@@ -32,18 +33,22 @@
 #ifndef Ethernet_Manager_h
 #define Ethernet_Manager_h
 
+///////////////////////////////////////////////////////////////
+
 #ifndef ETHERNET_MANAGER_VERSION
-  #define ETHERNET_MANAGER_VERSION            "Ethernet_Manager v1.7.1"
+  #define ETHERNET_MANAGER_VERSION            "Ethernet_Manager v1.7.2"
 
   #define ETHERNET_MANAGER_VERSION_MAJOR      1
   #define ETHERNET_MANAGER_VERSION_MINOR      7
-  #define ETHERNET_MANAGER_VERSION_PATCH      1
+  #define ETHERNET_MANAGER_VERSION_PATCH      2
 
-#define ETHERNET_MANAGER_VERSION_INT        1007001
+  #define ETHERNET_MANAGER_VERSION_INT        1007002
 
 #endif
 
-#if ( USE_ETHERNET2 || USE_ETHERNET3 || USE_ETHERNET_LARGE || USE_ETHERNET_ESP8266 || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
+///////////////////////////////////////////////////////////////
+
+#if ( USE_ETHERNET_GENERIC || USE_ETHERNET_ESP8266 || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
   #ifdef USE_CUSTOM_ETHERNET
     #undef USE_CUSTOM_ETHERNET
   #endif
@@ -52,73 +57,7 @@
     
 #include "Ethernet_Manager_Debug.h"
 
-#if ( !defined(USE_UIP_ETHERNET) || !USE_UIP_ETHERNET )
-    
-  #if USE_NATIVE_ETHERNET
-    #include "NativeEthernet.h"
-    #warning Using NativeEthernet lib for Teensy 4.1. Must also use Teensy Packages Patch or error
-    #ifndef SHIELD_TYPE
-      #define SHIELD_TYPE           "Custom Ethernet using Teensy 4.1 NativeEthernet Library"
-    #endif  
-  #elif USE_QN_ETHERNET
-    #include "QNEthernet.h"
-    #warning Using QNEthernet lib for Teensy 4.1. Must also use Teensy Packages Patch or error
-    #ifndef SHIELD_TYPE
-      #define SHIELD_TYPE           "Custom Ethernet using Teensy 4.1 QNEthernet Library"
-    #endif  
-  #elif USE_ETHERNET3
-    #include "Ethernet3.h"
-    #warning Using Ethernet3 lib from Ethernet_Manager.h
-    #ifndef SHIELD_TYPE
-      #define SHIELD_TYPE           "W5x00 using Ethernet3 Library"
-    #endif
-  #elif USE_ETHERNET2
-    #include "Ethernet2.h"
-    #warning Using Ethernet2 lib from Ethernet_Manager.h
-      #ifndef SHIELD_TYPE
-    #define SHIELD_TYPE           "W5x00 using Ethernet2 Library"
-    #endif
-  #elif USE_ETHERNET_LARGE
-    #include "EthernetLarge.h"
-    #warning Using EthernetLarge lib from Ethernet_Manager.h
-    #define SHIELD_TYPE           "W5x00 using EthernetLarge Library"
-  #elif USE_ETHERNET_ESP8266
-    #include "Ethernet_ESP8266.h"
-    #warning Using Ethernet_ESP8266 lib from Ethernet_Manager.h
-      #ifndef SHIELD_TYPE
-    #define SHIELD_TYPE           "W5x00 using Ethernet_ESP8266 Library"
-    #endif
-  #elif USE_ETHERNET_ENC
-    #include "EthernetENC.h"
-    #warning Using EthernetENC lib from Ethernet_Manager.h
-    #define SHIELD_TYPE           "ENC28J60 using EthernetENC Library"
-  #elif USE_CUSTOM_ETHERNET
-    //#include "Ethernet_XYZ.h"
-    #include "EthernetENC.h"
-    #warning Using Custom Ethernet library from Ethernet_Manager.h. You must include a library and initialize.
-    #ifndef SHIELD_TYPE
-      #define SHIELD_TYPE           "Custom Ethernet using Ethernet_XYZ Library"
-    #endif
-  #elif ETHERNET_USE_WT32_ETH01
-    #warning Using ETHERNET_USE_WT32_ETH01 from Ethernet_Manager.h.
-  #else
-    #ifdef USE_ETHERNET
-      #undef USE_ETHERNET
-    #endif
-    #define USE_ETHERNET   true
-    #include "Ethernet.h"
-    #warning Using Ethernet lib from Ethernet_Manager.h
-    #ifndef SHIELD_TYPE
-      #define SHIELD_TYPE           "W5x00 using Ethernet Library"
-    #endif
-  #endif
-
-#else
-    #include "UIPEthernet.h"
-    #warning Using UIPEthernet lib from Ethernet_Manager.h
-    #define SHIELD_TYPE           "ENC28J60 using UIPEthernet Library"
-
-#endif
+///////////////////////////////////////////////////////////////
 
 #if USE_NATIVE_ETHERNET
   #include <NativeEthernetClient.h>
@@ -132,6 +71,8 @@
   #include <EthernetClient.h>
   #include <EthernetWebServer.h>
 #endif
+
+///////////////////////////////////////////////////////////////
 
 #if ( defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_MKRWIFI1010) \
       || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_SAMD_MKRFox1200) || defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310) \
@@ -186,6 +127,8 @@
   
 #endif
 
+///////////////////////////////////////////////////////////////
+
 #if (ETHERNET_USE_SAMD)
   #include <Adapters/Ethernet_SAMD_Manager.h>
 #elif (ETHERNET_USE_SAM_DUE)
@@ -212,5 +155,6 @@
   #error This code for SAMD21, SAMD51, SAM-DUE, Teensy (4.1/4.0, 3.x), ESP8266, ESP32, nRF52, RP2040 boards, not AVR Mega nor STM32! Please check your Tools->Board setting.
 #endif
 
+///////////////////////////////////////////////////////////////
 
 #endif    // Ethernet_Manager_h

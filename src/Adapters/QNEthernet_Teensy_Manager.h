@@ -9,7 +9,7 @@
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
 
-  Version: 1.7.1
+  Version: 1.7.2
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -25,6 +25,7 @@
   1.6.1     K Hoang     10/10/2021 Update `platform.ini` and `library.json`
   1.7.0     K Hoang     27/11/2021 Auto detect ESP32 core to use correct LittleFS. Fix QNEthernet-related linkStatus.
   1.7.1     K Hoang     26/01/2022 Update to be compatible with new FlashStorage libraries.
+  1.7.2     K Hoang     10/04/2022 Use Ethernet_Generic library as default. Support SPI1/SPI2 for RP2040/ESP32
  *****************************************************************************************************************************/
 
 #pragma once

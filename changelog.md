@@ -13,6 +13,7 @@
 
 
 * [Changelog](#changelog)
+  * [Releases v1.7.2](#releases-v172)
   * [Releases v1.7.1](#releases-v171)
   * [Major Releases v1.7.0](#major-releases-v170)
   * [Releases v1.6.1](#releases-v161)
@@ -30,6 +31,15 @@
 
 
 ## Changelog
+
+### Releases v1.7.2
+
+1. Use new [Ethernet_Generic library](https://github.com/khoih-prog/Ethernet_Generic) as default for W5x00.
+2. Support SPI2 for ESP32
+3. Add support to SPI1 for RP2040 using [arduino-pico core](https://github.com/earlephilhower/arduino-pico)
+4. Drop `EthernetWrapper`
+5. Rewrite all the examples to support new features
+6. Update `Packages' Patches`
 
 ### Releases v1.7.1
 
