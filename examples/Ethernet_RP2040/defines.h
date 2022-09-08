@@ -86,8 +86,6 @@
 //#define USE_UIP_ETHERNET   true
 #define USE_UIP_ETHERNET   false
 
-// Note: To rename ESP628266 Ethernet lib files to Ethernet_ESP8266.h and Ethernet_ESP8266.cpp
-// In order to USE_ETHERNET_ESP8266
 #if ( !defined(USE_UIP_ETHERNET) || !USE_UIP_ETHERNET )
 
   // To override the default CS/SS pin. Don't use unless you know exactly which pin to use
@@ -97,13 +95,12 @@
   
   // Only one if the following to be true
   #define USE_ETHERNET_GENERIC  true
-  #define USE_ETHERNET_ESP8266  false 
   #define USE_ETHERNET_ENC      false
   #define USE_CUSTOM_ETHERNET   false
   
   ////////////////////////////
   
-  #if ( USE_ETHERNET_GENERIC || USE_ETHERNET_ESP8266 || USE_ETHERNET_ENC )
+  #if ( USE_ETHERNET_GENERIC || USE_ETHERNET_ENC )
     #ifdef USE_CUSTOM_ETHERNET
       #undef USE_CUSTOM_ETHERNET
     #endif
@@ -171,7 +168,6 @@
 #define USE_DYNAMIC_PARAMETERS              true
 
 //////////////////////////////////////////
-
 
 #include <Ethernet_Manager.h>
 

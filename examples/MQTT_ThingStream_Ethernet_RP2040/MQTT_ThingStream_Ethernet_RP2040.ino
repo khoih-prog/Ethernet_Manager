@@ -121,20 +121,26 @@ void heartBeatPrint()
   
   localEthernetIP = Ethernet.localIP();
   
-#if ( (USE_ETHERNET2 || USE_ETHERNET3) && !(USE_NATIVE_ETHERNET) )
-  // To modify Ethernet2 library
+#if (USE_ETHERNET_GENERIC)
+
+  #if USE_W5100
+  // The linkStatus() is not working with W5100. Just using IP != 0.0.0.0
+  if ( (uint32_t) localEthernetIP != 0 )
+  #else
   linkStatus = Ethernet.link();
-  ET_LOGINFO3("localEthernetIP = ", localEthernetIP, ", linkStatus = ", (linkStatus == 1) ? "LinkON" : "LinkOFF" );
+  ETM_LOGINFO1("localEthernetIP = ", localEthernetIP);
   
-  if ( ( linkStatus == 1 ) && ((uint32_t) localEthernetIP != 0) )
+  if ( ( linkStatus == 1 ) || ((uint32_t) localEthernetIP != 0) )
+  #endif
+  
 #else
 
   // The linkStatus() is not working with W5100. Just using IP != 0.0.0.0
   // Better to use ping for W5100
   linkStatus = (int) Ethernet.linkStatus();
-  ET_LOGINFO3("localEthernetIP = ", localEthernetIP, ", linkStatus = ", (linkStatus == LinkON) ? "LinkON" : "LinkOFF" );
-  
-  if ( ( (linkStatus == LinkON) || !isW5500 ) && ((uint32_t) localEthernetIP != 0) )
+  ETM_LOGINFO1("localEthernetIP = ", localEthernetIP);
+ 
+  if ( ( (linkStatus == LinkON) || !isW5500 ) || ((uint32_t) localEthernetIP != 0) )
 #endif
   {
     Serial.print(F("H"));
@@ -145,6 +151,9 @@ void heartBeatPrint()
   if (num == 80)
   {
     Serial.println();
+
+    ethernet_manager.printMacAddress();
+    
     num = 1;
   }
   else if (num++ % 10 == 0)
@@ -175,8 +184,6 @@ void initEthernet()
   ET_LOGWARN(F("======== USE_NATIVE_ETHERNET ========"));
 #elif USE_ETHERNET_GENERIC
   ET_LOGWARN(F("=========== USE_ETHERNET_GENERIC ==========="));
-#elif USE_ETHERNET_ESP8266
-  ET_LOGWARN(F("=========== USE_ETHERNET_ESP8266 ==========="));
 #elif USE_ETHERNET_ENC
   ET_LOGWARN(F("=========== USE_ETHERNET_ENC ==========="));  
 #else
@@ -352,6 +359,19 @@ void setup()
 #if USING_CORS_FEATURE  
   ethernet_manager.setCORSHeader("Your Access-Control-Allow-Origin");
 #endif
+
+  //////////////////////////////////////////////
+
+#define USING_CUSTOM_MAC_ADDRESS      false
+
+#if USING_CUSTOM_MAC_ADDRESS
+  // To use your specified macAddress
+  byte newMacAddress[6] = { 0xFE, 0xED, 0xDE, 0xAD, 0xBE, 0xEF };
+  
+  ethernet_manager.setMacAddress(newMacAddress);
+#endif  
+
+  //////////////////////////////////////////////
 
   ethernet_manager.begin();
 

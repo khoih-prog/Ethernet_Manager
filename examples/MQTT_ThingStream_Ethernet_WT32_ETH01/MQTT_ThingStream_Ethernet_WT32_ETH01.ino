@@ -170,7 +170,7 @@ void WiFiEvent(WiFiEvent_t event)
       break;
 
     case SYSTEM_EVENT_ETH_GOT_IP:
-      if (!ethernet_manager.ethernetConnected)
+      if (!ethernet_manager.isEthernetConnected())
       {
         ETM_LOGERROR3(F("ETH MAC:"), ETH.macAddress(), F(", IPv4:"), ETH.localIP());
 
@@ -183,19 +183,19 @@ void WiFiEvent(WiFiEvent_t event)
           ETM_LOGERROR1(F("HALF_DUPLEX, Link Speed (Mbps)"), ETH.linkSpeed());
         }
 
-        ethernet_manager.ethernetConnected = true;
+        ethernet_manager.setEthernetConnected();
       }
 
       break;
 
     case SYSTEM_EVENT_ETH_DISCONNECTED:
       ETM_LOGERROR(F("ETH Disconnected"));
-      ethernet_manager.ethernetConnected = false;
+      ethernet_manager.setEthernetDisconnected();
       break;
 
     case SYSTEM_EVENT_ETH_STOP:
       ETM_LOGERROR(F("\nETH Stopped"));
-      ethernet_manager.ethernetConnected = false;
+      ethernet_manager.setEthernetDisconnected();
       break;
 
     default:
@@ -207,10 +207,10 @@ void setup()
 {
   // Debug console
   Serial.begin(115200);
-  while (!Serial);
+  //while (!Serial);
 
   // Using this if Serial debugging is not necessary or not using Serial port
-  //while (!Serial && (millis() < 3000));
+  while (!Serial && (millis() < 5000));
 
   Serial.print("\nStart MQTT_ThingStream_Ethernet_WT32_ETH01 on "); Serial.println(BOARD_NAME); 
   Serial.print("Ethernet Shield type : "); Serial.println(SHIELD_TYPE);

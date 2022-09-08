@@ -30,18 +30,25 @@ void heartBeatPrint()
   localEthernetIP = Ethernet.localIP();
   
 #if (USE_ETHERNET_GENERIC)
+
+  #if USE_W5100
+  // The linkStatus() is not working with W5100. Just using IP != 0.0.0.0
+  if ( (uint32_t) localEthernetIP != 0 )
+  #else
   linkStatus = Ethernet.link();
-  ET_LOGINFO3("localEthernetIP = ", localEthernetIP, ", linkStatus = ", (linkStatus == 1) ? "LinkON" : "LinkOFF" );
+  ETM_LOGINFO1("localEthernetIP = ", localEthernetIP);
   
-  if ( ( linkStatus == 1 ) && ((uint32_t) localEthernetIP != 0) )
+  if ( ( linkStatus == 1 ) || ((uint32_t) localEthernetIP != 0) )
+  #endif
+  
 #else
 
   // The linkStatus() is not working with W5100. Just using IP != 0.0.0.0
   // Better to use ping for W5100
   linkStatus = (int) Ethernet.linkStatus();
-  ET_LOGINFO3("localEthernetIP = ", localEthernetIP, ", linkStatus = ", (linkStatus == LinkON) ? "LinkON" : "LinkOFF" );
-  
-  if ( ( (linkStatus == LinkON) || !isW5500 ) && ((uint32_t) localEthernetIP != 0) )
+  ETM_LOGINFO1("localEthernetIP = ", localEthernetIP);
+ 
+  if ( ( (linkStatus == LinkON) || !isW5500 ) || ((uint32_t) localEthernetIP != 0) )
 #endif
   {
     Serial.print(F("H"));
@@ -52,6 +59,9 @@ void heartBeatPrint()
   if (num == 80)
   {
     Serial.println();
+
+    ethernet_manager.printMacAddress();
+    
     num = 1;
   }
   else if (num++ % 10 == 0)
@@ -77,25 +87,23 @@ void check_status()
 void initEthernet()
 {
 #if ( defined(USE_UIP_ETHERNET) && USE_UIP_ETHERNET )
-  ET_LOGWARN(F("======== USE_UIP_ETHERNET ========"));
+  ETM_LOGWARN(F("======== USE_UIP_ETHERNET ========"));
 #elif USE_NATIVE_ETHERNET
-  ET_LOGWARN(F("======== USE_NATIVE_ETHERNET ========"));
+  ETM_LOGWARN(F("======== USE_NATIVE_ETHERNET ========"));
 #elif USE_ETHERNET_GENERIC
-  ET_LOGWARN(F("=========== USE_ETHERNET_GENERIC ==========="));
-#elif USE_ETHERNET_ESP8266
-  ET_LOGWARN(F("=========== USE_ETHERNET_ESP8266 ==========="));
+  ETM_LOGWARN(F("=========== USE_ETHERNET_GENERIC ==========="));
 #elif USE_ETHERNET_ENC
-  ET_LOGWARN(F("=========== USE_ETHERNET_ENC ==========="));  
+  ETM_LOGWARN(F("=========== USE_ETHERNET_ENC ==========="));  
 #else
-  ET_LOGWARN(F("========================="));
+  ETM_LOGWARN(F("========================="));
 #endif
 
-  ET_LOGWARN(F("Default SPI pinout:"));
-  ET_LOGWARN1(F("MOSI:"), MOSI);
-  ET_LOGWARN1(F("MISO:"), MISO);
-  ET_LOGWARN1(F("SCK:"),  SCK);
-  ET_LOGWARN1(F("SS:"),   SS);
-  ET_LOGWARN(F("========================="));
+  ETM_LOGWARN(F("Default SPI pinout:"));
+  ETM_LOGWARN1(F("MOSI:"), MOSI);
+  ETM_LOGWARN1(F("MISO:"), MISO);
+  ETM_LOGWARN1(F("SCK:"),  SCK);
+  ETM_LOGWARN1(F("SS:"),   SS);
+  ETM_LOGWARN(F("========================="));
 
 #if defined(ESP8266)
 
@@ -111,7 +119,7 @@ void initEthernet()
     #define USE_THIS_SS_PIN   D2    // For ESP8266
   #endif
 
-  ET_LOGWARN1(F("ESP8266 setCsPin:"), USE_THIS_SS_PIN);
+  ETM_LOGWARN1(F("ESP8266 setCsPin:"), USE_THIS_SS_PIN);
 
   #if ( USE_ETHERNET_GENERIC || USE_ETHERNET_ENC )
     // For ESP8266
@@ -160,7 +168,7 @@ void initEthernet()
     #endif
   #endif
 
-  ET_LOGWARN1(F("ESP32 setCsPin:"), USE_THIS_SS_PIN);
+  ETM_LOGWARN1(F("ESP32 setCsPin:"), USE_THIS_SS_PIN);
 
   // For other boards, to change if necessary
   #if ( USE_ETHERNET_GENERIC || USE_ETHERNET_ENC )
@@ -186,9 +194,9 @@ void initEthernet()
   #endif
 
   #if defined(BOARD_NAME)
-    ET_LOGWARN3(F("Board :"), BOARD_NAME, F(", setCsPin:"), USE_THIS_SS_PIN);
+    ETM_LOGWARN3(F("Board :"), BOARD_NAME, F(", setCsPin:"), USE_THIS_SS_PIN);
   #else
-    ET_LOGWARN1(F("Unknown board setCsPin:"), USE_THIS_SS_PIN);
+    ETM_LOGWARN1(F("Unknown board setCsPin:"), USE_THIS_SS_PIN);
   #endif
 
   // For other boards, to change if necessary
@@ -209,20 +217,20 @@ void initEthernet()
 
   // Just info to know how to connect correctly
   #if defined(CUR_PIN_MISO)
-    ET_LOGWARN(F("Currently Used SPI pinout:"));
-    ET_LOGWARN1(F("MOSI:"), CUR_PIN_MOSI);
-    ET_LOGWARN1(F("MISO:"), CUR_PIN_MISO);
-    ET_LOGWARN1(F("SCK:"),  CUR_PIN_SCK);
-    ET_LOGWARN1(F("SS:"),   CUR_PIN_SS);
+    ETM_LOGWARN(F("Currently Used SPI pinout:"));
+    ETM_LOGWARN1(F("MOSI:"), CUR_PIN_MOSI);
+    ETM_LOGWARN1(F("MISO:"), CUR_PIN_MISO);
+    ETM_LOGWARN1(F("SCK:"),  CUR_PIN_SCK);
+    ETM_LOGWARN1(F("SS:"),   CUR_PIN_SS);
   #else
-    ET_LOGWARN(F("Currently Used SPI pinout:"));
-    ET_LOGWARN1(F("MOSI:"), MOSI);
-    ET_LOGWARN1(F("MISO:"), MISO);
-    ET_LOGWARN1(F("SCK:"),  SCK);
-    ET_LOGWARN1(F("SS:"),   SS);
+    ETM_LOGWARN(F("Currently Used SPI pinout:"));
+    ETM_LOGWARN1(F("MOSI:"), MOSI);
+    ETM_LOGWARN1(F("MISO:"), MISO);
+    ETM_LOGWARN1(F("SCK:"),  SCK);
+    ETM_LOGWARN1(F("SS:"),   SS);
   #endif
   
-  ET_LOGWARN(F("========================="));
+  ETM_LOGWARN(F("========================="));
 }
 
 #if USING_CUSTOMS_STYLE
@@ -259,6 +267,19 @@ void setup()
 #if USING_CORS_FEATURE  
   ethernet_manager.setCORSHeader("Your Access-Control-Allow-Origin");
 #endif
+
+  //////////////////////////////////////////////
+
+#define USING_CUSTOM_MAC_ADDRESS      false
+
+#if USING_CUSTOM_MAC_ADDRESS
+  // To use your specified macAddress
+  byte newMacAddress[6] = { 0xFE, 0xED, 0xDE, 0xAD, 0xBE, 0xEF };
+  
+  ethernet_manager.setMacAddress(newMacAddress);
+#endif  
+
+  //////////////////////////////////////////////
 
   ethernet_manager.begin();
 

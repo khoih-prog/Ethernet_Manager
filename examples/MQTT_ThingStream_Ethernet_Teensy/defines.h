@@ -57,7 +57,6 @@
 
 #define USE_UIP_ETHERNET      false
 #define USE_ETHERNET_GENERIC  false
-#define USE_ETHERNET_ESP8266  false 
 #define USE_ETHERNET_ENC      false
 #define USE_CUSTOM_ETHERNET   false
 

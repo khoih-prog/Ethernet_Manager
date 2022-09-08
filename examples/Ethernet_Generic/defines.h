@@ -80,11 +80,27 @@
 
 #if defined(ETHERNET_USE_SAMD)
   // For SAMD
-  // Default pin 10 to SS/CS
-  #define USE_THIS_SS_PIN       10
+  // Default pin SS/CS,if no SS pin, use pin 10
+  #if defined(PIN_SPI_MOSI)
+    //#warning Using SS pin
+    #define USE_THIS_SS_PIN       10    //SS
+  #else  
+    #define USE_THIS_SS_PIN       10
+  #endif  
   
   #if ( defined(ARDUINO_SAMD_ZERO) && !defined(SEEED_XIAO_M0) )
     #define BOARD_TYPE      "SAMD Zero"
+    
+    // Default to use W5100. Must change to false for W5500, W5100S, for faster SPI clock
+    // Must use true for SAMD21, such as Zero, SAMD_FEATHER_M0_EXPRESS, etc.
+    #define USE_W5100                           true
+    
+    // Use this for ARDUINO_SAMD_ZERO, etc. if can't print to terminal with Serial.print
+    #if defined(SERIAL_PORT_USBVIRTUAL)
+      #define Serial          SERIAL_PORT_USBVIRTUAL
+      #warning Using SAMD Zero SerialUSB
+    #endif
+   
   #elif defined(ARDUINO_SAMD_MKR1000)
     #define BOARD_TYPE      "SAMD MKR1000"
   #elif defined(ARDUINO_SAMD_MKRWIFI1010)
@@ -226,10 +242,12 @@
   #endif
 
 #elif ( defined(CORE_TEENSY) )
+  #error Teensy not supported
   // Default pin 10 to SS/CS
   #define USE_THIS_SS_PIN       10
   
   #if defined(__IMXRT1062__)
+    
     // For Teensy 4.1/4.0
     #if defined(ARDUINO_TEENSY41)
       #define BOARD_TYPE      "TEENSY 4.1"
@@ -335,8 +353,6 @@
 //#define USE_UIP_ETHERNET   true
 #define USE_UIP_ETHERNET   false
 
-// Note: To rename ESP628266 Ethernet lib files to Ethernet_ESP8266.h and Ethernet_ESP8266.cpp
-// In order to USE_ETHERNET_ESP8266
 #if ( !defined(USE_UIP_ETHERNET) || !USE_UIP_ETHERNET )
 
   // To override the default CS/SS pin. Don't use unless you know exactly which pin to use
@@ -346,11 +362,10 @@
   
   // Only one if the following to be true
   #define USE_ETHERNET_GENERIC  true
-  #define USE_ETHERNET_ESP8266  false 
   #define USE_ETHERNET_ENC      false
   #define USE_CUSTOM_ETHERNET   false
  
-  #if ( USE_ETHERNET_GENERIC || USE_ETHERNET_ESP8266 || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
+  #if ( USE_ETHERNET_GENERIC || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
     #ifdef USE_CUSTOM_ETHERNET
       #undef USE_CUSTOM_ETHERNET
     #endif
@@ -363,23 +378,18 @@
     #define SHIELD_TYPE           "Custom Ethernet using Teensy 4.1 NativeEthernet Library"
   #elif USE_ETHERNET_GENERIC
 
-  #if USING_SPI2
-    #define SHIELD_TYPE           "W5x00 using Ethernet_Generic Library on SPI1"
-  #else
-    #define SHIELD_TYPE           "W5x00 using Ethernet_Generic Library on SPI0/SPI"
-  #endif 
-  
-  #define ETHERNET_LARGE_BUFFERS
-  
-  #define _ETG_LOGLEVEL_                      1
-  
-  #include "Ethernet_Generic.h"
-  #warning Using Ethernet_Generic lib
-  
-  #elif USE_ETHERNET_ESP8266
-    #include "Ethernet_ESP8266.h"
-    #warning Using Ethernet_ESP8266 lib 
-    #define SHIELD_TYPE           "W5x00 using Ethernet_ESP8266 Library" 
+    #if USING_SPI2
+      #define SHIELD_TYPE           "W5x00 using Ethernet_Generic Library on SPI1"
+    #else
+      #define SHIELD_TYPE           "W5x00 using Ethernet_Generic Library on SPI0/SPI"
+    #endif 
+    
+    #define ETHERNET_LARGE_BUFFERS
+    
+    #define _ETG_LOGLEVEL_                      1
+    
+    #include "Ethernet_Generic.h"
+    #warning Using Ethernet_Generic lib
     
   #elif USE_ETHERNET_ENC
     #include "EthernetENC.h"
