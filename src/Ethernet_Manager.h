@@ -9,7 +9,7 @@
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
 
-  Version: 1.7.2
+  Version: 1.8.0
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -26,6 +26,7 @@
   1.7.0     K Hoang     27/11/2021 Auto detect ESP32 core to use correct LittleFS. Fix QNEthernet-related linkStatus.
   1.7.1     K Hoang     26/01/2022 Update to be compatible with new FlashStorage libraries.
   1.7.2     K Hoang     10/04/2022 Use Ethernet_Generic library as default. Support SPI1/SPI2 for RP2040/ESP32
+  1.8.0     K Hoang     07/09/2022 Fix macAddress bug. Add functions relating to macAddress
  *****************************************************************************************************************************/
 
 #pragma once
@@ -36,19 +37,19 @@
 ///////////////////////////////////////////////////////////////
 
 #ifndef ETHERNET_MANAGER_VERSION
-  #define ETHERNET_MANAGER_VERSION            "Ethernet_Manager v1.7.2"
+  #define ETHERNET_MANAGER_VERSION            "Ethernet_Manager v1.8.0"
 
   #define ETHERNET_MANAGER_VERSION_MAJOR      1
-  #define ETHERNET_MANAGER_VERSION_MINOR      7
-  #define ETHERNET_MANAGER_VERSION_PATCH      2
+  #define ETHERNET_MANAGER_VERSION_MINOR      8
+  #define ETHERNET_MANAGER_VERSION_PATCH      0
 
-  #define ETHERNET_MANAGER_VERSION_INT        1007002
+  #define ETHERNET_MANAGER_VERSION_INT        1008000
 
 #endif
 
 ///////////////////////////////////////////////////////////////
 
-#if ( USE_ETHERNET_GENERIC || USE_ETHERNET_ESP8266 || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
+#if ( USE_ETHERNET_GENERIC || USE_ETHERNET_ENC || USE_NATIVE_ETHERNET )
   #ifdef USE_CUSTOM_ETHERNET
     #undef USE_CUSTOM_ETHERNET
   #endif

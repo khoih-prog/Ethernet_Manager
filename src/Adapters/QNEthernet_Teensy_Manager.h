@@ -9,7 +9,7 @@
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
 
-  Version: 1.7.2
+  Version: 1.8.0
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -26,6 +26,7 @@
   1.7.0     K Hoang     27/11/2021 Auto detect ESP32 core to use correct LittleFS. Fix QNEthernet-related linkStatus.
   1.7.1     K Hoang     26/01/2022 Update to be compatible with new FlashStorage libraries.
   1.7.2     K Hoang     10/04/2022 Use Ethernet_Generic library as default. Support SPI1/SPI2 for RP2040/ESP32
+  1.8.0     K Hoang     07/09/2022 Fix macAddress bug. Add functions relating to macAddress
  *****************************************************************************************************************************/
 
 #pragma once
@@ -104,7 +105,7 @@ typedef struct
   ///NEW
   extern uint16_t NUM_MENU_ITEMS;
   extern MenuItem myMenuItems [];
-  bool *menuItemUpdated = NULL;
+  bool *menuItemUpdated = nullptr;
 #else
   #warning Not using Dynamic Parameters
 #endif
@@ -456,7 +457,7 @@ class Ethernet_Manager
 
 #if USING_CUSTOMS_HEAD_ELEMENT    
     //sets a custom element to add to head, like a new style tag
-    void setCustomsHeadElement(const char* CustomsHeadElement = NULL) 
+    void setCustomsHeadElement(const char* CustomsHeadElement = nullptr) 
     {
       _CustomsHeadElement = CustomsHeadElement;
       ETM_LOGDEBUG1(F("Set CustomsHeadElement to : "), _CustomsHeadElement);
@@ -470,7 +471,7 @@ class Ethernet_Manager
 #endif
     
 #if USING_CORS_FEATURE   
-    void setCORSHeader(const char* CORSHeaders = NULL)
+    void setCORSHeader(const char* CORSHeaders = nullptr)
     {     
       _CORS_Header = CORSHeaders;
 
@@ -488,6 +489,46 @@ class Ethernet_Manager
     {
       return (Ethernet.linkStatus() == EthernetLinkStatus::LinkON);
     }
+          
+    //////////////////////////////////////////////
+
+		uint8_t* getMacAddress()
+		{
+      return macAddress;
+		}
+    
+    //////////////////////////////////////////////
+		
+		uint8_t* setMacAddress(const uint8_t* mac)
+		{
+		  if ( isMacAddressValid(mac) )
+		    memcpy(macAddress, mac, sizeof(macAddress));
+		    
+		  printMacAddress();  
+		    
+      return macAddress;
+		}
+    
+    //////////////////////////////////////////////
+
+		void printMacAddress()
+		{
+			char theLocalBuffer[24];
+					
+			snprintf(theLocalBuffer, sizeof(theLocalBuffer), "MAC:%02X-%02X-%02X-%02X-%02X-%02X",
+				       macAddress[0], macAddress[1],
+				       macAddress[2], macAddress[3],
+				       macAddress[4], macAddress[5]);
+			
+			ETM_LOGWARN(theLocalBuffer);
+		}
+    
+    //////////////////////////////////////////////
+		
+		bool isMacAddressValid(const uint8_t* mac)
+		{
+		  return ( (mac != nullptr) && ( (mac[0] != 0) || (mac[1] != 0) || (mac[2] != 0) || (mac[3] != 0) ) );
+		}
           
     //////////////////////////////////////
 
@@ -516,17 +557,19 @@ class Ethernet_Manager
     uint16_t totalDataSize = 0;
     
     uint8_t currentBlynkServerIndex = 255;
+    
+    uint8_t macAddress[6] = { 0, 0, 0, 0, 0, 0 };
 
 /////////////////////////////////////
     
     // Add customs headers from v1.1.0
     
 #if USING_CUSTOMS_STYLE
-    const char* ETM_HTML_HEAD_CUSTOMS_STYLE = NULL;
+    const char* ETM_HTML_HEAD_CUSTOMS_STYLE = nullptr;
 #endif
     
 #if USING_CUSTOMS_HEAD_ELEMENT
-    const char* _CustomsHeadElement = NULL;
+    const char* _CustomsHeadElement = nullptr;
 #endif
     
 #if USING_CORS_FEATURE    
@@ -674,7 +717,7 @@ class Ethernet_Manager
       int checkSum = 0;
       for (uint16_t index = 0; index < (sizeof(Ethernet_Manager_config) - sizeof(Ethernet_Manager_config.checkSum)); index++)
       {
-        checkSum += * ( ( (byte*) &Ethernet_Manager_config ) + index);
+        checkSum += * ( ( (uint8_t*) &Ethernet_Manager_config ) + index);
       }
 
       return checkSum;
@@ -1391,6 +1434,9 @@ class Ethernet_Manager
       {
         ETM_LOGWARN(F("DHCPFailed"));     
       }
+      
+      // KH new. Get mac and store
+      Ethernet.macAddress(macAddress);
 
       return ethernetConnected;
     }

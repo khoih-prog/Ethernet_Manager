@@ -13,6 +13,7 @@
 
 
 * [Changelog](#changelog)
+  * [Releases v1.8.0](#releases-v180)
   * [Releases v1.7.2](#releases-v172)
   * [Releases v1.7.1](#releases-v171)
   * [Major Releases v1.7.0](#major-releases-v170)
@@ -31,6 +32,15 @@
 
 
 ## Changelog
+
+### Releases v1.8.0
+
+1. Fix `macAddress` bug. Check [Unable so set MAC Address #2](https://github.com/khoih-prog/Ethernet_Manager/issues/2)
+2. Permit setting `macAddress` for supporting Ethernet shields W5x00 and ENC28J60
+3. Add functions relating to `macAddress`
+4. Rewrite all the examples to support new features
+5. Drop support to `Ethernet_ESP8266`
+6. Update `Packages' Patches`
 
 ### Releases v1.7.2
 

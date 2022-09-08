@@ -1,6 +1,6 @@
 {
   "name": "Ethernet_Manager",
-  "version": "1.7.2",
+  "version": "1.8.0",
   "keywords": "communication, ethernet, esp8266, esp32, esp32-s2, esp32-c3, QNEthernet, rp2040, nano-rp2040-connect, W5x00, lan8720, SAM-DUE, SAMD, STM32, nRF52, Credentials, config-portal, WT32-ETH01, Double-Reset, MQTT, rpi-pico, ENC28J60, SAMD51, DynamicParameters, dynamic-params, customs-header, Manager",
   "description": "Simple Ethernet Manager for Teensy, SAM DUE, SAMD, nRF52, ESP32 (including ESP32-S2/C3), ESP8266, RP2040-based Nano_RP2040_Connect, RASPBERRY_PI_PICO, etc. boards. Config data saved in ESP LittleFS, SPIFFS or EEPROM, nRF52 LittleFS, EEPROM, DueFlashStorage or SAMD FlashStorage. For configuring/auto(re)connecting Ethernet W5x00, ENC28J60 and NativeEthernet/QNEthernet at runtime. Use much less memory compared to full-fledge WiFiManager. Config Portal (CP) will be auto-adjusted to match the number of dynamic custom parameters. Optional default Credentials to be autoloaded into CP to use or change instead of manually input. Credentials are saved in LittleFS, (emulated-)EEPROM, FlashStorage_SAMD or DueFlashStorage. New powerful-yet-simple-to-use feature to enable adding dynamic parameters from sketch and input using the same CP. DoubleDetectDetector as well as Virtual Switches feature permits entering CP as requested. Configurable HTML Headers, Customs Style, Head Elements, CORS Header",
   "authors":
@@ -27,7 +27,7 @@
     {
       "owner": "khoih-prog",
       "name": "EthernetWebServer",
-      "version": ">=2.1.2",
+      "version": ">=2.2.2",
       "platforms": ["*"]
     },
     {
@@ -57,7 +57,7 @@
     {
       "owner": "khoih-prog",
       "name": "WebServer_WT32_ETH01",
-      "version": "^1.4.1",
+      "version": "^1.5.0",
       "platforms": ["espressif32"]
     },
     {
@@ -69,12 +69,12 @@
     {
       "owner": "khoih-prog",
       "name": "Ethernet_Generic",
-      "version": "^2.0.1"
+      "version": "^2.5.2"
     },
     {
       "owner": "ssilverman",
       "name": "QNEthernet",
-      "version": ">=0.14.0",
+      "version": ">=0.15.0",
       "platforms": ["teensy"]
     }
   ],

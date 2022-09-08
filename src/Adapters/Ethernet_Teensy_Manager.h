@@ -9,7 +9,7 @@
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
 
-  Version: 1.7.2
+  Version: 1.8.0
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -26,6 +26,7 @@
   1.7.0     K Hoang     27/11/2021 Auto detect ESP32 core to use correct LittleFS. Fix QNEthernet-related linkStatus.
   1.7.1     K Hoang     26/01/2022 Update to be compatible with new FlashStorage libraries.
   1.7.2     K Hoang     10/04/2022 Use Ethernet_Generic library as default. Support SPI1/SPI2 for RP2040/ESP32
+  1.8.0     K Hoang     07/09/2022 Fix macAddress bug. Add functions relating to macAddress
  *****************************************************************************************************************************/
 
 #pragma once
@@ -105,7 +106,7 @@ typedef struct
   ///NEW
   extern uint16_t NUM_MENU_ITEMS;
   extern MenuItem myMenuItems [];
-  bool *menuItemUpdated = NULL;
+  bool *menuItemUpdated = nullptr;
 #else
   #warning Not using Dynamic Parameters
 #endif
@@ -456,7 +457,7 @@ class Ethernet_Manager
 
 #if USING_CUSTOMS_HEAD_ELEMENT    
     //sets a custom element to add to head, like a new style tag
-    void setCustomsHeadElement(const char* CustomsHeadElement = NULL) 
+    void setCustomsHeadElement(const char* CustomsHeadElement = nullptr) 
     {
       _CustomsHeadElement = CustomsHeadElement;
       ETM_LOGDEBUG1(F("Set CustomsHeadElement to : "), _CustomsHeadElement);
@@ -470,7 +471,7 @@ class Ethernet_Manager
 #endif
     
 #if USING_CORS_FEATURE   
-    void setCORSHeader(const char* CORSHeaders = NULL)
+    void setCORSHeader(const char* CORSHeaders = nullptr)
     {     
       _CORS_Header = CORSHeaders;
 
@@ -483,6 +484,46 @@ class Ethernet_Manager
       return _CORS_Header;
     }
 #endif
+          
+    //////////////////////////////////////////////
+
+		uint8_t* getMacAddress()
+		{
+      return macAddress;
+		}
+    
+    //////////////////////////////////////////////
+		
+		uint8_t* setMacAddress(const uint8_t* mac)
+		{
+		  if ( isMacAddressValid(mac) )
+		    memcpy(macAddress, mac, sizeof(macAddress));
+		    
+		  printMacAddress();  
+		    
+      return macAddress;
+		}
+    
+    //////////////////////////////////////////////
+
+		void printMacAddress()
+		{
+			char theLocalBuffer[24];
+					
+			snprintf(theLocalBuffer, sizeof(theLocalBuffer), "MAC:%02X-%02X-%02X-%02X-%02X-%02X",
+				       macAddress[0], macAddress[1],
+				       macAddress[2], macAddress[3],
+				       macAddress[4], macAddress[5]);
+			
+			ETM_LOGWARN(theLocalBuffer);
+		}
+    
+    //////////////////////////////////////////////
+		
+		bool isMacAddressValid(const uint8_t* mac)
+		{
+		  return ( (mac != nullptr) && ( (mac[0] != 0) || (mac[1] != 0) || (mac[2] != 0) || (mac[3] != 0) ) );
+		}
           
     //////////////////////////////////////
 
@@ -511,17 +552,19 @@ class Ethernet_Manager
     uint16_t totalDataSize = 0;
     
     uint8_t currentBlynkServerIndex = 255;
+    
+    uint8_t macAddress[6] = { 0, 0, 0, 0, 0, 0 };
 
 /////////////////////////////////////
     
     // Add customs headers from v1.1.0
     
 #if USING_CUSTOMS_STYLE
-    const char* ETM_HTML_HEAD_CUSTOMS_STYLE = NULL;
+    const char* ETM_HTML_HEAD_CUSTOMS_STYLE = nullptr;
 #endif
     
 #if USING_CUSTOMS_HEAD_ELEMENT
-    const char* _CustomsHeadElement = NULL;
+    const char* _CustomsHeadElement = nullptr;
 #endif
     
 #if USING_CORS_FEATURE    
@@ -669,7 +712,7 @@ class Ethernet_Manager
       int checkSum = 0;
       for (uint16_t index = 0; index < (sizeof(Ethernet_Manager_config) - sizeof(Ethernet_Manager_config.checkSum)); index++)
       {
-        checkSum += * ( ( (byte*) &Ethernet_Manager_config ) + index);
+        checkSum += * ( ( (uint8_t*) &Ethernet_Manager_config ) + index);
       }
 
       return checkSum;
@@ -1363,15 +1406,24 @@ class Ethernet_Manager
         // Use static IP
         ETM_LOGWARN1(F("Start connectEthernet using Static IP ="), staticIP);
         
-        Ethernet.begin(SelectMacAddress(NULL), staticIP);
+        // If macAddress valid, use it
+        if (isMacAddressValid(macAddress))
+          Ethernet.begin(SelectMacAddress(macAddress), staticIP);
+        else
+          Ethernet.begin(SelectMacAddress(nullptr), staticIP);
+        
         ethernetConnected = true;
       }
       else
       {
-        // If static_IP ="nothing"  or NULL, use DHCP dynamic IP
+        // If static_IP ="nothing" or nullptr, use DHCP dynamic IP
         ETM_LOGWARN(F("Start connectEthernet using DHCP"));
         
-        ethernetConnected = ( Ethernet.begin(SelectMacAddress(NULL)) == 1);
+        // If macAddress valid, use it
+        if (isMacAddressValid(macAddress))
+          ethernetConnected = ( Ethernet.begin(SelectMacAddress(macAddress)) == 1);
+        else  
+          ethernetConnected = ( Ethernet.begin(SelectMacAddress(nullptr)) == 1);
       }
     
       // give the Ethernet shield a second to initialize:
@@ -1389,48 +1441,70 @@ class Ethernet_Manager
       return ethernetConnected;
     }
 
-    byte* SelectMacAddress(const byte mac[])
+    ///////////////////////////////////////////////////////////////////
+
+    uint8_t* SelectMacAddress(const uint8_t* mac)
     {
-      if (mac != NULL) 
+      char localBuffer[24];
+      
+      if (isMacAddressValid(mac))
       {
-        return (byte*)mac;
+        return (uint8_t*)mac;
       }
 
-      macAddress[0] = 0xFE;
-      macAddress[1] = 0xAB;
-      macAddress[2] = 0xCD;
-      macAddress[3] = 0xEF;
-      macAddress[4] = 0xED;
-      macAddress[5] = 0xBA;
+#if USE_ETHERNET_GENERIC  
+      Ethernet.MACAddress(macAddress);
+#endif
       
-      const char* token = String(millis()).c_str();
+      printMacAddress();
 
-      int len = strlen(token);
+      if (isMacAddressValid(macAddress))
+      {
+      	return macAddress;
+      }
+      
+      // Initial mac to manipulate from
+      macAddress[0] = 0xFE;
+      macAddress[1] = 0xED;
+      macAddress[2] = 0xDE;
+      macAddress[3] = 0xAD;
+      macAddress[4] = 0xBE;
+      macAddress[5] = 0xEF;
+      
+#define TOKEN_LEN				8
+
+      char token[TOKEN_LEN];
+      uint32_t curTime = millis();
+      snprintf(token, sizeof(token), "%ld", curTime * curTime);
+     
       int mac_index = 1;
-
-      for (uint16_t i = 0; i < len; i++)
+      
+      ETM_LOGDEBUG3("token =", token, ", len =", TOKEN_LEN);
+      
+      for (uint16_t i = 0; i < TOKEN_LEN; i++)
       {
         macAddress[mac_index] ^= token[i];
 
-        if (++mac_index > 5) {
+        if (++mac_index > 5) 
+        {
           mac_index = 1;
         }
       }
-      
-      char localBuffer[24];
-      
+           
       snprintf(localBuffer, sizeof(localBuffer), "MAC:%02X-%02X-%02X-%02X-%02X-%02X",
                 macAddress[0], macAddress[1],
                 macAddress[2], macAddress[3],
                 macAddress[4], macAddress[5]);
                 
-      ETM_LOGWARN(localBuffer);
+      ETM_LOGWARN1(F("Calculated =>"), localBuffer);
+
+#if USE_ETHERNET_GENERIC      
+      // Set for later use
+      Ethernet.setMACAddress(macAddress);
+#endif
 
       return macAddress;
     }
-
-    byte macAddress[6];
-
 };
 
 #endif    // Ethernet_Teensy_Manager_h
