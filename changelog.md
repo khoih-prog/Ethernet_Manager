@@ -13,6 +13,7 @@
 
 
 * [Changelog](#changelog)
+  * [Releases v1.8.1](#releases-v181)
   * [Releases v1.8.0](#releases-v180)
   * [Releases v1.7.2](#releases-v172)
   * [Releases v1.7.1](#releases-v171)
@@ -32,6 +33,10 @@
 
 
 ## Changelog
+
+### Releases v1.8.1
+
+1. Fix chipID and add getChipID(), getChipOUI() for `ESP32` and `WT32_ETH01`
 
 ### Releases v1.8.0
 

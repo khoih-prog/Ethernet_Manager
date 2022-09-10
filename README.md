@@ -251,9 +251,9 @@ This [**Ethernet_Manager** library](https://github.com/khoih-prog/Ethernet_Manag
    - [`Adafruit's LittleFS/InternalFS`](www.adafruit.com) for nRF52
 16. [`EthernetWebServer library v2.2.2+`](https://github.com/khoih-prog/EthernetWebServer). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/EthernetWebServer.svg?)](https://www.ardu-badge.com/EthernetWebServer).
 17. [`WebServer_WT32_ETH01 library v1.5.0+`](https://github.com/khoih-prog/WebServer_WT32_ETH01) for WT32_ETH01 boards. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/WebServer_WT32_ETH01.svg?)](https://www.ardu-badge.com/WebServer_WT32_ETH01).
-18. [`ESP_DoubleResetDetector library v1.3.1+`](https://github.com/khoih-prog/ESP_DoubleResetDetector) for ESP32 and ESP8266.  To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_DoubleResetDetector.svg?)](https://www.ardu-badge.com/ESP_DoubleResetDetector).
+18. [`ESP_DoubleResetDetector library v1.3.2+`](https://github.com/khoih-prog/ESP_DoubleResetDetector) for ESP32 and ESP8266.  To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_DoubleResetDetector.svg?)](https://www.ardu-badge.com/ESP_DoubleResetDetector).
 19. [`DoubleResetDetector_Generic library v1.8.1+`](https://github.com/khoih-prog/DoubleResetDetector_Generic) for other boards (not ESP32 or ESP8266). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic).
-20. [`LittleFS_esp32 v1.0.6+`](https://github.com/lorol/LITTLEFS) for ESP32-based boards using LittleFS with ESP32 core v1.0.5-. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/LittleFS_esp32.svg?)](https://www.ardu-badge.com/LittleFS_esp32). **Notice**: This [`LittleFS_esp32 library`](https://github.com/lorol/LITTLEFS) has been integrated to Arduino [ESP32 core v1.0.6+](https://github.com/espressif/arduino-esp32/tree/master/libraries/LITTLEFS) and you don't need to install it if using ESP32 core v1.0.6+
+20. [`LittleFS_esp32 v1.0.6+`](https://github.com/lorol/LITTLEFS) for ESP32-based boards using LittleFS with ESP32 core **v1.0.5-**. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/LittleFS_esp32.svg?)](https://www.ardu-badge.com/LittleFS_esp32). **Notice**: This [`LittleFS_esp32 library`](https://github.com/lorol/LITTLEFS) has been integrated to Arduino [ESP32 core v1.0.6+](https://github.com/espressif/arduino-esp32/tree/master/libraries/LITTLEFS) and **you don't need to install it if using ESP32 core v1.0.6+**
 
 ---
 
@@ -1440,7 +1440,7 @@ This is the terminal output of an Adafruit NRF52840_FEATHER board with W5500 Eth
 ```
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type W5x00 using Ethernet_Generic Library
-Ethernet_Manager v1.8.0
+Ethernet_Manager v1.8.1
 DoubleResetDetector_Generic v1.8.1
 [EWS] =========== USE_ETHERNET_GENERIC ===========
 [EWS] Default SPI pinout:
@@ -1532,7 +1532,7 @@ Pubs Topics = old-mqtt-PubTopic
 ```cpp
 Start Ethernet_nRF52 on NRF52840_FEATHER
 Ethernet Shield type : W5x00 using Ethernet_Generic Library
-Ethernet_Manager v1.8.0
+Ethernet_Manager v1.8.1
 DoubleResetDetector_Generic v1.8.1
 [EWS] =========== USE_ETHERNET_GENERIC ===========
 [EWS] Default SPI pinout:
@@ -1715,7 +1715,7 @@ This is the terminal output of an SeeedStudio SAMD21 SEEED_XIAO_M0 board with W5
 ```
 Start Ethernet_SAMD on SEEED_XIAO_M0
 Ethernet Shield type : W5x00 using Ethernet Library
-Ethernet_Manager v1.8.0
+Ethernet_Manager v1.8.1
 DoubleResetDetector_Generic v1.8.1
 Flag read = 0xffffffff
 No doubleResetDetected
@@ -1792,7 +1792,7 @@ This is the terminal output of an Arduino SAM DUE board with W5100 Ethernet shie
 ```
 Start Ethernet_SAM_DUE on SAM DUE
 Ethernet Shield type : W5x00 using Ethernet_Generic Library
-Ethernet_Manager v1.8.0
+Ethernet_Manager v1.8.1
 DoubleResetDetector_Generic v1.8.1
 Flag read = 0xd0d01234
 doubleResetDetected
@@ -1878,8 +1878,8 @@ If no valid config data are stored in EEPROM, it will switch to `Configuration M
 ```
 Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
 Ethernet Shield type : W5x00 using Ethernet_Generic Library
-Ethernet_Manager v1.8.0
-ESP_DoubleResetDetector v1.3.1
+Ethernet_Manager v1.8.1
+ESP_DoubleResetDetector v1.3.2
 =========================
 Currently Used SPI pinout:
 MOSI:13
@@ -1926,8 +1926,8 @@ Enter your credentials (Blynk Servers/Tokens and Port). If you prefer static IP,
 ```
 Start MQTT_ThingStream_Ethernet_Generic using LittleFS on ESP8266_NODEMCU
 Ethernet Shield type : W5x00 using Ethernet_Generic Library
-Ethernet_Manager v1.8.0
-ESP_DoubleResetDetector v1.3.1
+Ethernet_Manager v1.8.1
+ESP_DoubleResetDetector v1.3.2
 =========================
 Currently Used SPI pinout:
 MOSI:13
@@ -1986,7 +1986,7 @@ This is the terminal output of NRF52840_FEATHER board with ENC28J60 using Ethern
 ```
 Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
 Ethernet Shield type : ENC28J60 using EthernetENC Library
-Ethernet_Manager v1.8.0
+Ethernet_Manager v1.8.1
 DoubleResetDetector_Generic v1.8.1
 LittleFS Flag read = 0xd0d01234
 Flag read = 0xd0d01234
@@ -2024,7 +2024,7 @@ esp32-sniffer/12345678/ble
 ```
 Start MQTT_ThingStream_Ethernet_Generic on NRF52840_FEATHER
 Ethernet Shield type : ENC28J60 using EthernetENC Library
-Ethernet_Manager v1.8.0
+Ethernet_Manager v1.8.1
 DoubleResetDetector_Generic v1.8.1
 LittleFS Flag read = 0xd0d04321
 Flag read = 0xd0d04321
@@ -2081,7 +2081,7 @@ This is the terminal output of RASPBERRY_PI_PICO board with W5x00 using Ethernet
 ```
 Start MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO
 Ethernet Shield type : W5x00 using Ethernet_Generic Library
-Ethernet_Manager v1.8.0
+Ethernet_Manager v1.8.1
 DoubleResetDetector_Generic v1.8.1
 [EWS] =========== USE_ETHERNET_GENERIC ===========
 [EWS] Default SPI pinout:
@@ -2138,7 +2138,7 @@ esp32-sniffer/12345678/ble
 ```
 Start MQTT_ThingStream_Ethernet_RP2040 on RASPBERRY_PI_PICO
 Ethernet Shield type : W5x00 using Ethernet_Generic Library
-Ethernet_Manager v1.8.0
+Ethernet_Manager v1.8.1
 DoubleResetDetector_Generic v1.8.1
 [EWS] =========== USE_ETHERNET_GENERIC ===========
 [EWS] Default SPI pinout:
@@ -2211,7 +2211,7 @@ This is the terminal output of an MBED RASPBERRY_PI_PICO board with W5500 Ethern
 ```
 Start Ethernet_RP2040 on MBED RASPBERRY_PI_PICO
 Ethernet Shield type : W5x00 using Ethernet_Generic Library
-Ethernet_Manager v1.8.0
+Ethernet_Manager v1.8.1
 DoubleResetDetector_Generic v1.8.1
 [[EWS] =========== USE_ETHERNET_GENERIC ===========
 [EWS] Default SPI pinout:
@@ -2284,7 +2284,7 @@ HHHH[ETM] h:Updating LittleFS: /fs/etm_config.dat
 ```
 Start Ethernet_RP2040 on MBED RASPBERRY_PI_PICO
 Ethernet Shield type : W5x00 using Ethernet_Generic Library
-Ethernet_Manager v1.8.0
+Ethernet_Manager v1.8.1
 DoubleResetDetector_Generic v1.8.1
 [EWS] =========== USE_ETHERNET_GENERIC ===========
 [EWS] Default SPI pinout:
@@ -2354,8 +2354,8 @@ This is the terminal output of WT32-ETH01 board with LAN8720 Ethernet, running c
 Start MQTT_ThingStream_Ethernet_WT32_ETH01 on WT32-ETH01
 Ethernet Shield type : ETH_PHY_LAN8720
 WebServer_WT32_ETH01 v1.5.0
-Ethernet_Manager v1.8.0
-ESP_DoubleResetDetector v1.3.1
+Ethernet_Manager v1.8.1
+ESP_DoubleResetDetector v1.3.2
 [ETM] Set CustomsStyle to :  <style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>
 [ETM] Set CustomsHeadElement to :  <style>html{filter: invert(10%);}</style>
 [ETM] Set CORS Header to :  Your Access-Control-Allow-Origin
@@ -2436,7 +2436,7 @@ This is the terminal output of Teensy 4.1 board with built-in Ethernet, using QN
 
 ```
 Starting QNEthernet_Teensy on TEENSY 4.1 using QNEthernet
-Ethernet_Manager v1.8.0
+Ethernet_Manager v1.8.1
 DoubleResetDetector_Generic v1.8.1
 [EWS] =========== USE_QN_ETHERNET ===========
 QNEthernet using static IP
@@ -2559,6 +2559,8 @@ Default Credentials and dynamic parameters
 37. Fix `macAddress` bug. Check [Unable so set MAC Address #2](https://github.com/khoih-prog/Ethernet_Manager/issues/2)
 38. Permit setting `macAddress` for supporting Ethernet shields W5x00 and ENC28J60
 39. Add functions relating to `macAddress`
+40. Fix chipID and add getChipID(), getChipOUI() for `ESP32` and `WT32_ETH01`
+
 
 ---
 ---

@@ -9,7 +9,7 @@
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
 
-  Version: 1.8.0
+  Version: 1.8.1
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -27,6 +27,7 @@
   1.7.1     K Hoang     26/01/2022 Update to be compatible with new FlashStorage libraries.
   1.7.2     K Hoang     10/04/2022 Use Ethernet_Generic library as default. Support SPI1/SPI2 for RP2040/ESP32
   1.8.0     K Hoang     07/09/2022 Fix macAddress bug. Add functions relating to macAddress
+  1.8.1     K Hoang     09/09/2022 Fix chipID and add getChipOUI() for ESP32
 *****************************************************************************************************************************/
 
 #pragma once
@@ -136,7 +137,16 @@ DoubleResetDetector* drd;
 ///////// NEW for DRD /////////////
 
 #include <esp_wifi.h>
-#define ESP_getChipId()   ((uint32_t)ESP.getEfuseMac())
+
+static uint32_t getChipID();
+static uint32_t getChipOUI();
+ 
+#if defined(ESP_getChipId)
+  #undef ESP_getChipId
+#endif
+
+#define ESP_getChipId()  	getChipID()
+#define ESP_getChipOUI() 	getChipOUI()
 
 
 //NEW
@@ -222,6 +232,34 @@ const char WM_HTTP_EXPIRES[]         PROGMEM = "Expires";
 
 const char WM_HTTP_CORS[]            PROGMEM = "Access-Control-Allow-Origin";
 const char WM_HTTP_CORS_ALLOW_ALL[]  PROGMEM = "*";
+
+//////////////////////////////////////////
+
+static uint32_t getChipID()
+{
+  uint64_t chipId64 = 0;
+
+  for (int i = 0; i < 6; i++)
+  {
+    chipId64 |= ( ( (uint64_t) ESP.getEfuseMac() >> (40 - (i * 8)) ) & 0xff ) << (i * 8);
+  }
+  
+  return (uint32_t) (chipId64 & 0xFFFFFF);
+}
+
+//////////////////////////////////////////
+
+static uint32_t getChipOUI()
+{
+  uint64_t chipId64 = 0;
+
+  for (int i = 0; i < 6; i++)
+  {
+    chipId64 |= ( ( (uint64_t) ESP.getEfuseMac() >> (40 - (i * 8)) ) & 0xff ) << (i * 8);
+  }
+  
+  return (uint32_t) (chipId64 >> 24);
+}
 
 //////////////////////////////////////////
 

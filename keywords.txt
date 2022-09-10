@@ -27,6 +27,14 @@ getCORSHeader   KEYWORD2
 link_status KEYWORD2
 
 #######################################
+
+getChipID	KEYWORD2
+getChipOUI	KEYWORD2
+
+ESP_getChipId	KEYWORD2
+ESP_getChipOUI	KEYWORD2
+
+#######################################
 # Literals (LITERAL1)
 #######################################
 

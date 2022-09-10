@@ -9,7 +9,7 @@
   Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Manager
   Licensed under MIT license
 
-  Version: 1.8.0
+  Version: 1.8.1
 
   Version  Modified By   Date      Comments
   -------  -----------  ---------- -----------
@@ -27,6 +27,7 @@
   1.7.1     K Hoang     26/01/2022 Update to be compatible with new FlashStorage libraries.
   1.7.2     K Hoang     10/04/2022 Use Ethernet_Generic library as default. Support SPI1/SPI2 for RP2040/ESP32
   1.8.0     K Hoang     07/09/2022 Fix macAddress bug. Add functions relating to macAddress
+  1.8.1     K Hoang     09/09/2022 Fix chipID and add getChipOUI() for ESP32
  *****************************************************************************************************************************/
 
 #pragma once
