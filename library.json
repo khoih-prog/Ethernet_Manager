@@ -27,7 +27,7 @@
     {
       "owner": "khoih-prog",
       "name": "EthernetWebServer",
-      "version": ">=2.2.2",
+      "version": ">=2.3.0",
       "platforms": ["*"]
     },
     {
@@ -57,7 +57,7 @@
     {
       "owner": "khoih-prog",
       "name": "WebServer_WT32_ETH01",
-      "version": "^1.5.0",
+      "version": "^1.5.1",
       "platforms": ["espressif32"]
     },
     {
@@ -69,12 +69,12 @@
     {
       "owner": "khoih-prog",
       "name": "Ethernet_Generic",
-      "version": "^2.5.2"
+      "version": "^2.7.1"
     },
     {
       "owner": "ssilverman",
       "name": "QNEthernet",
-      "version": ">=0.15.0",
+      "version": ">=0.16.0",
       "platforms": ["teensy"]
     }
   ],

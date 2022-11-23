@@ -48,24 +48,24 @@ PubSubClient* client = NULL;
 /*
    Called whenever a payload is received from a subscribed MQTT topic
 */
-void mqtt_receive_callback(char* topic, byte* payload, unsigned int length) 
+void mqtt_receive_callback(char* topic, byte* payload, unsigned int length)
 {
   Serial.print("\nMQTT Message receive [");
   Serial.print(topic);
   Serial.print("] ");
-  
-  for (unsigned int i = 0; i < length; i++) 
+
+  for (unsigned int i = 0; i < length; i++)
   {
     Serial.print((char)payload[i]);
   }
-  
+
   Serial.println();
 }
 
-void reconnect() 
+void reconnect()
 {
   // Loop until we're reconnected
-  while (!client->connected()) 
+  while (!client->connected())
   {
     Serial.print("Attempting MQTT connection to ");
     Serial.println(MQTT_SERVER);
@@ -80,31 +80,31 @@ void reconnect()
     // Attempt to connect
     int connect_status = client->connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS, topic.c_str(), 2, false, "");
 
-    if (connect_status)                                
+    if (connect_status)
     {
       Serial.println("...connected");
-      
+
       // Once connected, publish an announcement...
       String data = "Hello from MQTTClient_SSL on " + String(BOARD_NAME);
 
       client->publish(topic.c_str(), data.c_str());
 
       Serial.println("Published connection message successfully!");
-     
+
       Serial.print("Subcribed to: ");
       Serial.println(subTopic);
-      
+
       // ... and resubscribe
       client->subscribe(subTopic.c_str());
       // for loopback testing
       client->subscribe(topic.c_str());
-    } 
-    else 
+    }
+    else
     {
       Serial.print("failed, rc=");
       Serial.print(client->state());
       Serial.println(" try again in 5 seconds");
-      
+
       // Wait 5 seconds before retrying
       delay(5000);
     }
@@ -116,15 +116,15 @@ void reconnect()
 void heartBeatPrint()
 {
   static int num        = 1;
-  
+
   localEthernetIP = ETH.localIP();
- 
+
   if ( ( (uint32_t) localEthernetIP != 0 ) )
   {
     Serial.print(F("H"));
   }
   else
-    Serial.print(F("F"));  
+    Serial.print(F("F"));
 
   if (num == 80)
   {
@@ -139,8 +139,8 @@ void heartBeatPrint()
 
 void check_status()
 {
-  #define STATUS_CHECK_INTERVAL     10000L
-  
+#define STATUS_CHECK_INTERVAL     10000L
+
   static unsigned long checkstatus_timeout = STATUS_CHECK_INTERVAL;
 
   // Send status report every STATUS_REPORT_INTERVAL (60) seconds: we don't need to send updates frequently if there is no status change.
@@ -152,8 +152,9 @@ void check_status()
 }
 
 #if USING_CUSTOMS_STYLE
-const char NewCustomsStyle[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}\
-button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
+  const char NewCustomsStyle[] /*PROGMEM*/ =
+  "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}\
+  button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
 #endif
 
 void WiFiEvent(WiFiEvent_t event)
@@ -165,6 +166,7 @@ void WiFiEvent(WiFiEvent_t event)
       //set eth hostname here
       ETH.setHostname("WT32-ETH01");
       break;
+
     case SYSTEM_EVENT_ETH_CONNECTED:
       ETM_LOGERROR(F("ETH Connected"));
       break;
@@ -212,8 +214,10 @@ void setup()
   // Using this if Serial debugging is not necessary or not using Serial port
   while (!Serial && (millis() < 5000));
 
-  Serial.print("\nStart MQTT_ThingStream_Ethernet_WT32_ETH01 on "); Serial.println(BOARD_NAME); 
-  Serial.print("Ethernet Shield type : "); Serial.println(SHIELD_TYPE);
+  Serial.print("\nStart MQTT_ThingStream_Ethernet_WT32_ETH01 on ");
+  Serial.println(BOARD_NAME);
+  Serial.print("Ethernet Shield type : ");
+  Serial.println(SHIELD_TYPE);
   Serial.println(WEBSERVER_WT32_ETH01_VERSION);
   Serial.println(ETHERNET_MANAGER_VERSION);
   Serial.println(ESP_DOUBLE_RESET_DETECTOR_VERSION);
@@ -221,7 +225,7 @@ void setup()
   WiFi.onEvent(WiFiEvent);
 
   //////////////////////////////////////////////
-  
+
 #if USING_CUSTOMS_STYLE
   ethernet_manager.setCustomsStyle(NewCustomsStyle);
 #endif
@@ -230,7 +234,7 @@ void setup()
   ethernet_manager.setCustomsHeadElement("<style>html{filter: invert(10%);}</style>");
 #endif
 
-#if USING_CORS_FEATURE  
+#if USING_CORS_FEATURE
   ethernet_manager.setCORSHeader("Your Access-Control-Allow-Origin");
 #endif
 
@@ -249,7 +253,7 @@ void setup()
   {
     Serial.println(F("Ethernet not Connected! Please check."));
   }
- 
+
   Serial.println("***************************************");
   Serial.println(topic);
   Serial.println("***************************************");
@@ -298,53 +302,53 @@ void loop()
 {
   static bool           inConfigMode = true;
   static unsigned long  currentMillis;
-  
+
   inConfigMode = ethernet_manager.run();
 
   if (!inConfigMode)
   {
     if (!client)
     {
-       Serial.print("Connecting to MQTT_SERVER = ");
-       Serial.print(MQTT_SERVER);
-       Serial.print(", MQTT_PORT= ");
-       Serial.println(atoi(MQTT_PORT));
-    
-       client = new PubSubClient(MQTT_SERVER, atoi(MQTT_PORT), mqtt_receive_callback, ethClient);
+      Serial.print("Connecting to MQTT_SERVER = ");
+      Serial.print(MQTT_SERVER);
+      Serial.print(", MQTT_PORT= ");
+      Serial.println(atoi(MQTT_PORT));
+
+      client = new PubSubClient(MQTT_SERVER, atoi(MQTT_PORT), mqtt_receive_callback, ethClient);
 
       // Note - the default maximum packet size is 256 bytes. If the
       // combined length of clientId, username and password exceed this use the
       // following to increase the buffer size:
       //client->setBufferSize(256);
     }
-    
-    if (!client->connected()) 
+
+    if (!client->connected())
     {
       reconnect();
     }
-  
+
     // Sending Data
     currentMillis = millis();
-    
+
     if (currentMillis - lastMsg > MQTT_PUBLISH_INTERVAL_MS)
     {
       lastMsg = currentMillis;
-  
+
       if (!client->publish(topic.c_str(), pubData))
       {
         Serial.println("Message failed to send.");
       }
-  
+
       Serial.print("\nMQTT Message Send : " + topic + " => ");
       Serial.println(data);
     }
-    
+
     client->loop();
-    
+
     check_status();
-  
-  #if (USE_DYNAMIC_PARAMETERS)
+
+#if (USE_DYNAMIC_PARAMETERS)
     displayCredentialsOnce();
-  #endif
+#endif
   }
 }

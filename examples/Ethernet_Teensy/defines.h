@@ -21,7 +21,7 @@
   #define ETHERNET_USE_TEENSY         true
   #define USE_DYNAMIC_PARAMETERS      true
 #else
-  #error This code is designed to run on Teensy platform! Please check your Tools->Board setting.  
+  #error This code is designed to run on Teensy platform! Please check your Tools->Board setting.
 #endif
 
 /* Comment this out to disable prints and save space */
@@ -36,7 +36,7 @@
 // Default pin 10 to SS/CS
 #define USE_THIS_SS_PIN       10
 
-#if ( defined(CORE_TEENSY) && defined(__IMXRT1062__) && defined(ARDUINO_TEENSY41) ) 
+#if ( defined(CORE_TEENSY) && defined(__IMXRT1062__) && defined(ARDUINO_TEENSY41) )
   // For Teensy 4.1
   #define BOARD_TYPE      "TEENSY 4.1"
   // Use true for NativeEthernet Library, false if using other Ethernet libraries
@@ -68,7 +68,7 @@
   #include "QNEthernet.h"       // https://github.com/ssilverman/QNEthernet
   using namespace qindesign::network;
   #warning Using QNEthernet lib for Teensy 4.1. Must also use Teensy Packages Patch or error
-  #define SHIELD_TYPE           "using QNEthernet"  
+  #define SHIELD_TYPE           "using QNEthernet"
 #endif
 
 //////////////////////////////////////////
@@ -93,17 +93,17 @@
 //////////////////////////////////////////
 
 #define USING_DHCP                          false   //true
-  
+
 //#if !USING_DHCP
-  // Set the static IP address to use if the DHCP fails to assign
-  IPAddress myIP(192, 168, 2, 222);
-  IPAddress myNetmask(255, 255, 255, 0);
-  IPAddress myGW(192, 168, 2, 1);
-  //IPAddress mydnsServer(192, 168, 2, 1);
-  IPAddress mydnsServer(8, 8, 8, 8);
+// Set the static IP address to use if the DHCP fails to assign
+IPAddress myIP(192, 168, 2, 222);
+IPAddress myNetmask(255, 255, 255, 0);
+IPAddress myGW(192, 168, 2, 1);
+//IPAddress mydnsServer(192, 168, 2, 1);
+IPAddress mydnsServer(8, 8, 8, 8);
 //#endif
 
-//////////////////////////////////////////  
+//////////////////////////////////////////
 
 #include <Ethernet_Manager.h>
 

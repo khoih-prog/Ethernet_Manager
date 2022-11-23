@@ -16,7 +16,7 @@
   1.0.0     K Hoang     14/12/2020 Initial coding.
   1.1.0     K Hoang     17/12/2020 Add support to ESP32/ESP8266. Add MQTT related examples to demo dynamic parameter usage
   1.1.1     K Hoang     28/12/2020 Suppress all possible compiler warnings
-  1.2.0     K Hoang     22/02/2021 Optimize code and use better FlashStorage_SAMD and FlashStorage_STM32. 
+  1.2.0     K Hoang     22/02/2021 Optimize code and use better FlashStorage_SAMD and FlashStorage_STM32.
                                    Add customs HTML header feature. Fix bug.
   1.3.0     K Hoang     16/05/2021 Add support to RP2040-based boards such as RASPBERRY_PI_PICO
   1.4.0     K Hoang     28/05/2021 Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core
@@ -37,13 +37,13 @@
 
 #if ( defined(ARDUINO_NANO_RP2040_CONNECT)    || defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_RASPBERRY_PI_PICO) || \
       defined(ARDUINO_GENERIC_RP2040) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) ) && defined(ARDUINO_ARCH_MBED)
-  #if defined(ETHERNET_USE_RPIPICO)
-    #undef ETHERNET_USE_RPIPICO
-  #endif
-  #warning ETHERNET_USE_RPIPICO from Ethernet_RP2040_Manager.h
-  #define ETHERNET_USE_RPIPICO      true
+#if defined(ETHERNET_USE_RPIPICO)
+  #undef ETHERNET_USE_RPIPICO
+#endif
+#warning ETHERNET_USE_RPIPICO from Ethernet_RP2040_Manager.h
+#define ETHERNET_USE_RPIPICO      true
 #else
-  #error This code is designed to run on RP2040 platform using ARDUINO_ARCH_MBED! Please check your Tools->Board setting.
+#error This code is designed to run on RP2040 platform using ARDUINO_ARCH_MBED! Please check your Tools->Board setting.
 #endif
 
 // Increase HTTP_UPLOAD_BUFLEN to 4K, instead of default 2K in <EthernetWebServer.h>
@@ -138,9 +138,11 @@ extern Ethernet_Configuration defaultConfig;
 
 const char ETM_HTML_HEAD_START[] /*PROGMEM*/ = "<!DOCTYPE html><html><head><title>Ethernet_RP2040_Manager</title>";
 
-const char ETM_HTML_HEAD_STYLE[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
+const char ETM_HTML_HEAD_STYLE[] /*PROGMEM*/ =
+  "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
 
-const char ETM_HTML_HEAD_END[]   /*PROGMEM*/ = "</head><div style='text-align:left;display:inline-block;min-width:260px;'>\
+const char ETM_HTML_HEAD_END[]   /*PROGMEM*/ =
+  "</head><div style='text-align:left;display:inline-block;min-width:260px;'>\
 <fieldset><div><label>StaticIP</label><input value='[[ip]]'id='ip'><div></div></div></fieldset>\
 <fieldset><div><label>Board Name</label><input value='[[nm]]'id='nm'><div></div></div></fieldset>";
 
@@ -180,7 +182,7 @@ class Ethernet_Manager
 {
 
   public:
-  
+
 #ifndef LED_BUILTIN
 #define LED_BUILTIN       13
 #endif
@@ -189,15 +191,15 @@ class Ethernet_Manager
 #define LED_ON      HIGH
 
     void begin(bool initialConfig = false)
-    {   
+    {
       //Turn OFF
       pinMode(LED_BUILTIN, OUTPUT);
       digitalWrite(LED_BUILTIN, LED_OFF);
-      
+
       //// New DRD ////
-      drd = new DoubleResetDetector_Generic(DRD_TIMEOUT, DRD_ADDRESS);  
+      drd = new DoubleResetDetector_Generic(DRD_TIMEOUT, DRD_ADDRESS);
       bool noConfigPortal = true;
-   
+
       if (drd->detectDoubleReset())
       {
         ETM_LOGWARN(F("====================="));
@@ -205,9 +207,9 @@ class Ethernet_Manager
         ETM_LOGWARN(F("====================="));
         noConfigPortal = false;
       }
-      
+
       //// New DRD ////
-      
+
       if (LOAD_DEFAULT_CONFIG_DATA)
       {
         ETM_LOGERROR(F("======= Start Default Config Data ======="));
@@ -217,20 +219,20 @@ class Ethernet_Manager
       hadConfigData = getConfigData();
 
       connectEthernet();
-      
+
       isForcedConfigPortal = isForcedCP();
 
       //// New DRD ////
       //  noConfigPortal when getConfigData() OK and no MRD/DRD'ed
-      if (hadConfigData && noConfigPortal && (!isForcedConfigPortal) )   
-      //// New DRD //// 
+      if (hadConfigData && noConfigPortal && (!isForcedConfigPortal) )
+        //// New DRD ////
       {
         hadConfigData = true;
 
         if (ethernetConnected)
         {
           ETM_LOGWARN(F("begin:Ethernet Connected."));
-          
+
           if (initialConfig)
           {
             ETM_LOGWARN(F("begin: Start ConfigPortal"));
@@ -248,35 +250,37 @@ class Ethernet_Manager
         }
       }
       else
-      {      
-        ETM_LOGERROR(isForcedConfigPortal? F("bg: isForcedConfigPortal = true") : F("bg: isForcedConfigPortal = false"));
-                     
+      {
+        ETM_LOGERROR(isForcedConfigPortal ? F("bg: isForcedConfigPortal = true") : F("bg: isForcedConfigPortal = false"));
+
         // If not persistent => clear the flag so that after reset. no more CP, even CP not entered and saved
         if (persForcedConfigPortal)
         {
-          ETM_LOGERROR1(F("bg:Stay forever in CP:"), isForcedConfigPortal ? F("Forced-Persistent") : (noConfigPortal ? F("No ConfigDat") : F("DRD/MRD")));
+          ETM_LOGERROR1(F("bg:Stay forever in CP:"),
+                        isForcedConfigPortal ? F("Forced-Persistent") : (noConfigPortal ? F("No ConfigDat") : F("DRD/MRD")));
         }
         else
         {
-          ETM_LOGERROR1(F("bg:Stay forever in CP:"), isForcedConfigPortal ? F("Forced-non-Persistent") : (noConfigPortal ? F("No ConfigDat") : F("DRD/MRD")));
+          ETM_LOGERROR1(F("bg:Stay forever in CP:"),
+                        isForcedConfigPortal ? F("Forced-non-Persistent") : (noConfigPortal ? F("No ConfigDat") : F("DRD/MRD")));
           clearForcedCP();
         }
-          
-        //To permit autoreset after timeout if DRD/MRD or non-persistent forced-CP 
+
+        //To permit autoreset after timeout if DRD/MRD or non-persistent forced-CP
         hadConfigData = isForcedConfigPortal ? true : (noConfigPortal ? false : true);
-        
+
         // failed to connect to WiFi, will start configuration mode
         startConfigurationMode();
       }
     }
-    
+
     //////////////////////////////////////////
 
     // Return true if still in CP mode
     bool run()
     {
       //static int retryTimes = 0;
-      
+
       //// New DRD ////
       // Call the double reset detector loop method every so often,
       // so that it can recognise when the timeout expires.
@@ -308,6 +312,7 @@ class Ethernet_Manager
         else
         {
 #if RESET_IF_CONFIG_TIMEOUT
+
           // If we're here but still in configuration_mode, permit running TIMES_BEFORE_RESET times before reset hardware
           // to permit user another chance to config.
           if ( configuration_mode && (configTimeout != 0) )
@@ -321,6 +326,7 @@ class Ethernet_Manager
               resetFunc();
             }
           }
+
 #endif
         }
       }
@@ -328,11 +334,11 @@ class Ethernet_Manager
       {
         configuration_mode = false;
         ETM_LOGWARN(F("run:Ethernet not OK"));
-        
-        // Turn the LED_BUILTIN OFF when out of configuration mode. 
+
+        // Turn the LED_BUILTIN OFF when out of configuration mode.
         digitalWrite(LED_BUILTIN, LED_OFF);
       }
-      
+
       return configuration_mode;
     }
 
@@ -342,7 +348,7 @@ class Ethernet_Manager
     {
       return (String(Ethernet_Manager_config.board_name));
     }
-    
+
     //////////////////////////////////////////
 
     Ethernet_Configuration* getFullConfigData(Ethernet_Configuration *configData)
@@ -356,71 +362,73 @@ class Ethernet_Manager
 
       return (configData);
     }
-    
+
     //////////////////////////////////////////
-    
+
     void clearConfigData()
     {
       memset(&Ethernet_Manager_config, 0, sizeof(Ethernet_Manager_config));
 
-#if USE_DYNAMIC_PARAMETERS        
+#if USE_DYNAMIC_PARAMETERS
+
       for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         // Actual size of pdata is [maxlen + 1]
         memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
       }
+
 #endif
-      
+
       saveConfigData();
     }
-    
+
     //////////////////////////////////////////////
-    
+
     bool isConfigDataValid()
     {
       return hadConfigData;
     }
-    
+
     //////////////////////////////////////////////
-    
+
     // Forced CP => Flag = 0xBEEFBEEF. Else => No forced CP
-    // Flag to be stored at (EEPROM_START + DRD_FLAG_DATA_SIZE + CONFIG_DATA_SIZE) 
+    // Flag to be stored at (EEPROM_START + DRD_FLAG_DATA_SIZE + CONFIG_DATA_SIZE)
     // to avoid corruption to current data
     //#define FORCED_CONFIG_PORTAL_FLAG_DATA              ( (uint32_t) 0xDEADBEEF)
     //#define FORCED_PERS_CONFIG_PORTAL_FLAG_DATA         ( (uint32_t) 0xBEEFDEAD)
-    
+
     const uint32_t FORCED_CONFIG_PORTAL_FLAG_DATA       = 0xDEADBEEF;
     const uint32_t FORCED_PERS_CONFIG_PORTAL_FLAG_DATA  = 0xBEEFDEAD;
-    
-    #define FORCED_CONFIG_PORTAL_FLAG_DATA_SIZE     4
-    
+
+#define FORCED_CONFIG_PORTAL_FLAG_DATA_SIZE     4
+
     void resetAndEnterConfigPortal()
     {
       persForcedConfigPortal = false;
-      
+
       setForcedCP(false);
-      
+
       // Delay then reset the ESP8266 after save data
       delay(1000);
       resetFunc();
     }
-    
+
     //////////////////////////////////////////////
-    
+
     // This will keep CP forever, until you successfully enter CP, and Save data to clear the flag.
     void resetAndEnterConfigPortalPersistent()
     {
       persForcedConfigPortal = true;
-      
+
       setForcedCP(true);
-      
+
       // Delay then reset the ESP8266 after save data
       delay(1000);
       resetFunc();
     }
-    
+
     //////////////////////////////////////////////
-        
+
     typedef struct
     {
       uint32_t CPUID;                  /*!< Offset: 0x000 (R/ )  CPUID Base Register */
@@ -433,35 +441,35 @@ class Ethernet_Manager
       uint32_t SHP[2U];                /*!< Offset: 0x01C (R/W)  System Handlers Priority Registers. [0] is RESERVED */
       uint32_t SHCSR;                  /*!< Offset: 0x024 (R/W)  System Handler Control and State Register */
     } SCB_Type;
-    
+
     //////////////////////////////////////////////
 
     void NVIC_SystemReset()
-    {                  
-    /* SCB Application Interrupt and Reset Control Register Definitions */
-    #define SCB_AIRCR_VECTKEY_Pos              16U                                      /*!< SCB AIRCR: VECTKEY Position */
-    #define SCB_AIRCR_VECTKEY_Msk              (0xFFFFUL << SCB_AIRCR_VECTKEY_Pos)      /*!< SCB AIRCR: VECTKEY Mask */
-        
-    #define SCB_AIRCR_SYSRESETREQ_Pos           2U                                      /*!< SCB AIRCR: SYSRESETREQ Position */
-    #define SCB_AIRCR_SYSRESETREQ_Msk          (1UL << SCB_AIRCR_SYSRESETREQ_Pos)       /*!< SCB AIRCR: SYSRESETREQ Mask */    
+    {
+      /* SCB Application Interrupt and Reset Control Register Definitions */
+#define SCB_AIRCR_VECTKEY_Pos              16U                                      /*!< SCB AIRCR: VECTKEY Position */
+#define SCB_AIRCR_VECTKEY_Msk              (0xFFFFUL << SCB_AIRCR_VECTKEY_Pos)      /*!< SCB AIRCR: VECTKEY Mask */
 
-    #define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base Address */
-    #define SysTick_BASE        (SCS_BASE +  0x0010UL)                    /*!< SysTick Base Address */
-    #define NVIC_BASE           (SCS_BASE +  0x0100UL)                    /*!< NVIC Base Address */
-    #define SCB_BASE            (SCS_BASE +  0x0D00UL)                    /*!< System Control Block Base Address */
+#define SCB_AIRCR_SYSRESETREQ_Pos           2U                                      /*!< SCB AIRCR: SYSRESETREQ Position */
+#define SCB_AIRCR_SYSRESETREQ_Msk          (1UL << SCB_AIRCR_SYSRESETREQ_Pos)       /*!< SCB AIRCR: SYSRESETREQ Mask */
 
-    #define SCB                 ((SCB_Type       *)     SCB_BASE      )   /*!< SCB configuration struct */
-    #define SysTick             ((SysTick_Type   *)     SysTick_BASE  )   /*!< SysTick configuration struct */
-    #define NVIC                ((NVIC_Type      *)     NVIC_BASE     )   /*!< NVIC configuration struct */
+#define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base Address */
+#define SysTick_BASE        (SCS_BASE +  0x0010UL)                    /*!< SysTick Base Address */
+#define NVIC_BASE           (SCS_BASE +  0x0100UL)                    /*!< NVIC Base Address */
+#define SCB_BASE            (SCS_BASE +  0x0D00UL)                    /*!< System Control Block Base Address */
 
-                                  
+#define SCB                 ((SCB_Type       *)     SCB_BASE      )   /*!< SCB configuration struct */
+#define SysTick             ((SysTick_Type   *)     SysTick_BASE  )   /*!< SysTick configuration struct */
+#define NVIC                ((NVIC_Type      *)     NVIC_BASE     )   /*!< NVIC configuration struct */
+
+
       SCB->AIRCR  = ((0x5FAUL << SCB_AIRCR_VECTKEY_Pos) | SCB_AIRCR_SYSRESETREQ_Msk);
 
-      while(true);
+      while (true);
     }
 
     //////////////////////////////////////////////
-    
+
     void resetFunc()
     {
       delay(1000);
@@ -470,9 +478,9 @@ class Ethernet_Manager
     }
 
     //////////////////////////////////////
-    
+
     // Add customs headers from v1.1.0
-    
+
     // New from v1.1.0, for configure CORS Header, default to WM_HTTP_CORS_ALLOW_ALL = "*"
 
 #if USING_CUSTOMS_STYLE
@@ -481,12 +489,12 @@ class Ethernet_Manager
     // input{width:95%;}body{text-align: center;}
     // button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}
     // fieldset{border-radius:0.3rem;margin:0px;}</style>";
-    void setCustomsStyle(const char* CustomsStyle = ETM_HTML_HEAD_STYLE) 
+    void setCustomsStyle(const char* CustomsStyle = ETM_HTML_HEAD_STYLE)
     {
       ETM_HTML_HEAD_CUSTOMS_STYLE = CustomsStyle;
       ETM_LOGDEBUG1(F("Set CustomsStyle to : "), ETM_HTML_HEAD_CUSTOMS_STYLE);
     }
-    
+
     const char* getCustomsStyle()
     {
       ETM_LOGDEBUG1(F("Get CustomsStyle = "), ETM_HTML_HEAD_CUSTOMS_STYLE);
@@ -494,124 +502,124 @@ class Ethernet_Manager
     }
 #endif
 
-#if USING_CUSTOMS_HEAD_ELEMENT    
+#if USING_CUSTOMS_HEAD_ELEMENT
     //sets a custom element to add to head, like a new style tag
-    void setCustomsHeadElement(const char* CustomsHeadElement = nullptr) 
+    void setCustomsHeadElement(const char* CustomsHeadElement = nullptr)
     {
       _CustomsHeadElement = CustomsHeadElement;
       ETM_LOGDEBUG1(F("Set CustomsHeadElement to : "), _CustomsHeadElement);
     }
-    
+
     const char* getCustomsHeadElement()
     {
       ETM_LOGDEBUG1(F("Get CustomsHeadElement = "), _CustomsHeadElement);
       return _CustomsHeadElement;
     }
 #endif
-    
-#if USING_CORS_FEATURE   
+
+#if USING_CORS_FEATURE
     void setCORSHeader(const char* CORSHeaders = nullptr)
-    {     
+    {
       _CORS_Header = CORSHeaders;
 
       ETM_LOGDEBUG1(F("Set CORS Header to : "), _CORS_Header);
     }
-    
+
     const char* getCORSHeader()
-    {      
+    {
       ETM_LOGDEBUG1(F("Get CORS Header = "), _CORS_Header);
       return _CORS_Header;
     }
 #endif
-          
+
     //////////////////////////////////////////////
 
-		uint8_t* getMacAddress()
-		{
+    uint8_t* getMacAddress()
+    {
       return macAddress;
-		}
-    
-    //////////////////////////////////////////////
-		
-		uint8_t* setMacAddress(const uint8_t* mac)
-		{
-		  if ( isMacAddressValid(mac) )
-		    memcpy(macAddress, mac, sizeof(macAddress));
-		    
-		  printMacAddress();  
-		    
-      return macAddress;
-		}
-    
+    }
+
     //////////////////////////////////////////////
 
-		void printMacAddress()
-		{
-			char theLocalBuffer[24];
-					
-			snprintf(theLocalBuffer, sizeof(theLocalBuffer), "MAC:%02X-%02X-%02X-%02X-%02X-%02X",
-				       macAddress[0], macAddress[1],
-				       macAddress[2], macAddress[3],
-				       macAddress[4], macAddress[5]);
-			
-			ETM_LOGWARN(theLocalBuffer);
-		}
-    
+    uint8_t* setMacAddress(const uint8_t* mac)
+    {
+      if ( isMacAddressValid(mac) )
+        memcpy(macAddress, mac, sizeof(macAddress));
+
+      printMacAddress();
+
+      return macAddress;
+    }
+
     //////////////////////////////////////////////
-		
-		bool isMacAddressValid(const uint8_t* mac)
-		{
-		  return ( (mac != nullptr) && ( (mac[0] != 0) || (mac[1] != 0) || (mac[2] != 0) || (mac[3] != 0) ) );
-		}
-          
+
+    void printMacAddress()
+    {
+      char theLocalBuffer[24];
+
+      snprintf(theLocalBuffer, sizeof(theLocalBuffer), "MAC:%02X-%02X-%02X-%02X-%02X-%02X",
+               macAddress[0], macAddress[1],
+               macAddress[2], macAddress[3],
+               macAddress[4], macAddress[5]);
+
+      ETM_LOGWARN(theLocalBuffer);
+    }
+
+    //////////////////////////////////////////////
+
+    bool isMacAddressValid(const uint8_t* mac)
+    {
+      return ( (mac != nullptr) && ( (mac[0] != 0) || (mac[1] != 0) || (mac[2] != 0) || (mac[3] != 0) ) );
+    }
+
     //////////////////////////////////////
 
 
   private:
-   
+
     // Initialize the Ethernet server library
     // with the IP address and port you want to use
     // (port 80 is default for HTTP):
     EthernetWebServer *server;
 
     bool ethernetConnected = false;
-    
+
     int  retryTimes         = 0;
 
     bool configuration_mode = false;
 
     unsigned long configTimeout;
     bool hadConfigData = false;
-    
+
     bool isForcedConfigPortal   = false;
     bool persForcedConfigPortal = false;
 
     Ethernet_Configuration Ethernet_Manager_config;
-    
+
     uint16_t totalDataSize = 0;
-    
+
     uint8_t currentBlynkServerIndex = 255;
-    
+
     uint8_t macAddress[6] = { 0, 0, 0, 0, 0, 0 };
 
-/////////////////////////////////////
-    
+    /////////////////////////////////////
+
     // Add customs headers from v1.1.0
-    
+
 #if USING_CUSTOMS_STYLE
     const char* ETM_HTML_HEAD_CUSTOMS_STYLE = nullptr;
 #endif
-    
+
 #if USING_CUSTOMS_HEAD_ELEMENT
     const char* _CustomsHeadElement = nullptr;
 #endif
-    
-#if USING_CORS_FEATURE    
+
+#if USING_CORS_FEATURE
     const char* _CORS_Header        = WM_HTTP_CORS_ALLOW_ALL;   //"*";
 #endif
-       
+
     //////////////////////////////////////
-    
+
 #define RFC952_HOSTNAME_MAXLEN      24
 
     char RFC952_hostname[RFC952_HOSTNAME_MAXLEN + 1];
@@ -652,7 +660,7 @@ class Ethernet_Manager
           j++;
         }
       }
-      
+
       // no '-' as last char
       if ( isalnum(iHostname[len - 1]) || (iHostname[len - 1] != '-') )
         RFC952_hostname[j] = iHostname[len - 1];
@@ -665,26 +673,29 @@ class Ethernet_Manager
     void displayConfigData(Ethernet_Configuration configData)
     {
       ETM_LOGWARN3(F("Header="),       configData.header,
-                 F(", BoardName="),    configData.board_name);
+                   F(", BoardName="),    configData.board_name);
       ETM_LOGWARN1(F("StaticIP="),      configData.static_IP);
 
-#if USE_DYNAMIC_PARAMETERS                 
+#if USE_DYNAMIC_PARAMETERS
+
       for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         ETM_LOGINFO3("i=", i, ",id=", myMenuItems[i].id);
         ETM_LOGINFO1("data=", myMenuItems[i].pdata);
-      }   
-#endif         
+      }
+
+#endif
     }
-    
+
     //////////////////////////////////////
 
 #define ETHERNET_BOARD_TYPE   "RP2040"
 #define WM_NO_CONFIG          "blank"
-    
+
     int calcChecksum()
     {
       int checkSum = 0;
+
       for (uint16_t index = 0; index < (sizeof(Ethernet_Manager_config) - sizeof(Ethernet_Manager_config.checkSum)); index++)
       {
         checkSum += * ( ( (uint8_t*) &Ethernet_Manager_config ) + index);
@@ -701,27 +712,27 @@ class Ethernet_Manager
 
 #define  CONFIG_PORTAL_FILENAME           ("/fs/etm_cp.dat")
 #define  CONFIG_PORTAL_FILENAME_BACKUP    ("/fs/etm_cp.bak")
-    
+
     //////////////////////////////////////////////
-    
+
     void saveForcedCP(uint32_t value)
     {
       //File file = FileFS.open(CONFIG_PORTAL_FILENAME, "w");
       // Mbed RP2040 code
       FILE *file = fopen(CONFIG_PORTAL_FILENAME, "w");
-      
+
       ETM_LOGERROR(F("SaveCPFile "));
 
       if (file)
       {
         //file.seek(0);
-        //file.write((uint8_t*) &value, sizeof(value));            
+        //file.write((uint8_t*) &value, sizeof(value));
         //file.close();
-        
+
         fseek(file, 0, SEEK_SET);
-        fwrite((uint8_t *) &value, 1, sizeof(value), file);        
+        fwrite((uint8_t *) &value, 1, sizeof(value), file);
         fclose(file);
-        
+
         ETM_LOGERROR(F("OK"));
       }
       else
@@ -732,19 +743,19 @@ class Ethernet_Manager
       // Trying open redundant CP file
       //file = FileFS.open(CONFIG_PORTAL_FILENAME_BACKUP, "w");
       file = fopen(CONFIG_PORTAL_FILENAME_BACKUP, "w");
-      
+
       ETM_LOGERROR(F("SaveBkUpCPFile "));
 
       if (file)
       {
         //file.seek(0);
-        //file.write((uint8_t*) &value, sizeof(value));       
+        //file.write((uint8_t*) &value, sizeof(value));
         //file.close();
-        
+
         fseek(file, 0, SEEK_SET);
-        fwrite((uint8_t *) &value, 1, sizeof(value), file);        
+        fwrite((uint8_t *) &value, 1, sizeof(value), file);
         fclose(file);
-        
+
         ETM_LOGERROR(F("OK"));
       }
       else
@@ -752,37 +763,38 @@ class Ethernet_Manager
         ETM_LOGERROR(F("failed"));
       }
     }
-    
+
     //////////////////////////////////////////////
-    
+
     void setForcedCP(bool isPersistent)
     {
-      uint32_t readForcedConfigPortalFlag = isPersistent? FORCED_PERS_CONFIG_PORTAL_FLAG_DATA : FORCED_CONFIG_PORTAL_FLAG_DATA;
-  
+      uint32_t readForcedConfigPortalFlag = isPersistent ? FORCED_PERS_CONFIG_PORTAL_FLAG_DATA :
+                                            FORCED_CONFIG_PORTAL_FLAG_DATA;
+
       ETM_LOGERROR(isPersistent ? F("setForcedCP Persistent") : F("setForcedCP non-Persistent"));
-      
+
       saveForcedCP(readForcedConfigPortalFlag);
     }
-    
+
     //////////////////////////////////////////////
-    
+
     void clearForcedCP()
     {
       uint32_t readForcedConfigPortalFlag = 0;
-   
+
       ETM_LOGERROR(F("clearForcedCP"));
-      
+
       saveForcedCP(readForcedConfigPortalFlag);
     }
-    
+
     //////////////////////////////////////////////
 
     bool isForcedCP()
     {
       uint32_t readForcedConfigPortalFlag;
-    
+
       ETM_LOGDEBUG(F("Check if isForcedCP"));
-      
+
       //File file = FileFS.open(CONFIG_PORTAL_FILENAME, "r");
       FILE *file = fopen(CONFIG_PORTAL_FILENAME, "r");
       ETM_LOGDEBUG(F("LoadCPFile "));
@@ -802,49 +814,49 @@ class Ethernet_Manager
           return false;
         }
       }
-      
+
       //file.seek(0);
-      //file.read((uint8_t *) &readForcedConfigPortalFlag, sizeof(readForcedConfigPortalFlag));     
+      //file.read((uint8_t *) &readForcedConfigPortalFlag, sizeof(readForcedConfigPortalFlag));
       //file.close();
-      
+
       fseek(file, 0, SEEK_SET);
-      fread((uint8_t *) &readForcedConfigPortalFlag, 1, sizeof(readForcedConfigPortalFlag), file);        
+      fread((uint8_t *) &readForcedConfigPortalFlag, 1, sizeof(readForcedConfigPortalFlag), file);
       fclose(file);
-      
+
       ETM_LOGDEBUG(F("OK"));
-      
-      
+
+
       // Return true if forced CP (0xDEADBEEF read at offset EPROM_START + DRD_FLAG_DATA_SIZE + CONFIG_DATA_SIZE)
-      // => set flag noForcedConfigPortal = false     
+      // => set flag noForcedConfigPortal = false
       if (readForcedConfigPortalFlag == FORCED_CONFIG_PORTAL_FLAG_DATA)
-      {       
+      {
         persForcedConfigPortal = false;
         return true;
       }
       else if (readForcedConfigPortalFlag == FORCED_PERS_CONFIG_PORTAL_FLAG_DATA)
-      {       
+      {
         persForcedConfigPortal = true;
         return true;
       }
       else
-      {       
+      {
         return false;
       }
     }
-    
+
     //////////////////////////////////////////////
 
 #if USE_DYNAMIC_PARAMETERS
-        
+
     bool checkDynamicData()
     {
       int checkSum = 0;
       int readCheckSum;
       char* readBuffer = nullptr;
-           
+
       //File file = FileFS.open(CREDENTIALS_FILENAME, "r");
       FILE *file = fopen(CREDENTIALS_FILENAME, "r");
-      
+
       ETM_LOGDEBUG(F("LoadCredFile "));
 
       if (!file)
@@ -854,7 +866,7 @@ class Ethernet_Manager
         // Trying open redundant config file
         //file = FileFS.open(CREDENTIALS_FILENAME_BACKUP, "r");
         file = fopen(CREDENTIALS_FILENAME_BACKUP, "r");
-        
+
         ETM_LOGDEBUG(F("LoadBkUpCredFile "));
 
         if (!file)
@@ -863,86 +875,86 @@ class Ethernet_Manager
           return false;
         }
       }
-      
+
       // Find the longest pdata, then dynamically allocate buffer. Remember to free when done
       // This is used to store tempo data to calculate checksum to see of data is valid
       // We dont like to destroy myMenuItems[i].pdata with invalid data
-      
+
       uint16_t maxBufferLength = 0;
-      
+
       for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
-      {       
+      {
         if (myMenuItems[i].maxlen > maxBufferLength)
           maxBufferLength = myMenuItems[i].maxlen;
       }
-      
+
       if (maxBufferLength > 0)
       {
         readBuffer = new char[ maxBufferLength + 1 ];
-        
+
         // check to see NULL => stop and return false
         if (readBuffer == nullptr)
         {
           ETM_LOGERROR(F("ChkCrR: Error can't allocate buffer."));
           return false;
-        }     
+        }
         else
         {
           ETM_LOGDEBUG1(F("ChkCrR: Buffer allocated, Sz="), maxBufferLength + 1);
-        }  
-          
+        }
+
         uint16_t offset = 0;
-        
+
         for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
-        {       
+        {
           uint8_t * _pointer = (uint8_t *) readBuffer;
 
           // Actual size of pdata is [maxlen + 1]
           memset(readBuffer, 0, myMenuItems[i].maxlen + 1);
-          
+
           // Redundant, but to be sure correct position
           //file.seek(offset);
           //file.read(_pointer, myMenuItems[i].maxlen);
-          
+
           fseek(file, offset, SEEK_SET);
-          fread(_pointer, 1, myMenuItems[i].maxlen, file);  
-           
+          fread(_pointer, 1, myMenuItems[i].maxlen, file);
+
           offset += myMenuItems[i].maxlen;
-       
-          ETM_LOGDEBUG3(F("ChkCrR:pdata="), readBuffer, F(",len="), myMenuItems[i].maxlen);         
-                 
-          for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
-          {         
-            checkSum += *_pointer;  
-          }       
+
+          ETM_LOGDEBUG3(F("ChkCrR:pdata="), readBuffer, F(",len="), myMenuItems[i].maxlen);
+
+          for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++, _pointer++)
+          {
+            checkSum += *_pointer;
+          }
         }
 
         //file.read((uint8_t *) &readCheckSum, sizeof(readCheckSum));
         fread((uint8_t *) &readCheckSum, 1, sizeof(readCheckSum), file);
-        
+
         ETM_LOGDEBUG(F("OK"));
-        
+
         //file.close();
         fclose(file);
-        
+
         ETM_LOGERROR3(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
-        
+
         if (readBuffer != nullptr)
         {
           // Free buffer
           delete [] readBuffer;
           ETM_LOGDEBUG(F("Buffer freed"));
         }
-        
+
         if ( checkSum == readCheckSum)
         {
           return true;
         }
       }
-      
+
       return false;
     }
-    
+
     //////////////////////////////////////////////
 
     bool loadDynamicData()
@@ -950,10 +962,10 @@ class Ethernet_Manager
       int checkSum = 0;
       int readCheckSum;
       totalDataSize = sizeof(Ethernet_Manager_config) + sizeof(readCheckSum);
-      
+
       //File file = FileFS.open(CREDENTIALS_FILENAME, "r");
       FILE *file = fopen(CREDENTIALS_FILENAME, "r");
-      
+
       ETM_LOGDEBUG(F("LoadCredFile "));
 
       if (!file)
@@ -963,7 +975,7 @@ class Ethernet_Manager
         // Trying open redundant config file
         //file = FileFS.open(CREDENTIALS_FILENAME_BACKUP, "r");
         file = fopen(CREDENTIALS_FILENAME_BACKUP, "r");
-        
+
         ETM_LOGDEBUG(F("LoadBkUpCredFile "));
 
         if (!file)
@@ -972,187 +984,187 @@ class Ethernet_Manager
           return false;
         }
       }
-     
+
       uint16_t offset = 0;
-      
+
       for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
-      {       
+      {
         uint8_t * _pointer = (uint8_t *) myMenuItems[i].pdata;
         totalDataSize += myMenuItems[i].maxlen;
 
         // Actual size of pdata is [maxlen + 1]
         memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
-        
+
         // Redundant, but to be sure correct position
         //file.seek(offset);
         //file.read(_pointer, myMenuItems[i].maxlen);
-        
+
         fseek(file, offset, SEEK_SET);
         fread(_pointer, 1, myMenuItems[i].maxlen, file);
-        
-        offset += myMenuItems[i].maxlen;        
-    
-        ETM_LOGDEBUG3(F("CrR:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);         
-               
-        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
-        {         
-          checkSum += *_pointer;  
-        }       
+
+        offset += myMenuItems[i].maxlen;
+
+        ETM_LOGDEBUG3(F("CrR:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
+
+        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++, _pointer++)
+        {
+          checkSum += *_pointer;
+        }
       }
 
       //file.read((uint8_t *) &readCheckSum, sizeof(readCheckSum));
       fread((uint8_t *) &readCheckSum, 1, sizeof(readCheckSum), file);
-      
+
       ETM_LOGDEBUG(F("OK"));
-      
+
       //file.close();
       fclose(file);
-      
+
       ETM_LOGERROR3(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
-      
+
       if ( checkSum != readCheckSum)
       {
         return false;
       }
-      
-      return true;    
+
+      return true;
     }
-    
+
     //////////////////////////////////////////////
 
     void saveDynamicData()
     {
       int checkSum = 0;
-    
+
       //File file = FileFS.open(CREDENTIALS_FILENAME, "w");
       FILE *file = fopen(CREDENTIALS_FILENAME, "w");
-      
+
       ETM_LOGDEBUG(F("SaveCredFile "));
 
       uint16_t offset = 0;
-      
+
       for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
-      {       
+      {
         uint8_t* _pointer = (uint8_t *) myMenuItems[i].pdata;
-       
+
         ETM_LOGDEBUG3(F("CW1:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
-        
+
         if (file)
         {
           // Redundant, but to be sure correct position
-          //file.seek(offset);                   
-          //file.write((uint8_t*) _pointer, myMenuItems[i].maxlen); 
-          
+          //file.seek(offset);
+          //file.write((uint8_t*) _pointer, myMenuItems[i].maxlen);
+
           fseek(file, offset, SEEK_SET);
           fwrite(_pointer, 1, myMenuItems[i].maxlen, file);
-          
-          offset += myMenuItems[i].maxlen;      
+
+          offset += myMenuItems[i].maxlen;
         }
         else
         {
           ETM_LOGDEBUG(F("failed"));
-        }        
-                     
-        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
-        {         
-          checkSum += *_pointer;     
-         }
+        }
+
+        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++, _pointer++)
+        {
+          checkSum += *_pointer;
+        }
       }
-      
+
       if (file)
       {
-        //file.write((uint8_t*) &checkSum, sizeof(checkSum)); 
+        //file.write((uint8_t*) &checkSum, sizeof(checkSum));
         //file.close();
-        
-        fwrite((uint8_t *) &checkSum, 1, sizeof(checkSum), file);        
+
+        fwrite((uint8_t *) &checkSum, 1, sizeof(checkSum), file);
         fclose(file);
-        
-        ETM_LOGDEBUG(F("OK"));    
+
+        ETM_LOGDEBUG(F("OK"));
       }
       else
       {
         ETM_LOGDEBUG(F("failed"));
-      }   
-           
+      }
+
       ETM_LOGERROR1(F("CrWCSum=0x"), String(checkSum, HEX));
-      
+
       // Trying open redundant Auth file
       //file = FileFS.open(CREDENTIALS_FILENAME_BACKUP, "w");
       file = fopen(CREDENTIALS_FILENAME_BACKUP, "w");
-      
+
       ETM_LOGDEBUG(F("SaveBkUpCredFile "));
 
       offset = 0;
-      
+
       for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
-      {       
+      {
         uint8_t* _pointer = (uint8_t *) myMenuItems[i].pdata;
-     
+
         ETM_LOGDEBUG3(F("CW2:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
-        
+
         if (file)
         {
-          //file.seek(offset);                   
+          //file.seek(offset);
           //file.write((uint8_t*) _pointer, myMenuItems[i].maxlen);
-          
+
           fseek(file, offset, SEEK_SET);
-          fwrite(_pointer, 1, myMenuItems[i].maxlen, file); 
-          
+          fwrite(_pointer, 1, myMenuItems[i].maxlen, file);
+
           // Redundant, but to be sure correct position
-          offset += myMenuItems[i].maxlen; 
+          offset += myMenuItems[i].maxlen;
         }
         else
         {
           ETM_LOGDEBUG(F("failed"));
-        }        
-                     
-        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
-        {         
-          checkSum += *_pointer;     
-         }
+        }
+
+        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++, _pointer++)
+        {
+          checkSum += *_pointer;
+        }
       }
-      
+
       if (file)
       {
-        //file.write((uint8_t*) &checkSum, sizeof(checkSum));     
+        //file.write((uint8_t*) &checkSum, sizeof(checkSum));
         //file.close();
-        
-        fwrite((uint8_t *) &checkSum, 1, sizeof(checkSum), file);        
+
+        fwrite((uint8_t *) &checkSum, 1, sizeof(checkSum), file);
         fclose(file);
-        
-        ETM_LOGDEBUG(F("OK"));    
+
+        ETM_LOGDEBUG(F("OK"));
       }
       else
       {
         ETM_LOGDEBUG(F("failed"));
-      }   
+      }
     }
 #endif
 
     //////////////////////////////////////////////
-    
+
     void NULLTerminateConfig()
     {
       //#define HEADER_MAX_LEN      16
       //#define STATIC_IP_MAX_LEN   16
       //#define BOARD_NAME_MAX_LEN  24
-      
+
       // NULL Terminating to be sure
       Ethernet_Manager_config.header    [HEADER_MAX_LEN - 1]      = 0;
       Ethernet_Manager_config.static_IP [STATIC_IP_MAX_LEN - 1]   = 0;
       Ethernet_Manager_config.board_name[BOARD_NAME_MAX_LEN - 1]  = 0;
     }
 
-    //////////////////////////////////////////////    
+    //////////////////////////////////////////////
 
     bool loadConfigData()
     {
       ETM_LOGDEBUG(F("LoadCfgFile "));
-      
+
       // file existed
       //File file = FileFS.open(CONFIG_FILENAME, "r");
       FILE *file = fopen(CONFIG_FILENAME, "r");
-        
+
       if (!file)
       {
         ETM_LOGDEBUG(F("failed"));
@@ -1160,7 +1172,7 @@ class Ethernet_Manager
         // Trying open redundant config file
         //file = FileFS.open(CONFIG_FILENAME_BACKUP, "r");
         file = fopen(CONFIG_FILENAME_BACKUP, "r");
-        
+
         ETM_LOGDEBUG(F("LoadBkUpCfgFile "));
 
         if (!file)
@@ -1169,22 +1181,22 @@ class Ethernet_Manager
           return false;
         }
       }
-     
+
       //file.seek(0);
       //file.read((uint8_t *) &Ethernet_Manager_config, sizeof(Ethernet_Manager_config));
       //file.close();
-      
+
       fseek(file, 0, SEEK_SET);
       fread((uint8_t *) &Ethernet_Manager_config, 1, sizeof(Ethernet_Manager_config), file);
       fclose(file);
-      
+
       ETM_LOGDEBUG(F("OK"));
-      
+
       NULLTerminateConfig();
-      
+
       return true;
     }
-    
+
     //////////////////////////////////////////////
 
     void saveConfigData()
@@ -1194,30 +1206,30 @@ class Ethernet_Manager
       int calChecksum = calcChecksum();
       Ethernet_Manager_config.checkSum = calChecksum;
       ETM_LOGERROR1(F("WCSum=0x"), String(calChecksum, HEX));
-      
+
       //File file = FileFS.open(CONFIG_FILENAME, "w");
       FILE *file = fopen(CONFIG_FILENAME, "w");
 
       if (file)
       {
         //file.seek(0);
-        //file.write((uint8_t*) &Ethernet_Manager_config, sizeof(Ethernet_Manager_config));        
+        //file.write((uint8_t*) &Ethernet_Manager_config, sizeof(Ethernet_Manager_config));
         //file.close();
-        
+
         fseek(file, 0, SEEK_SET);
         //fwrite((uint8_t *) &Ethernet_Manager_config, 1, sizeof(Ethernet_Manager_config), file);
         fwrite((uint8_t *) &Ethernet_Manager_config, sizeof(Ethernet_Manager_config), 1, file);
         fclose(file);
-        
+
         ETM_LOGDEBUG(F("OK"));
       }
       else
       {
         ETM_LOGDEBUG(F("failed"));
       }
-      
+
       ETM_LOGDEBUG(F("SaveBkUpCfgFile "));
-      
+
       // Trying open redundant Auth file
       //file = FileFS.open(CONFIG_FILENAME_BACKUP, "w");
       file = fopen(CONFIG_FILENAME_BACKUP, "w");
@@ -1225,96 +1237,96 @@ class Ethernet_Manager
       if (file)
       {
         //file.seek(0);
-        //file.write((uint8_t *) &Ethernet_Manager_config, sizeof(Ethernet_Manager_config));        
+        //file.write((uint8_t *) &Ethernet_Manager_config, sizeof(Ethernet_Manager_config));
         //file.close();
-        
+
         fseek(file, 0, SEEK_SET);
         //fwrite((uint8_t *) &Ethernet_Manager_config, 1, sizeof(Ethernet_Manager_config), file);
         fwrite((uint8_t *) &Ethernet_Manager_config, sizeof(Ethernet_Manager_config), 1, file);
         fclose(file);
-        
+
         ETM_LOGDEBUG(F("OK"));
       }
       else
       {
         ETM_LOGDEBUG(F("failed"));
       }
-      
-#if USE_DYNAMIC_PARAMETERS      
+
+#if USE_DYNAMIC_PARAMETERS
       saveDynamicData();
-#endif 
+#endif
 
       delay(5000);
     }
-    
+
     //////////////////////////////////////////////
-    
+
     void loadAndSaveDefaultConfigData()
     {
       // Load Default Config Data from Sketch
       memcpy(&Ethernet_Manager_config, &defaultConfig, sizeof(Ethernet_Manager_config));
       strcpy(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE);
-      
+
       // Including config and dynamic data, and assume valid
       saveConfigData();
-          
+
       ETM_LOGERROR(F("======= Start Loaded Config Data ======="));
-      displayConfigData(Ethernet_Manager_config);    
+      displayConfigData(Ethernet_Manager_config);
     }
-    
+
     //////////////////////////////////////////////
-    
+
     // Return false if init new EEPROM or SPIFFS. No more need trying to connect. Go directly to config mode
     bool getConfigData()
     {
-      bool dynamicDataValid = true; 
-      int calChecksum; 
-      
+      bool dynamicDataValid = true;
+      int calChecksum;
+
       hadConfigData = false;
 
       // Use new LOAD_DEFAULT_CONFIG_DATA logic
       if (LOAD_DEFAULT_CONFIG_DATA)
-      {     
+      {
         // Load Config Data from Sketch
         loadAndSaveDefaultConfigData();
-        
+
         // Don't need Config Portal anymore
-        return true; 
+        return true;
       }
       else
-      {   
+      {
         // Load stored config data from LittleFS
         if (!loadConfigData())
         {
           return false;
         }
-        
-        // Verify ChkSum        
+
+        // Verify ChkSum
         calChecksum = calcChecksum();
 
         ETM_LOGERROR3(F("CCSum=0x"), String(calChecksum, HEX),
-                   F(",RCSum=0x"), String(Ethernet_Manager_config.checkSum, HEX));
-        
-#if USE_DYNAMIC_PARAMETERS        
+                      F(",RCSum=0x"), String(Ethernet_Manager_config.checkSum, HEX));
+
+#if USE_DYNAMIC_PARAMETERS
         // Load stored dynamic data from LittleFS
         dynamicDataValid = checkDynamicData();
 #endif
-        
+
         // If checksum = 0 => LittleFS has been cleared (by uploading new FW, etc) => force to CP
         // If bad checksum = 0 => force to CP
         if ( (calChecksum != 0) && (calChecksum == Ethernet_Manager_config.checkSum) )
-        {       
+        {
           if (dynamicDataValid)
           {
-  #if USE_DYNAMIC_PARAMETERS        
+#if USE_DYNAMIC_PARAMETERS
             loadDynamicData();
-            
+
             ETM_LOGERROR(F("Valid Stored Dynamic Data"));
-  #endif 
-         
+#endif
+
             ETM_LOGERROR(F("======= Start Stored Config Data ======="));
             displayConfigData(Ethernet_Manager_config);
-            
+
             // Don't need Config Portal anymore
             return true;
           }
@@ -1322,25 +1334,25 @@ class Ethernet_Manager
           {
             // Invalid Stored config data => Config Portal
             ETM_LOGERROR(F("Invalid Stored Dynamic Data. Load default from Sketch"));
-            
+
             // Load Default Config Data from Sketch, better than just "blank"
             loadAndSaveDefaultConfigData();
-                             
+
             // Need Config Portal here as data can be just dummy
-            // Even if you don't open CP, you're OK on next boot if your default config data is valid 
+            // Even if you don't open CP, you're OK on next boot if your default config data is valid
             return false;
           }
-        }   
-      }   
+        }
+      }
 
       if ( (strncmp(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE, strlen(ETHERNET_BOARD_TYPE)) != 0) ||
-           (calChecksum != Ethernet_Manager_config.checkSum) || !dynamicDataValid || 
-           ( (calChecksum == 0) && (Ethernet_Manager_config.checkSum == 0) ) )   
+           (calChecksum != Ethernet_Manager_config.checkSum) || !dynamicDataValid ||
+           ( (calChecksum == 0) && (Ethernet_Manager_config.checkSum == 0) ) )
       {
         // Including Credentials CSum
         ETM_LOGERROR1(F("InitCfgFile,sz="), sizeof(Ethernet_Manager_config));
 
-        // doesn't have any configuration        
+        // doesn't have any configuration
         if (LOAD_DEFAULT_CONFIG_DATA)
         {
           memcpy(&Ethernet_Manager_config, &defaultConfig, sizeof(Ethernet_Manager_config));
@@ -1350,39 +1362,45 @@ class Ethernet_Manager
           memset(&Ethernet_Manager_config, 0, sizeof(Ethernet_Manager_config));
 
 #if USE_DYNAMIC_PARAMETERS
+
           for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             // Actual size of pdata is [maxlen + 1]
             memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
           }
+
 #endif
-              
+
           //strcpy(Ethernet_Manager_config.static_IP,   WM_NO_CONFIG);
           strcpy(Ethernet_Manager_config.board_name,  ETHERNET_BOARD_TYPE);
-          
+
 #if USE_DYNAMIC_PARAMETERS
+
           for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             strncpy(myMenuItems[i].pdata, WM_NO_CONFIG, myMenuItems[i].maxlen);
           }
-#endif          
+
+#endif
         }
-    
+
         strcpy(Ethernet_Manager_config.header, ETHERNET_BOARD_TYPE);
-        
+
 #if USE_DYNAMIC_PARAMETERS
+
         for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
         {
           ETM_LOGDEBUG3(F("g:myMenuItems["), i, F("]="), myMenuItems[i].pdata );
         }
+
 #endif
-        
+
         // Don't need
         Ethernet_Manager_config.checkSum = 0;
 
         saveConfigData();
-        
-        return false;        
+
+        return false;
       }
       else
       {
@@ -1391,34 +1409,39 @@ class Ethernet_Manager
 
       return true;
     }
-    
+
     //////////////////////////////////////////////
 
     // NEW
     void createHTML(String& root_html_template)
     {
       String pitem;
-      
+
       root_html_template  = ETM_HTML_HEAD_START;
-      
-  #if USING_CUSTOMS_STYLE
+
+#if USING_CUSTOMS_STYLE
+
       // Using Customs style when not NULL
       if (ETM_HTML_HEAD_CUSTOMS_STYLE)
         root_html_template  += ETM_HTML_HEAD_CUSTOMS_STYLE;
       else
         root_html_template  += ETM_HTML_HEAD_STYLE;
-  #else     
+
+#else
       root_html_template  += ETM_HTML_HEAD_STYLE;
-  #endif
-      
-  #if USING_CUSTOMS_HEAD_ELEMENT
+#endif
+
+#if USING_CUSTOMS_HEAD_ELEMENT
+
       if (_CustomsHeadElement)
         root_html_template += _CustomsHeadElement;
-  #endif          
-      
+
+#endif
+
       root_html_template += String(ETM_HTML_HEAD_END) + ETM_FLDSET_START;
 
-#if USE_DYNAMIC_PARAMETERS      
+#if USE_DYNAMIC_PARAMETERS
+
       for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         pitem = String(ETM_HTML_PARAM);
@@ -1426,51 +1449,54 @@ class Ethernet_Manager
         pitem.replace("{b}", myMenuItems[i].displayName);
         pitem.replace("{v}", myMenuItems[i].id);
         pitem.replace("{i}", myMenuItems[i].id);
-        
+
         root_html_template += pitem;
       }
-#endif
-      
-      root_html_template += String(ETM_FLDSET_END) + ETM_HTML_BUTTON + ETM_HTML_SCRIPT;     
 
-#if USE_DYNAMIC_PARAMETERS      
+#endif
+
+      root_html_template += String(ETM_FLDSET_END) + ETM_HTML_BUTTON + ETM_HTML_SCRIPT;
+
+#if USE_DYNAMIC_PARAMETERS
+
       for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         pitem = String(ETM_HTML_SCRIPT_ITEM);
-        
+
         pitem.replace("{d}", myMenuItems[i].id);
-        
+
         root_html_template += pitem;
       }
+
 #endif
-      
+
       root_html_template += String(ETM_HTML_SCRIPT_END) + ETM_HTML_END;
-      
-      return;     
+
+      return;
     }
-       
+
     //////////////////////////////////////////////
 
     void serverSendHeaders()
     {
       ETM_LOGDEBUG3(F("serverSendHeaders:WM_HTTP_CACHE_CONTROL:"), WM_HTTP_CACHE_CONTROL, "=", WM_HTTP_NO_STORE);
       server->sendHeader(WM_HTTP_CACHE_CONTROL, WM_HTTP_NO_STORE);
-      
+
 #if USING_CORS_FEATURE
       // New from v1.2.0, for configure CORS Header, default to WM_HTTP_CORS_ALLOW_ALL = "*"
       ETM_LOGDEBUG3(F("serverSendHeaders:WM_HTTP_CORS:"), WM_HTTP_CORS, " : ", _CORS_Header);
       server->sendHeader(WM_HTTP_CORS, _CORS_Header);
 #endif
-     
+
       ETM_LOGDEBUG3(F("serverSendHeaders:WM_HTTP_PRAGMA:"), WM_HTTP_PRAGMA, " : ", WM_HTTP_NO_CACHE);
       server->sendHeader(WM_HTTP_PRAGMA, WM_HTTP_NO_CACHE);
-      
+
       ETM_LOGDEBUG3(F("serverSendHeaders:WM_HTTP_EXPIRES:"), WM_HTTP_EXPIRES, " : ", "-1");
       server->sendHeader(WM_HTTP_EXPIRES, "-1");
     }
-       
+
     //////////////////////////////////////////////
-    
+
     void handleRequest()
     {
       if (server)
@@ -1482,10 +1508,10 @@ class Ethernet_Manager
 
         if (key == "" && value == "")
         {
-          // New from v1.2.0         
-          serverSendHeaders();        
+          // New from v1.2.0
+          serverSendHeaders();
           //////
-          
+
           String result;
           createHTML(result);
 
@@ -1493,7 +1519,7 @@ class Ethernet_Manager
 
           // Reset configTimeout to stay here until finished.
           configTimeout = 0;
-          
+
           if ( RFC952_hostname[0] != 0 )
           {
             // Replace only if Hostname is valid
@@ -1504,7 +1530,7 @@ class Ethernet_Manager
             // Or replace only if board_name is valid.  Otherwise, keep intact
             result.replace("Ethernet_ESP32_Manager", Ethernet_Manager_config.board_name);
           }
-          
+
           if (hadConfigData)
           {
             result.replace("[[ip]]", Ethernet_Manager_config.static_IP);
@@ -1517,23 +1543,25 @@ class Ethernet_Manager
           }
 
 #if USE_DYNAMIC_PARAMETERS
+
           for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             String toChange = String("[[") + myMenuItems[i].id + "]]";
             result.replace(toChange, myMenuItems[i].pdata);
-              
+
             ETM_LOGDEBUG3(F("h1:myMenuItems["), i, F("]="), myMenuItems[i].pdata );
           }
+
 #endif
 
           ETM_LOGDEBUG1(F("h:HTML page size:"), result.length());
           ETM_LOGDEBUG1(F("h:HTML="), result);
-          
+
           server->send(200, WM_HTTP_HEAD_TEXT_HTML, result);
-          
+
           return;
         }
-        
+
         if (number_items_Updated == 0)
         {
           memset(&Ethernet_Manager_config, 0, sizeof(Ethernet_Manager_config));
@@ -1541,38 +1569,40 @@ class Ethernet_Manager
         }
 
 #if USE_DYNAMIC_PARAMETERS
+
         if (!menuItemUpdated)
         {
           // Don't need to free
           menuItemUpdated = new bool[NUM_MENU_ITEMS];
-          
+
           if (menuItemUpdated)
           {
             for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
-            {           
+            {
               // To flag item is not yet updated
-              menuItemUpdated[i] = false;           
+              menuItemUpdated[i] = false;
             }
-            
-            ETM_LOGDEBUG(F("h: Init menuItemUpdated" ));                    
+
+            ETM_LOGDEBUG(F("h: Init menuItemUpdated" ));
           }
           else
           {
             ETM_LOGERROR(F("h: Error can't alloc memory for menuItemUpdated" ));
           }
-        }  
+        }
+
 #endif
 
         static bool ip_Updated  = false;
         static bool nm_Updated  = false;
-        
+
         if (!ip_Updated && (key == String("ip")))
-        {   
+        {
           ETM_LOGDEBUG(F("h:repl ip"));
           ip_Updated = true;
-          
+
           number_items_Updated++;
-          
+
           if (strlen(value.c_str()) < sizeof(Ethernet_Manager_config.static_IP) - 1)
             strcpy(Ethernet_Manager_config.static_IP, value.c_str());
           else
@@ -1582,26 +1612,26 @@ class Ethernet_Manager
         {
           ETM_LOGDEBUG(F("h:repl nm"));
           nm_Updated = true;
-          
+
           number_items_Updated++;
-          
+
           if (strlen(value.c_str()) < sizeof(Ethernet_Manager_config.board_name) - 1)
             strcpy(Ethernet_Manager_config.board_name, value.c_str());
           else
             strncpy(Ethernet_Manager_config.board_name, value.c_str(), sizeof(Ethernet_Manager_config.board_name) - 1);
         }
-        
-#if USE_DYNAMIC_PARAMETERS   
+
+#if USE_DYNAMIC_PARAMETERS
         else
-        {     
+        {
           for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             if ( !menuItemUpdated[i] && (key == myMenuItems[i].id) )
             {
               ETM_LOGDEBUG3(F("h:"), myMenuItems[i].id, F("="), value.c_str() );
-              
+
               menuItemUpdated[i] = true;
-              
+
               number_items_Updated++;
 
               // Actual size of pdata is [maxlen + 1]
@@ -1611,28 +1641,30 @@ class Ethernet_Manager
                 strcpy(myMenuItems[i].pdata, value.c_str());
               else
                 strncpy(myMenuItems[i].pdata, value.c_str(), myMenuItems[i].maxlen);
-                
-             break;   
+
+              break;
             }
           }
         }
+
 #endif
-        
+
         ETM_LOGDEBUG1(F("h:items updated ="), number_items_Updated);
         ETM_LOGDEBUG3(F("h:key ="), key, ", value =", value);
 
         server->send(200, WM_HTTP_HEAD_TEXT_HTML, "OK");
 
-#if USE_DYNAMIC_PARAMETERS        
+#if USE_DYNAMIC_PARAMETERS
+
         if (number_items_Updated == NUM_CONFIGURABLE_ITEMS + NUM_MENU_ITEMS)
 #else
         if (number_items_Updated == NUM_CONFIGURABLE_ITEMS)
-#endif 
+#endif
         {
-          ETM_LOGERROR1(F("h:Updating LittleFS:"), CONFIG_FILENAME);        
+          ETM_LOGERROR1(F("h:Updating LittleFS:"), CONFIG_FILENAME);
 
           saveConfigData();
-          
+
           // Done with CP, Clear CP Flag here if forced
           if (isForcedConfigPortal)
             clearForcedCP();
@@ -1649,8 +1681,8 @@ class Ethernet_Manager
     //////////////////////////////////////////////
 
 #ifndef CONFIG_TIMEOUT
-  #warning Default CONFIG_TIMEOUT = 60s
-  #define CONFIG_TIMEOUT			60000L
+#warning Default CONFIG_TIMEOUT = 60s
+#define CONFIG_TIMEOUT      60000L
 #endif
 
     void startConfigurationMode()
@@ -1667,7 +1699,10 @@ class Ethernet_Manager
 
       if (server)
       {
-        server->on("/", [this]() { handleRequest(); } );
+        server->on("/", [this]()
+        {
+          handleRequest();
+        } );
         server->begin();
       }
 
@@ -1676,14 +1711,14 @@ class Ethernet_Manager
       if (hadConfigData)
       {
         configTimeout = millis() + CONFIG_TIMEOUT;
-                       
+
         ETM_LOGDEBUG3(F("s:millis() = "), millis(), F(", configTimeout = "), configTimeout);
       }
       else
       {
-        configTimeout = 0;             
-        ETM_LOGDEBUG(F("s:configTimeout = 0"));   
-      }  
+        configTimeout = 0;
+        ETM_LOGDEBUG(F("s:configTimeout = 0"));
+      }
 
       configuration_mode = true;
     }
@@ -1694,42 +1729,42 @@ class Ethernet_Manager
     {
       // Check go see if static IP is required
       IPAddress staticIP;
-      
+
       if (staticIP.fromString(Ethernet_Manager_config.static_IP))
       {
         // Use static IP
         ETM_LOGWARN1(F("Start connectEthernet using Static IP ="), staticIP);
-        
+
         // If macAddress valid, use it
         if (isMacAddressValid(macAddress))
           Ethernet.begin(SelectMacAddress(macAddress), staticIP);
         else
           Ethernet.begin(SelectMacAddress(nullptr), staticIP);
-        
+
         ethernetConnected = true;
       }
       else
       {
         // If static_IP ="nothing" or nullptr, use DHCP dynamic IP
         ETM_LOGWARN(F("Start connectEthernet using DHCP"));
-        
+
         // If macAddress valid, use it
         if (isMacAddressValid(macAddress))
           ethernetConnected = ( Ethernet.begin(SelectMacAddress(macAddress)) == 1);
-        else  
+        else
           ethernetConnected = ( Ethernet.begin(SelectMacAddress(nullptr)) == 1);
       }
-    
+
       // give the Ethernet shield a second to initialize:
       //delay(1000);
-     
+
       if (ethernetConnected)
       {
         ETM_LOGWARN1(F("IP:"), Ethernet.localIP());
       }
       else
       {
-        ETM_LOGWARN(F("DHCPFailed"));     
+        ETM_LOGWARN(F("DHCPFailed"));
       }
 
       return ethernetConnected;
@@ -1740,23 +1775,23 @@ class Ethernet_Manager
     uint8_t* SelectMacAddress(const uint8_t* mac)
     {
       char localBuffer[24];
-      
+
       if (isMacAddressValid(mac))
       {
         return (uint8_t*)mac;
       }
 
-#if USE_ETHERNET_GENERIC  
+#if USE_ETHERNET_GENERIC
       Ethernet.MACAddress(macAddress);
 #endif
-      
+
       printMacAddress();
 
       if (isMacAddressValid(macAddress))
       {
-      	return macAddress;
+        return macAddress;
       }
-      
+
       // Initial mac to manipulate from
       macAddress[0] = 0xFE;
       macAddress[1] = 0xED;
@@ -1764,35 +1799,35 @@ class Ethernet_Manager
       macAddress[3] = 0xAD;
       macAddress[4] = 0xBE;
       macAddress[5] = 0xEF;
-      
-#define TOKEN_LEN				8
+
+#define TOKEN_LEN       8
 
       char token[TOKEN_LEN];
       uint32_t curTime = millis();
       snprintf(token, sizeof(token), "%ld", curTime * curTime);
-     
+
       int mac_index = 1;
-      
+
       ETM_LOGDEBUG3("token =", token, ", len =", TOKEN_LEN);
-      
+
       for (uint16_t i = 0; i < TOKEN_LEN; i++)
       {
         macAddress[mac_index] ^= token[i];
 
-        if (++mac_index > 5) 
+        if (++mac_index > 5)
         {
           mac_index = 1;
         }
       }
-           
+
       snprintf(localBuffer, sizeof(localBuffer), "MAC:%02X-%02X-%02X-%02X-%02X-%02X",
-                macAddress[0], macAddress[1],
-                macAddress[2], macAddress[3],
-                macAddress[4], macAddress[5]);
-                
+               macAddress[0], macAddress[1],
+               macAddress[2], macAddress[3],
+               macAddress[4], macAddress[5]);
+
       ETM_LOGWARN1(F("Calculated =>"), localBuffer);
 
-#if USE_ETHERNET_GENERIC      
+#if USE_ETHERNET_GENERIC
       // Set for later use
       Ethernet.setMACAddress(macAddress);
 #endif

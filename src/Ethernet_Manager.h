@@ -16,7 +16,7 @@
   1.0.0     K Hoang     14/12/2020 Initial coding.
   1.1.0     K Hoang     17/12/2020 Add support to ESP32/ESP8266. Add MQTT related examples to demo dynamic parameter usage
   1.1.1     K Hoang     28/12/2020 Suppress all possible compiler warnings
-  1.2.0     K Hoang     22/02/2021 Optimize code and use better FlashStorage_SAMD and FlashStorage_STM32. 
+  1.2.0     K Hoang     22/02/2021 Optimize code and use better FlashStorage_SAMD and FlashStorage_STM32.
                                    Add customs HTML header feature. Fix bug.
   1.3.0     K Hoang     16/05/2021 Add support to RP2040-based boards such as RASPBERRY_PI_PICO
   1.4.0     K Hoang     28/05/2021 Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core
@@ -56,7 +56,7 @@
   #endif
   #define USE_CUSTOM_ETHERNET   false
 #endif
-    
+
 #include "Ethernet_Manager_Debug.h"
 
 ///////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@
   #include <EthernetWebServer.h>
 #elif USE_QN_ETHERNET
   #include <QNEthernetClient.h>
-  #include <EthernetWebServer.h>  
+  #include <EthernetWebServer.h>
 #elif ETHERNET_USE_WT32_ETH01
   #include <WebServer_WT32_ETH01.h>
 #else
@@ -81,52 +81,52 @@
       || defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRNB1500) || defined(ARDUINO_SAMD_MKRVIDOR4000) || defined(__SAMD21G18A__) \
       || defined(ARDUINO_SAMD_CIRCUITPLAYGROUND_EXPRESS) || defined(__SAMD21E18A__) || defined(__SAMD51__) || defined(__SAMD51J20A__) || defined(__SAMD51J19A__) \
       || defined(__SAMD51G19A__) || defined(__SAMD51P19A__) || defined(__SAMD21G18A__) )
-  #if defined(ETHERNET_USE_SAMD)
-    #undef ETHERNET_USE_SAMD
-  #endif
-  #define ETHERNET_USE_SAMD      true
+#if defined(ETHERNET_USE_SAMD)
+  #undef ETHERNET_USE_SAMD
+#endif
+#define ETHERNET_USE_SAMD      true
 
 #elif ( defined(ARDUINO_SAM_DUE) || defined(__SAM3X8E__) )
-  #if defined(ETHERNET_USE_SAM_DUE)
-    #undef ETHERNET_USE_SAM_DUE
-  #endif
-  #define ETHERNET_USE_SAM_DUE      true
+#if defined(ETHERNET_USE_SAM_DUE)
+  #undef ETHERNET_USE_SAM_DUE
+#endif
+#define ETHERNET_USE_SAM_DUE      true
 
 #elif ( defined(CORE_TEENSY) && !( defined(__MKL26Z64__) || defined(__AVR_AT90USB1286__) || defined(__AVR_ATmega32U4__) ) )
-  #if defined(ETHERNET_USE_TEENSY)
-    #undef ETHERNET_USE_TEENSY
-  #endif
-  #define ETHERNET_USE_TEENSY         true
+#if defined(ETHERNET_USE_TEENSY)
+  #undef ETHERNET_USE_TEENSY
+#endif
+#define ETHERNET_USE_TEENSY         true
 
 #elif ( defined(ESP8266) )
-  // For ESP8266
-  #if defined(ETHERNET_USE_ESP8266)
-    #undef ETHERNET_USE_ESP8266
-  #endif
-  #define ETHERNET_USE_ESP8266         true
+// For ESP8266
+#if defined(ETHERNET_USE_ESP8266)
+  #undef ETHERNET_USE_ESP8266
+#endif
+#define ETHERNET_USE_ESP8266         true
 
 #elif ( defined(ESP32) )
-  // For ESP32
-  #if defined(ETHERNET_USE_ESP32)
-    #undef ETHERNET_USE_ESP32
-  #endif
-  #define ETHERNET_USE_ESP32         true
-  
+// For ESP32
+#if defined(ETHERNET_USE_ESP32)
+  #undef ETHERNET_USE_ESP32
+#endif
+#define ETHERNET_USE_ESP32         true
+
 #elif ( defined(NRF52840_FEATHER) || defined(NRF52832_FEATHER) || defined(NRF52_SERIES) || defined(ARDUINO_NRF52_ADAFRUIT) || \
         defined(NRF52840_FEATHER_SENSE) || defined(NRF52840_ITSYBITSY) || defined(NRF52840_CIRCUITPLAY) || defined(NRF52840_CLUE) || \
         defined(NRF52840_METRO) || defined(NRF52840_PCA10056) || defined(PARTICLE_XENON) || defined(NINA_B302_ublox) || defined(NINA_B112_ublox) )
-  #if defined(ETHERNET_USE_NRF528XX)
-    #undef ETHERNET_USE_NRF528XX
-  #endif
-  #define ETHERNET_USE_NRF528XX         true
+#if defined(ETHERNET_USE_NRF528XX)
+  #undef ETHERNET_USE_NRF528XX
+#endif
+#define ETHERNET_USE_NRF528XX         true
 
 #elif ( defined(NANO_RP2040_CONNECT)    || defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_RASPBERRY_PI_PICO) || \
-        defined(ARDUINO_GENERIC_RP2040) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) ) 
-  #if defined(ETHERNET_USE_RPIPICO)
-    #undef ETHERNET_USE_RPIPICO
-  #endif
-  #define ETHERNET_USE_RPIPICO      true
-  
+        defined(ARDUINO_GENERIC_RP2040) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) )
+#if defined(ETHERNET_USE_RPIPICO)
+  #undef ETHERNET_USE_RPIPICO
+#endif
+#define ETHERNET_USE_RPIPICO      true
+
 #endif
 
 ///////////////////////////////////////////////////////////////
@@ -140,9 +140,9 @@
     #include <Adapters/Ethernet_Teensy_Manager.h>
   #elif USE_QN_ETHERNET
     #include <Adapters/QNEthernet_Teensy_Manager.h>
-  #endif  
+  #endif
 #elif ETHERNET_USE_WT32_ETH01
-  #include <Adapters/Ethernet_WT32_ETH01_Manager.h>  
+  #include <Adapters/Ethernet_WT32_ETH01_Manager.h>
 #elif (ETHERNET_USE_ESP32)
   #include <Adapters/Ethernet_ESP32_Manager.h>
 #elif (ETHERNET_USE_ESP8266)
@@ -150,7 +150,7 @@
 #elif (ETHERNET_USE_NRF528XX)
   #include <Adapters/Ethernet_NRF52_Manager.h>
 #elif (ETHERNET_USE_RPIPICO)  && !defined(ARDUINO_ARCH_MBED)
-  #include <Adapters/Ethernet_RP2040_Manager.h>  
+  #include <Adapters/Ethernet_RP2040_Manager.h>
 #elif (ETHERNET_USE_RPIPICO)  && defined(ARDUINO_ARCH_MBED)
   #include <Adapters/Ethernet_MBED_RP2040_Manager.h>
 #else

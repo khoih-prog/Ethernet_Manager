@@ -55,7 +55,7 @@
       #define EEPROM_SIZE    (2 * 1024)
     #endif
   #endif
-  
+
   // EEPROM_START + CONFIG_DATA_SIZE must be <= EEPROM_SIZE
   #define EEPROM_START   0
 #endif

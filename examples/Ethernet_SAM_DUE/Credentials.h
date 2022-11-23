@@ -18,13 +18,13 @@
 /// Start Default Config Data //////////////////
 
 /*
-typedef struct Configuration
-{
+  typedef struct Configuration
+  {
   char header         [16];
   char static_IP      [16];
   char board_name     [24];
   int  checkSum;
-} Ethernet_Configuration;
+  } Ethernet_Configuration;
 */
 
 #define TO_LOAD_DEFAULT_CONFIG_DATA      false

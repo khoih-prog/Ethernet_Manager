@@ -15,16 +15,16 @@
 
 #if ( defined(NANO_RP2040_CONNECT)    || defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_RASPBERRY_PI_PICO) || \
       defined(ARDUINO_GENERIC_RP2040) || defined(ARDUINO_ADAFRUIT_FEATHER_RP2040) )
-  // For RPI Pico
-  #if defined(ETHERNET_USE_RPIPICO)
-    #undef ETHERNET_USE_RPIPICO
-  #endif
-  #define ETHERNET_USE_RPIPICO         true
-  #define USE_DYNAMIC_PARAMETERS        true
-  
-  #warning Use RPI-Pico RP2040 architecture
+// For RPI Pico
+#if defined(ETHERNET_USE_RPIPICO)
+  #undef ETHERNET_USE_RPIPICO
+#endif
+#define ETHERNET_USE_RPIPICO         true
+#define USE_DYNAMIC_PARAMETERS        true
+
+#warning Use RPI-Pico RP2040 architecture
 #else
-  #error This code is designed to run on RP2040 platform! Please check your Tools->Board setting.
+#error This code is designed to run on RP2040 platform! Please check your Tools->Board setting.
 #endif
 
 /* Comment this out to disable prints and save space */
@@ -40,14 +40,14 @@
 #if defined(ARDUINO_ARCH_MBED)
   // For RPI Pico using Arduino Mbed RP2040 core
   // SCK: GPIO2,  MOSI: GPIO3, MISO: GPIO4, SS/CS: GPIO5
-  
+
   #define USE_THIS_SS_PIN       17
 
   #if defined(BOARD_NAME)
     #undef BOARD_NAME
   #endif
 
-  #if defined(ARDUINO_RASPBERRY_PI_PICO) 
+  #if defined(ARDUINO_RASPBERRY_PI_PICO)
     #define BOARD_TYPE      "MBED RASPBERRY_PI_PICO"
   #elif defined(ARDUINO_ADAFRUIT_FEATHER_RP2040)
     #define BOARD_TYPE      "MBED DAFRUIT_FEATHER_RP2040"
@@ -56,11 +56,11 @@
   #else
     #define BOARD_TYPE      "MBED Unknown RP2040"
   #endif
-  
+
 #else
 
   #define USING_SPI2          false     //true
-  
+
   // For RPI Pico using E. Philhower RP2040 core
   #if (USING_SPI2)
     // SCK: GPIO14,  MOSI: GPIO15, MISO: GPIO12, SS/CS: GPIO13 for SPI1
@@ -71,7 +71,7 @@
   #endif
 
 #endif
- 
+
 #define SS_PIN_DEFAULT        USE_THIS_SS_PIN
 
 #ifndef BOARD_NAME
@@ -92,14 +92,14 @@
   // You can define here or customize for each board at same place with BOARD_TYPE
   // Check @ defined(SEEED_XIAO_M0)
   //#define USE_THIS_SS_PIN   22  //21  //5 //4 //2 //15
-  
+
   // Only one if the following to be true
   #define USE_ETHERNET_GENERIC  true
   #define USE_ETHERNET_ENC      false
   #define USE_CUSTOM_ETHERNET   false
-  
+
   ////////////////////////////
-  
+
   #if ( USE_ETHERNET_GENERIC || USE_ETHERNET_ENC )
     #ifdef USE_CUSTOM_ETHERNET
       #undef USE_CUSTOM_ETHERNET
@@ -113,12 +113,12 @@
       #define SHIELD_TYPE           "W5x00 using Ethernet_Generic Library on SPI1"
     #else
       #define SHIELD_TYPE           "W5x00 using Ethernet_Generic Library on SPI0/SPI"
-    #endif 
+    #endif
 
     #define ETHERNET_LARGE_BUFFERS
 
     #define _ETG_LOGLEVEL_                      1
-    
+
     #include "Ethernet_Generic.h"
     #warning Using Ethernet_Generic lib
 
@@ -140,17 +140,17 @@
     #warning Using default Ethernet_Generic lib
     #define SHIELD_TYPE           "W5x00 using default Ethernet_Generic Library"
   #endif
-  
+
   // Ethernet_Shield_W5200, EtherCard, EtherSia not supported
   // Select just 1 of the following #include if uncomment #define USE_CUSTOM_ETHERNET
   // Otherwise, standard Ethernet library will be used for W5x00
-  
+
   ////////////////////////////
-  
+
 #elif USE_UIP_ETHERNET
-    #include "UIPEthernet.h"
-    #warning Using UIPEthernet library
-    #define SHIELD_TYPE           "ENC28J60 using UIPEthernet Library"
+  #include "UIPEthernet.h"
+  #warning Using UIPEthernet library
+  #define SHIELD_TYPE           "ENC28J60 using UIPEthernet Library"
 #endif      // #if !USE_UIP_ETHERNET
 
 /////////////////////////////////////////////
