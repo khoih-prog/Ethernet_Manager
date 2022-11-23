@@ -753,33 +753,38 @@ To know the default CS/SS pins of not listed boards, check the related `variant.
 
 For **Arduino SAM DUE**, use the SPI's pins as follows:
 
-  - SS/CS     = 10
-  - SPI_MOSI  = 75 ( pin 4 @ [ICSP connector](pics/ICSP_connector.jpg) )
-  - SPI_MISO  = 74 ( pin 1 @ [ICSP connector](pics/ICSP_connector.jpg) )
-  - SPI_SCK   = 76 ( pin 3 @ [ICSP connector](pics/ICSP_connector.jpg) )
+```
+- SS/CS     = 10
+- SPI_MOSI  = 75 ( pin 4 @ [ICSP connector](pics/ICSP_connector.jpg) )
+- SPI_MISO  = 74 ( pin 1 @ [ICSP connector](pics/ICSP_connector.jpg) )
+- SPI_SCK   = 76 ( pin 3 @ [ICSP connector](pics/ICSP_connector.jpg) )
+```
   
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/ICSP_connector.jpg">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/raw/main/pics/ICSP_connector.jpg">
 </p>
   
 #### 5. Note for RP2040-based boards
 
 For **RP2040-based** boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico), use the SPI's pins as follows:
 
-  - SS/CS     = 17
-  - SPI_MOSI  = 19
-  - SPI_MISO  = 16
-  - SPI_SCK   = 18
+```
+- SS/CS     = 17
+- SPI_MOSI  = 19
+- SPI_MISO  = 16
+- SPI_SCK   = 18
+```
 
 #### 6. Note for MBED RP2040-based boards
 
 For **RP2040-based** boards, such as **Nano RP2040 Connect, RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino mbed OS for RP2040/Nano boards**](https://github.com/arduino/ArduinoCore-mbed), use the SPI's pins as follows:
 
-  - SS/CS     = 5
-  - SPI_MOSI  = 3
-  - SPI_MISO  = 4
-  - SPI_SCK   = 2
-  
+```
+- SS/CS     = 5
+- SPI_MOSI  = 3
+- SPI_MISO  = 4
+- SPI_SCK   = 2
+```
   
 #### 7. Note for MBED RP2040-based boards LittleFS usage
 
@@ -838,7 +843,6 @@ then select **one and only one** Ethernet library to use as follows:
 - Standard W5x00 Ethernet_Generic library is used by default, in the sketch, just be sure to comment out or leave these #defines to be false :
 
 ```cpp
-
 // Only one if the following to be true
 #define USE_UIP_ETHERNET          false
 #define USE_ETHERNET_PORTENTA_H7  false
@@ -1390,25 +1394,25 @@ Please be noted that the following **reserved names are already used in library*
 If no valid config data are stored in EEPROM, it will switch to `Configuration Mode`. Connect to access point at the IP address displayed on Terminal or Router's DHCP server as in the following picture:
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/ConfigPortal.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/raw/main/pics/ConfigPortal.png">
 </p>
 
 After you connected to, for example, `192.168.2.86`, the Browser will display the following picture:
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/ConfigPortal.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/raw/main/pics/ConfigPortal.png">
 </p>
 
 Enter your credentials (Blynk Servers/Tokens and Port). If you prefer static IP, input it (for example `192.168.2.220`) in the corresponding field. Otherwise, just leave it `blank` or `nothing` to use auto IP assigned by DHCP server.
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/ConfigPortal_Data.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/raw/main/pics/ConfigPortal_Data.png">
 </p>
 
 Then click `Save`. After the  board auto-restarted, you will see if it's connected to your Blynk server successfully as in  the following picture:
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/Saved.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/raw/main/pics/Saved.png">
 </p>
 
 This `ethernet_manager.run()` is not a blocking call, so you can use it for critical functions requiring in loop(). 
@@ -1900,7 +1904,7 @@ This is the terminal output of ESP8266_NODEMCU board with W5x00 using Ethernet_G
 If no valid config data are stored in EEPROM, it will switch to `Configuration Mode`. Connect to access point at the IP address displayed on Terminal or Router's DHCP server as in the following picture:
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/MQTT_ConfigPortal_blank.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/raw/main/pics/MQTT_ConfigPortal_blank.png">
 </p>
 
 
@@ -1949,7 +1953,7 @@ Saving config file OK
 Enter your credentials (Blynk Servers/Tokens and Port). If you prefer static IP, input it (for example `192.168.2.220`) in the corresponding field. Otherwise, just leave it `blank` or `nothing` to use auto IP assigned by DHCP server.
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/Ethernet_Manager/blob/main/pics/MQTT_ConfigPortal_ESP8266.png">
+    <img src="https://github.com/khoih-prog/Ethernet_Manager/raw/main/pics/MQTT_ConfigPortal_ESP8266.png">
 </p>
 
 ```cpp
